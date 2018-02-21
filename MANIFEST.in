@@ -1,0 +1,5 @@
+graft doc
+graft tpg
+global-exclude *.pyc
+include LICENSE.txt
+include CHANGELOG.md

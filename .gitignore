@@ -1,0 +1,7 @@
+MANIFEST
+/dist
+*.pyc
+/build/
+/setup.cfg
+doc/~thumbnails.zip
+/lib/taurus.egg-info
