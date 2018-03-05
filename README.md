@@ -1,6 +1,6 @@
 # taurus_pyqtgraph
 
-`taurus_pyqtgraph` is an extension package for [Taurus] package. It
+`taurus_pyqtgraph` is an extension package for the [Taurus] package. It
 adds the `taurus.qt.qtgui.tpg` submodule which provides [pyqtgraph]-based 
 widgets.
 
