@@ -3,10 +3,21 @@
 `taurus_pyqtgraph` is an extension package for the [Taurus] package. It
 adds the `taurus.qt.qtgui.tpg` submodule which provides [pyqtgraph]-based 
 widgets.
+The rationale behind taurus_pyqtgraph is described in the [TEP17](https://github.com/taurus-org/taurus/pull/452)
+
+## Install
+Just install this module e.g.:
+
+- download source and run `pip install <path_to_downloaded_source>`
+
+or directly:
+- `pip install git+https://github.com/taurus-org/taurus_pyqtgraph.git`
+
+After successful installation, the module will be accessible as `taurus.qt.qtgui.tpg`.
 
 ## Features implementation checklist
 
-The following list is borrowed from the TEP17 draft. I will put here only the features that are marked to be part of the initial implementation (marked with "*" in the TEP17 document). In this task list we check the tasks for which there is already a prototype ready:
+This is a list of planned / done features. The tasks which are checked are those for which there is already an alpha-quality prototype:
 
 ### For 1D plots
 
@@ -106,8 +117,6 @@ Outside TEP17 scope:
 ### In general:
 - [ ] Document all public API
 - [ ] Make all code pep8-clean
-
-Outside TEP17 scope:
 
 
 [Taurus]: http://taurus-scada.org
