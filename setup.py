@@ -26,7 +26,7 @@
 from setuptools import setup, find_packages
 
 # Do not modify the __version manually. To be modified by bumpversion
-__version = 0.1.0-alpha
+__version = '0.1.0-alpha'
 
 description = 'Taurus extension providing pyqtgraph-based widgets'
 
@@ -55,8 +55,8 @@ install_requires = [
 ]
 
 entry_points = {
-    'taurus.qt.qtgui': 'tpg = taurus_pyqtgraph'
-},
+    'taurus.qt.qtgui': ['tpg = taurus_pyqtgraph',],
+}
 
 classifiers = [
     'Development Status :: 3 - Alpha',
