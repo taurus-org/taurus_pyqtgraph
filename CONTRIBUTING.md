@@ -1,29 +1,24 @@
 # Guidelines for Contributing to taurus_pyqtgraph
 
-The taurus_pyqtgraph repository uses nvie's branching model, 
-known as [GitFlow][].
+The taurus_pyqtgraph repository uses the [GithubFlow][] branching 
+model (i.e. features are developed on individual feature branches 
+and they are eventually merged into the master branch, which is 
+considered always "deployable".
 
-In this model, there are two long-lived branches:
-
-- `master`: used for official releases. **Contributors should 
-  not need to use it or care about it**
-- `develop`: reflects the latest integrated changes for the next 
-  release. This is the one that should be used as the base for 
-  developing new features or fixing bugs. 
 
 For the contributions, we use the [Fork & Pull Model][]:
 
 1. the contributor first [forks][] the official repository
 2. the contributor commits changes to a branch based on the 
-   `develop` branch and pushes it to the forked repository.
-3. the contributor creates a [Pull Request][] against the `develop` 
+   `master` branch and pushes it to the forked repository.
+3. the contributor creates a [Pull Request][] against the `master` 
    branch of the official repository.
 4. anybody interested may review and comment on the Pull Request, and 
    suggest changes to it (even doing Pull Requests against the Pull
    Request branch). At this point more changes can be committed on the 
    requestor's branch until the result is satisfactory.
 5. once the proposed code is considered ready by an appointed taurus 
-   integrator, the integrator merges the pull request into `develop`.
+   integrator, the integrator merges the pull request into `master`.
    
    
 ## Important considerations:
@@ -46,11 +41,10 @@ In general, the contributions to should consider following:
    
 ## Notes:
   
-- These contribution guidelines are very similar but not identical to 
-  those for the [GithubFlow][] workflow. Basically, most of what the 
-  GitHubFlow recommends can be applied for taurus_pyqtgrph except that the 
-  role of the `master` branch in GithubFlow is done by `develop` in our 
-  case. 
+- This workflow is slightly different to the one used for the main
+  taurus repo, (which uses [gitflow][]), but the contribution guidelines
+  are very similar. Basically, the role of the `develop` branch in the 
+  taurus repo is done by the `master` branch in this repo.
   
 - If the contributor wants to explicitly bring the attention of some 
   specific person to the review process, [mentions][] can be used
