@@ -22,6 +22,7 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
+
 __all__ = ["TaurusTrend"]
 
 import copy
@@ -30,6 +31,7 @@ from curvespropertiestool import CurvesPropertiesTool
 from dateaxisitem import DateAxisItem
 from legendtool import PlotLegendTool
 from forcedreadtool import ForcedReadTool
+from datainspectortool import DataInspectorTool
 from taurus.core.util.containers import LoopList
 from taurus.external.qt import QtGui, Qt
 from taurus.qt.qtgui.base import TaurusBaseComponent
@@ -109,6 +111,10 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
         # add plot configuration dialog
         cprop_tool = CurvesPropertiesTool(self)
         cprop_tool.attachToPlotItem(plot_item, y2=self._y2)
+
+        # add data inspector widget
+        datainspector = DataInspectorTool(self)
+        datainspector.attachToPlotItem(self.getPlotItem(), y2=self._y2)
 
         # add force read tool
         fr_tool = ForcedReadTool(self)
@@ -249,8 +255,6 @@ def TaurusTrendMain():
     w.setWindowTitle(options.window_name)
 
     # options.config_file = 'tmp/TaurusTrend.pck'
-
-
 
     if options.demo:
         args.extend(['eval:rand()', 'eval:1+rand(2)'])
