@@ -41,16 +41,16 @@ class DataInspectorTool(QtGui.QWidgetAction):
     def _onTriggered(self):
 
         if not self.enable:
-            self.data_inspector = DataInspectorModel(self.plot_item)
+            self.dataInspector = DataInspectorModel(self.plot_item)
             # SingalProxy which connect the movement of the mouse with the mosueMove method in the data inspector object
             self.proxy = SignalProxy(self.plot_item.scene().sigMouseMoved,
                                      rateLimit=60,
-                                     slot=self.data_inspector.mouseMoved)
+                                     slot=self.dataInspector.mouseMoved)
             self.enable = True
 
         else:
             self.proxy.disconnect()
-            self.data_inspector = None
+            self.dataInspector = None
             self.enable = False
 
 
