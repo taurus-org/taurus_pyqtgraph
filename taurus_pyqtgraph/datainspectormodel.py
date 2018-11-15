@@ -76,7 +76,7 @@ class DataInspectorModel(object):
                         if self.scatter[i].points().size == 0:
                             # create the custom style of the point if point style (symbol and size) not exist
                             curve.setSymbol('o')
-                            curve.setSymbolSize(0)
+                            curve.setSymbolSize(10)
                             self.custom_point_style_init = True
 
                         self.paintCloud(point_x, point_y, i)
