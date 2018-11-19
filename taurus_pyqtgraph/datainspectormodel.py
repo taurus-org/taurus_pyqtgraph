@@ -73,7 +73,7 @@ class DataInspectorModel(object):
                         self.informationClouds[i].setParentItem(self.plot.curves[i])
 
                         self.scatter[i] = curve.scatter
-                        if self.scatter[i].points().size == 0:
+                        if curve.opts['symbol'] is None:
                             # create the custom style of the point if point style (symbol and size) not exist
                             curve.setSymbol('o')
                             curve.setSymbolSize(10)
