@@ -26,6 +26,8 @@ class DataInspectorModel(object):
         self.cloudStyle = "background-color: #35393C;"
         self.custom_point_style_init = False
 
+        self.date_format = "%Y-%m-%d %H:%M:%S"
+
         self.v_line = InfiniteLine(angle=90, movable=False)
         self.plot.addItem(self.v_line, ignoreBounds=True)
 
@@ -78,7 +80,9 @@ class DataInspectorModel(object):
                         # Create the TextItem object for current curve and init
                         # the point style
                         self.informationClouds[i] = TextItem()
-                        self.informationClouds[i].setParentItem(self.plot.curves[i])
+
+                        parent = self.plot.curves[i]
+                        self.informationClouds[i].setParentItem(parent)
 
                         self.scatter[i] = curve.scatter
                         if curve.opts['symbol'] is None:
@@ -159,7 +163,7 @@ class DataInspectorModel(object):
 
         :param timestamp: selected timestamp from curve
         """
-        return datetime.utcfromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+        return datetime.utcfromtimestamp(timestamp).strftime(self.date_format)
 
     def reset_custom_style(self):
         """
