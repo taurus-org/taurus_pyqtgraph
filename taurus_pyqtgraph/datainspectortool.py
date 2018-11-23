@@ -1,11 +1,12 @@
 from taurus.external.qt import QtGui
 
 from pyqtgraph import SignalProxy
+from taurus.qt.qtcore.configuration import BaseConfigurableClass
 
 from datainspectormodel import DataInspectorModel
 
 
-class DataInspectorTool(QtGui.QWidgetAction):
+class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
     """
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
     to which it is attached to show a :class:'QtGui.QCheckBox' which is use to
