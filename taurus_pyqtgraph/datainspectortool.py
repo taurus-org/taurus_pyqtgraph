@@ -8,7 +8,8 @@ from datainspectormodel import DataInspectorModel
 class DataInspectorTool(QtGui.QWidgetAction):
     """
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
-    to which it is attached to show a :class:'QtGui.QCheckBox' which is use to enable the datainspector mode.
+    to which it is attached to show a :class:'QtGui.QCheckBox' which is use to
+    enable the datainspector mode.
     It is implemented as an Action, and provides a method to attach it to a
     PlotItem.
     """
@@ -42,7 +43,8 @@ class DataInspectorTool(QtGui.QWidgetAction):
 
         if not self.enable:
             self.dataInspector = DataInspectorModel(self.plot_item)
-            # SingalProxy which connect the movement of the mouse with the mosueMove method in the data inspector object
+            # Signal Proxy which connect the movement of the mouse with
+            # the mosueMove method in the data inspector object
             self.proxy = SignalProxy(self.plot_item.scene().sigMouseMoved,
                                      rateLimit=60,
                                      slot=self.dataInspector.mouseMoved)
