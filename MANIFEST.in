@@ -1,5 +1,5 @@
 graft doc
-graft tpg
+graft taurus_pyqtgraph
 global-exclude *.pyc
 include LICENSE.txt
 include CHANGELOG.md
