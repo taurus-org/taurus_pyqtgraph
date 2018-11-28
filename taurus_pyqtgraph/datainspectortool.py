@@ -19,7 +19,7 @@ class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
         QtGui.QWidgetAction.__init__(self, parent)
         self._cb = QtGui.QCheckBox()
         self._cb.setText('Data Inspector')
-        self._cb.toggled.connect(self._onTriggered)
+        self._cb.toggled.connect(self._onToggled)
         self.setDefaultWidget(self._cb)
 
         self.plot_item = None
