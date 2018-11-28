@@ -17,32 +17,32 @@ class DataInspectorModel(object):
     """
     def __init__(self, trigger_point_size=20, default_point_size=10):
 
-        self.scatter = {}
-        self.informationClouds = {}
+        self._scatter = {}
+        self._information_clouds = {}
         # Maybe good idea is give user's access
         # to they have possibility to change the cloud style?
-        self.cloudStyle = "background-color: #35393C;"
-        self.custom_point_style_init = {}
+        self.cloud_style = "background-color: #35393C;"
+        self._custom_point_style_init = {}
 
         self.date_format = "%Y-%m-%d %H:%M:%S"
 
         self.trigger_point_size = trigger_point_size
         self.default_point_size = default_point_size
 
-        self.v_line = InfiniteLine(angle=90, movable=False)
+        self._v_line = InfiniteLine(angle=90, movable=False)
         self.plot = None
 
     def attachPlot(self, plot):
         self.plot = plot
-        self.plot.addItem(self.v_line, ignoreBounds=True)
+        self.plot.addItem(self._v_line, ignoreBounds=True)
 
     def detachPlot(self):
         self.detach()
         # Reset the dynamic creating the variables for future use the
         # attachToPlot method
-        self.custom_point_style_init = {}
-        self.scatter = {}
-        self.informationClouds = {}
+        self._custom_point_style_init = {}
+        self._scatter = {}
+        self._information_clouds = {}
 
     def __del__(self):
         """
@@ -63,7 +63,7 @@ class DataInspectorModel(object):
             mousePoint = self.plot.vb.mapSceneToView(pos)
 
             # Move InfiniteLine to the new position
-            self.v_line.setPos(mousePoint.x())
+            self._v_line.setPos(mousePoint.x())
 
             # Iteration over each curves in the plot and checking
             # that mouse point if is near the x axis date
@@ -76,7 +76,7 @@ class DataInspectorModel(object):
 
                 # Getting the nearest point in the x axis
                 # (if exist - empty array if not)
-                point_index = self.getPointIndex(curve_x_data, mousePoint.x())
+                point_index = self._getPointIndex(curve_x_data, mousePoint.x())
                 if len(point_index) > 0:
 
                     point_x = curve_x_data[point_index][0]
@@ -85,41 +85,41 @@ class DataInspectorModel(object):
                         # Painting the cloud with the values of
                         # the selected data and blink the point base
                         # on the i values which is the index of current curve
-                        self.paintCloud(point_x, point_y, i)
-                        self.triggerPoint(curve, point_index, i)
+                        self._paintCloud(point_x, point_y, i)
+                        self._triggerPoint(curve, point_index, i)
 
                     except KeyError:
 
                         # Create the TextItem object for current curve and init
                         # the point style
-                        self.informationClouds[i] = TextItem()
+                        self._information_clouds[i] = TextItem()
 
                         parent = self.plot.curves[i]
-                        self.informationClouds[i].setParentItem(parent)
+                        self._information_clouds[i].setParentItem(parent)
 
-                        self.scatter[i] = curve.scatter
+                        self._scatter[i] = curve.scatter
                         if curve.opts['symbol'] is None:
                             # create the custom style of the point
                             # if point style (symbol and size) not exist
                             curve.setSymbol('o')
                             curve.setSymbolSize(self.default_point_size)
-                            self.custom_point_style_init[i] = True
+                            self._custom_point_style_init[i] = True
                         else:
-                            self.custom_point_style_init[i] = False
+                            self._custom_point_style_init[i] = False
 
-                        self.paintCloud(point_x, point_y, i)
-                        self.triggerPoint(curve, point_index, i)
+                        self._paintCloud(point_x, point_y, i)
+                        self._triggerPoint(curve, point_index, i)
 
                 else:
                     try:
                         # Clean the information cloud
                         # when the line isn't near any plot point
-                        self.informationClouds[i].setText("")
+                        self._information_clouds[i].setText("")
                         curve.updateItems()
                     except KeyError:
                         pass
 
-    def paintCloud(self, x, y, i):
+    def _paintCloud(self, x, y, i):
         """
         Method use to painting the cloud with the data
 
@@ -127,15 +127,15 @@ class DataInspectorModel(object):
         :param y: the new y position of the picked point
         :param i: the index of current curve
         """
-        self.informationClouds[i].setPos(x, y)
-        self.informationClouds[i].setHtml("<div style='%s'> "
-                                           "<span>x=%s "
-                                           "<span>y=%0.1f</span> "
-                                           "</div>" % (self.cloudStyle,
-                                                       self.timestampToTime(x),
-                                                       y))
+        self._information_clouds[i].setPos(x, y)
+        self._information_clouds[i].setHtml("<div style='%s'> "
+                                            "<span>x=%s "
+                                            "<span>y=%0.1f</span> "
+                                            "</div>" % (self.cloud_style,
+                                                        self._timestampToTime(x),
+                                                        y))
 
-    def triggerPoint(self, curve, point_index, i):
+    def _triggerPoint(self, curve, point_index, i):
         """
         Method use to trigger the point
 
@@ -146,7 +146,7 @@ class DataInspectorModel(object):
 
         # Update itemas to make sure the older point is not still trigger
         curve.updateItems()
-        scatterPoint = self.scatter[i].points()[point_index[0]]
+        scatterPoint = self._scatter[i].points()[point_index[0]]
         scatterPoint.setSize(self.trigger_point_size)
 
     def detach(self):
@@ -154,13 +154,13 @@ class DataInspectorModel(object):
         Removing the :class:`pyqtgraph.InfiniteLine` and
         :class:`pyqtgraph.TextItem` from the plot
         """
-        self.reset_custom_style()
-        self.plot.scene().removeItem(self.v_line)
-        for cloud in self.informationClouds.values():
+        self._reset_custom_style()
+        self.plot.scene().removeItem(self._v_line)
+        for cloud in self._information_clouds.values():
             self.plot.scene().removeItem(cloud)
 
     @staticmethod
-    def getPointIndex(np_curve_data, mouse_point):
+    def _getPointIndex(np_curve_data, mouse_point):
         """
         Helper method used to checking if the current mouse point coordinates
         are near the any point's in the curve
@@ -171,7 +171,7 @@ class DataInspectorModel(object):
         point_picker = PointPicker(np_curve_data)
         return point_picker.checkPoint(mouse_point)
 
-    def timestampToTime(self, timestamp):
+    def _timestampToTime(self, timestamp):
         """
         Method used to caste the timestamp from the curve to date
         in proper format (%Y-%m-%d %H:%M:%S)
@@ -180,7 +180,7 @@ class DataInspectorModel(object):
         """
         return datetime.utcfromtimestamp(timestamp).strftime(self.date_format)
 
-    def reset_custom_style(self):
+    def _reset_custom_style(self):
         """
         If Date Inspector created the custom style this method reset the style
         during the disable process.
@@ -188,8 +188,8 @@ class DataInspectorModel(object):
         for i, curve in enumerate(filter(lambda o: not isinstance(o, TaurusTrendSet),
                                          self.plot.curves)):
 
-            if i in range(0, len(self.custom_point_style_init.keys())):
-                if self.custom_point_style_init[i]:
+            if i in range(0, len(self._custom_point_style_init.keys())):
+                if self._custom_point_style_init[i]:
                     curve.setSymbolSize(0)
                     curve.setSymbol(None)
 
