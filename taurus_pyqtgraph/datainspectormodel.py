@@ -24,7 +24,7 @@ class DataInspectorModel(object):
         # Maybe good idea is give user's access
         # to they have possibility to change the cloud style?
         self.cloudStyle = "background-color: #35393C;"
-        self.custom_point_style_init = False
+        self.custom_point_style_init = {}
 
         self.date_format = "%Y-%m-%d %H:%M:%S"
 
@@ -93,7 +93,9 @@ class DataInspectorModel(object):
                             # if point style (symbol and size) not exist
                             curve.setSymbol('o')
                             curve.setSymbolSize(self.default_point_size)
-                            self.custom_point_style_init = True
+                            self.custom_point_style_init[i] = True
+                        else:
+                            self.custom_point_style_init[i] = False
 
                         self.paintCloud(point_x, point_y, i)
                         self.triggerPoint(curve, point_index, i)
@@ -175,9 +177,11 @@ class DataInspectorModel(object):
         """
         for i, curve in enumerate(filter(lambda o: not isinstance(o, TaurusTrendSet),
                                          self.plot.curves)):
-            if self.custom_point_style_init:
-                curve.setSymbolSize(0)
-                curve.setSymbol(None)
+
+            if i in range(0, len(self.custom_point_style_init.keys())):
+                if self.custom_point_style_init[i]:
+                    curve.setSymbolSize(0)
+                    curve.setSymbol(None)
 
 
 class PointPicker(np.ndarray):
