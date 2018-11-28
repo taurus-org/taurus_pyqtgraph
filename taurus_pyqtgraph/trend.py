@@ -114,7 +114,7 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
 
         # add data inspector widget
         datainspector = DataInspectorTool(self)
-        datainspector.attachToPlotItem(self.getPlotItem(), y2=self._y2)
+        datainspector.attachToPlotItem(self.getPlotItem())
 
         # add force read tool
         fr_tool = ForcedReadTool(self)
