@@ -15,9 +15,7 @@ class DataInspectorModel(object):
         - :class:`pyqtgraph.TextItem` - to showing the x,y value
     Also this class blink the selected scatter point item.
     """
-    def __init__(self, plot, trigger_point_size=20, default_point_size=10):
-
-        self.plot = plot
+    def __init__(self, trigger_point_size=20, default_point_size=10):
 
         self.scatter = {}
         self.informationClouds = {}
@@ -32,7 +30,19 @@ class DataInspectorModel(object):
         self.default_point_size = default_point_size
 
         self.v_line = InfiniteLine(angle=90, movable=False)
+        self.plot = None
+
+    def attachPlot(self, plot):
+        self.plot = plot
         self.plot.addItem(self.v_line, ignoreBounds=True)
+
+    def detachPlot(self):
+        self.detach()
+        # Reset the dynamic creating the variables for future use the
+        # attachToPlot method
+        self.custom_point_style_init = {}
+        self.scatter = {}
+        self.informationClouds = {}
 
     def __del__(self):
         """
