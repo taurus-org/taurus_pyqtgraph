@@ -38,7 +38,7 @@ class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
         menu = plot_item.getViewBox().menu
         menu.addAction(self)
 
-    def _onTriggered(self):
+    def _onToggled(self):
 
         if not self.enable:
             self.dataInspector = DataInspectorModel(self.plot_item)
