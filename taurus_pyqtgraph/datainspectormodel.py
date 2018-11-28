@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from pyqtgraph import TextItem, InfiniteLine
+from pyqtgraph import TextItem, InfiniteLine, PlotDataItem
 import numpy as np
-from taurustrendset import TaurusTrendSet
 
 
 class DataInspectorModel(object):
@@ -67,7 +66,7 @@ class DataInspectorModel(object):
 
             # Iteration over each curves in the plot and checking
             # that mouse point if is near the x axis date
-            for i, curve in enumerate(filter(lambda o: not isinstance(o, TaurusTrendSet),
+            for i, curve in enumerate(filter(lambda o: isinstance(o, PlotDataItem),
                                              self.plot.curves)):
 
                 curve_data = curve.getData()
@@ -185,10 +184,9 @@ class DataInspectorModel(object):
         If Date Inspector created the custom style this method reset the style
         during the disable process.
         """
-        for i, curve in enumerate(filter(lambda o: not isinstance(o, TaurusTrendSet),
+        for i, curve in enumerate(filter(lambda o: isinstance(o, PlotDataItem),
                                          self.plot.curves)):
-
-            if i in range(0, len(self._custom_point_style_init.keys())):
+            if i in self._custom_point_style_init.keys():
                 if self._custom_point_style_init[i]:
                     curve.setSymbolSize(0)
                     curve.setSymbol(None)
