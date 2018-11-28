@@ -23,11 +23,10 @@ class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
         self.setDefaultWidget(self._cb)
 
         self.plot_item = None
-        self.Y2Axis = None
         self.enable = False
         self.data_inspector = None
 
-    def attachToPlotItem(self, plot_item, y2=None):
+    def attachToPlotItem(self, plot_item):
         """
         Use this method to add this tool to a plot
 
@@ -38,7 +37,6 @@ class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
         self.plot_item = plot_item
         menu = plot_item.getViewBox().menu
         menu.addAction(self)
-        self.Y2Axis = y2
 
     def _onTriggered(self):
 
