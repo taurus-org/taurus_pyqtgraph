@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from pyqtgraph import TextItem, InfiniteLine, PlotDataItem
+from dateaxisitem import DateAxisItem
+
 import numpy as np
 
 
@@ -127,12 +129,24 @@ class DataInspectorModel(object):
         :param i: the index of current curve
         """
         self._information_clouds[i].setPos(x, y)
+
+        # converting the x value to the time
+        # if the x axis is the DateAxisItem object
+        x = self._getXValue(x)
         self._information_clouds[i].setHtml("<div style='%s'> "
                                             "<span>x=%s "
                                             "<span>y=%0.1f</span> "
                                             "</div>" % (self.cloud_style,
-                                                        self._timestampToTime(x),
+                                                        x,
                                                         y))
+
+    def _getXValue(self, x):
+
+        x_axis = self.plot.getAxis("bottom")
+        if isinstance(x_axis, DateAxisItem):
+            return self._timestampToTime(x)
+        else:
+            return x
 
     def _triggerPoint(self, curve, point_index, i):
         """
