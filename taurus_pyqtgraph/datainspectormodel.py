@@ -154,7 +154,7 @@ class DataInspectorModel(object):
         Removing the :class:`pyqtgraph.InfiniteLine` and
         :class:`pyqtgraph.TextItem` from the plot
         """
-        self._reset_custom_style()
+        self._resetCustomStyle()
         self.plot.scene().removeItem(self._v_line)
         for cloud in self._information_clouds.values():
             self.plot.scene().removeItem(cloud)
@@ -180,7 +180,7 @@ class DataInspectorModel(object):
         """
         return datetime.utcfromtimestamp(timestamp).strftime(self.date_format)
 
-    def _reset_custom_style(self):
+    def _resetCustomStyle(self):
         """
         If Date Inspector created the custom style this method reset the style
         during the disable process.
