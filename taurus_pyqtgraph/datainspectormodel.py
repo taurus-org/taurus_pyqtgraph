@@ -15,7 +15,7 @@ class DataInspectorModel(object):
         - :class:`pyqtgraph.TextItem` - to showing the x,y value
     Also this class blink the selected scatter point item.
     """
-    def __init__(self, plot):
+    def __init__(self, plot, trigger_point_size=20, default_point_size=10):
 
         self.plot = plot
 
@@ -27,6 +27,9 @@ class DataInspectorModel(object):
         self.custom_point_style_init = False
 
         self.date_format = "%Y-%m-%d %H:%M:%S"
+
+        self.trigger_point_size = trigger_point_size
+        self.default_point_size = default_point_size
 
         self.v_line = InfiniteLine(angle=90, movable=False)
         self.plot.addItem(self.v_line, ignoreBounds=True)
@@ -89,7 +92,7 @@ class DataInspectorModel(object):
                             # create the custom style of the point
                             # if point style (symbol and size) not exist
                             curve.setSymbol('o')
-                            curve.setSymbolSize(10)
+                            curve.setSymbolSize(self.default_point_size)
                             self.custom_point_style_init = True
 
                         self.paintCloud(point_x, point_y, i)
@@ -132,7 +135,7 @@ class DataInspectorModel(object):
         # Update itemas to make sure the older point is not still trigger
         curve.updateItems()
         scatterPoint = self.scatter[i].points()[point_index[0]]
-        scatterPoint.setSize(20)
+        scatterPoint.setSize(self.trigger_point_size)
 
     def detach(self):
         """
