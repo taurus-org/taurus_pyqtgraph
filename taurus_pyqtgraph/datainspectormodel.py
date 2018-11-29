@@ -34,13 +34,22 @@ class DataInspectorModel(object):
         self.plot = None
 
     def attachPlot(self, plot):
+        """
+        Method to attach :class:`DataInspectorModel` to the plot
+
+        :param plot: to attach
+        """
         self.plot = plot
         self.plot.addItem(self._v_line, ignoreBounds=True)
 
     def detachPlot(self):
+        """
+        Method use to detach the class:`DataInspectorModel` from the plot
+        """
         self.detach()
-        # Reset the dynamic creating the variables for future use the
-        # attachToPlot method
+
+        # Reset the dynamic variables
+        # to allow use the attachToPlot method in the future
         self._custom_point_style_init = {}
         self._scatter = {}
         self._information_clouds = {}
@@ -141,6 +150,12 @@ class DataInspectorModel(object):
                                                         y))
 
     def _getXValue(self, x):
+        """
+        Helper method converting x value to time if necessary
+
+        :param x: current x value
+        :return: time or normal x value (depends of the x axis type)
+        """
 
         x_axis = self._getXAxis()
         if isinstance(x_axis, DateAxisItem):
@@ -149,6 +164,11 @@ class DataInspectorModel(object):
             return x
 
     def _getXAxis(self):
+        """
+        Helper method to access to x axis
+
+        :return: :class:`pyqtgraph.AxisItem'
+        """
         return self.plot.getAxis("bottom")
 
     def _triggerPoint(self, curve, point_index, i):
@@ -187,13 +207,21 @@ class DataInspectorModel(object):
         roi = self._calculateRoi(self.default_point_size)
         return point_picker.checkPoint(mouse_point, roi)
 
-    def _calculateRoi(self, point_size, widht=1080):
+    def _calculateRoi(self, point_size, width=1080):
+        """
+        Simply algorithm to calculating roi
+
+        :param point_size: current size of the point
+        :param width: default screen resolution
+        :return: roi : region of interest where checkPoint method
+                       will be searching the point
+        """
 
         x_axis = self._getXAxis()
         _min = x_axis.range[0]
         _max = x_axis.range[1]
 
-        pixel_size = (_max - _min) / widht
+        pixel_size = (_max - _min) / width
         roi = pixel_size * point_size
 
         return roi
