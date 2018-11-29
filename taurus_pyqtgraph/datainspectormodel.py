@@ -142,11 +142,14 @@ class DataInspectorModel(object):
 
     def _getXValue(self, x):
 
-        x_axis = self.plot.getAxis("bottom")
+        x_axis = self._getXAxis()
         if isinstance(x_axis, DateAxisItem):
             return self._timestampToTime(x)
         else:
             return x
+
+    def _getXAxis(self):
+        return self.plot.getAxis("bottom")
 
     def _triggerPoint(self, curve, point_index, i):
         """
@@ -172,8 +175,7 @@ class DataInspectorModel(object):
         for cloud in self._information_clouds.values():
             self.plot.scene().removeItem(cloud)
 
-    @staticmethod
-    def _getPointIndex(np_curve_data, mouse_point):
+    def _getPointIndex(self, np_curve_data, mouse_point):
         """
         Helper method used to checking if the current mouse point coordinates
         are near the any point's in the curve
@@ -182,7 +184,19 @@ class DataInspectorModel(object):
         :param mouse_point: the current coordinates of the mouse (x or y)
         """
         point_picker = PointPicker(np_curve_data)
-        return point_picker.checkPoint(mouse_point)
+        roi = self._calculateRoi(self.default_point_size)
+        return point_picker.checkPoint(mouse_point, roi)
+
+    def _calculateRoi(self, point_size, widht=1080):
+
+        x_axis = self._getXAxis()
+        _min = x_axis.range[0]
+        _max = x_axis.range[1]
+
+        pixel_size = (_max - _min) / widht
+        roi = pixel_size * point_size
+
+        return roi
 
     def _timestampToTime(self, timestamp):
         """
@@ -216,7 +230,7 @@ class PointPicker(np.ndarray):
     def __new__(cls, *args, **kwargs):
         return np.array(*args, **kwargs).view(PointPicker)
 
-    def checkPoint(self, point_to_check, roi=0.1):
+    def checkPoint(self, point_to_check, roi):
         """
         Method use to checking if current point is near the point
         in the array date
