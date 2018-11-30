@@ -54,12 +54,6 @@ class DataInspectorModel(object):
         self._scatter = {}
         self._information_clouds = {}
 
-    def __del__(self):
-        """
-        Destructor which removing all data inspector item's
-        """
-        self.detach()
-
     def mouseMoved(self, evt):
         """
         Slot use to handle the mouse move event, and preform the action
