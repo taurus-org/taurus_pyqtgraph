@@ -264,7 +264,7 @@ class PointPicker(np.ndarray):
         pick_point = self[(point_to_check - roi < self) &
                           (point_to_check + roi > self)]
         if pick_point.size > 1:
-            return self.checkPoint(point_to_check, roi-0.005)
+            return self.checkPoint(point_to_check, roi/2)
 
         index = np.where(self == pick_point)
         return index[0]
