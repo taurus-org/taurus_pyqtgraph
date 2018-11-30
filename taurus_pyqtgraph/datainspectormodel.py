@@ -180,7 +180,7 @@ class DataInspectorModel(object):
         :param i: the index of current curve
         """
 
-        # Update itemas to make sure the older point is not still trigger
+        # Update items to make sure the older point is not still trigger
         curve.updateItems()
         scatterPoint = self._scatter[i].points()[point_index[0]]
         scatterPoint.setSize(self.trigger_point_size)
@@ -263,7 +263,7 @@ class PointPicker(np.ndarray):
         Method use to checking if current point is near the point
         in the array date
 
-        :param point_to_check: the currect point x or y co-ordinates
+        :param point_to_check: the current point x or y co-ordinates
         :param roi: the tolerance limit
         :return: the index of the nearest point (empty array if not match)
         """
