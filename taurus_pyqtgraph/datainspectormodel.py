@@ -71,8 +71,7 @@ class DataInspectorModel(object):
 
             # Iteration over each curves in the plot and checking
             # that mouse point if is near the x axis date
-            for i, curve in enumerate(filter(lambda o: isinstance(o, PlotDataItem),
-                                             self.plot.curves)):
+            for i, curve in enumerate(self.plot.curves):
 
                 curve_data = curve.getData()
                 curve_x_data = curve_data[0]
@@ -234,8 +233,7 @@ class DataInspectorModel(object):
         If Date Inspector created the custom style this method reset the style
         during the disable process.
         """
-        for i, curve in enumerate(filter(lambda o: isinstance(o, PlotDataItem),
-                                         self.plot.curves)):
+        for i, curve in enumerate(self.plot.curves):
             if i in self._custom_point_style_init.keys():
                 if self._custom_point_style_init[i]:
                     curve.setSymbolSize(0)
