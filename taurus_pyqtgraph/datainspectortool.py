@@ -41,17 +41,17 @@ class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
     def _onToggled(self):
 
         if not self.enable:
-            self.data_inspector.attachPlot(self.plot_item)
+            self.data_inspector.attachToPlotItem(self.plot_item)
             # Signal Proxy which connect the movement of the mouse with
-            # the mosueMove method in the data inspector object
+            # the onMoved method in the data inspector object
             self.proxy = SignalProxy(self.plot_item.scene().sigMouseMoved,
                                      rateLimit=60,
-                                     slot=self.data_inspector.mouseMoved)
+                                     slot=self.data_inspector.onMoved)
             self.enable = True
 
         else:
             self.proxy.disconnect()
-            self.data_inspector.detachPlot()
+            self.data_inspector.dettach()
             self.enable = False
 
 
