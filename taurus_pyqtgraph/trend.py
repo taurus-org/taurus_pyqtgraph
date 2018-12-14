@@ -79,11 +79,11 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
 
         # add save & retrieve configuration actions
         saveConfigAction = QtGui.QAction('Save configuration', menu)
-        saveConfigAction.triggered[()].connect(self.saveConfigFile)
+        saveConfigAction.triggered.connect(self.saveConfigFile)
         menu.addAction(saveConfigAction)
 
         loadConfigAction = QtGui.QAction('Retrieve saved configuration', menu)
-        loadConfigAction.triggered[()].connect(self.loadConfigFile)
+        loadConfigAction.triggered.connect(self.loadConfigFile)
         menu.addAction(loadConfigAction)
 
         self.registerConfigProperty(self._getState,
