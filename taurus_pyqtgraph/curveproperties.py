@@ -31,6 +31,7 @@ like TaurusPlotDataItem
 .. warning:: this is Work-in-progress. The API from this module may still
              change. Please
 """
+from __future__ import absolute_import
 
 # TODO: WIP
 
@@ -42,7 +43,7 @@ import copy
 from taurus.external.qt import Qt
 from taurus.core.util.containers import CaselessDict
 from taurus.qt.qtgui.util.ui import UILoadable
-from y2axis import Y2ViewBox
+from .y2axis import Y2ViewBox
 import pyqtgraph
 
 

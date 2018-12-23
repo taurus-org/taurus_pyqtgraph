@@ -22,11 +22,12 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
+from __future__ import absolute_import
 __all__ = ["CurvesPropertiesTool"]
 
 from taurus.external.qt import QtGui, Qt
 from taurus.external.qt import QtCore
-from curveproperties import CurvePropAdapter, CurvesAppearanceChooser
+from .curveproperties import CurvePropAdapter, CurvesAppearanceChooser
 import pyqtgraph
 
 

@@ -22,16 +22,17 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
+from __future__ import absolute_import
 __all__ = ["TaurusPlot"]
 
 import copy
 from taurus.core.util.containers import LoopList
 from taurus.qt.qtgui.base import TaurusBaseComponent
-from curvespropertiestool import CurvesPropertiesTool
-from taurusmodelchoosertool import TaurusXYModelChooserTool
-from legendtool import PlotLegendTool
-from taurusplotdataitem import TaurusPlotDataItem
-from y2axis import Y2ViewBox
+from .curvespropertiestool import CurvesPropertiesTool
+from .taurusmodelchoosertool import TaurusXYModelChooserTool
+from .legendtool import PlotLegendTool
+from .taurusplotdataitem import TaurusPlotDataItem
+from .y2axis import Y2ViewBox
 
 from taurus.external.qt import QtGui, Qt
 from pyqtgraph import PlotWidget

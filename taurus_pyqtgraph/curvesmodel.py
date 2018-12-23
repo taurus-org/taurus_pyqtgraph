@@ -29,6 +29,7 @@ curvesmodel Model and view for new CurveItem configuration
 .. warning:: this is Work-in-progress. The API may change.
              Do not rely on current API of this module
 """
+from __future__ import print_function
 __all__ = ['TaurusCurveItemTableModel', 'TaurusItemConf', 'TaurusItemConfDlg']
 
 import copy
@@ -419,5 +420,5 @@ class TaurusItemConfDlg(Qt.QWidget):
 
     def onReload(self):
         # TODO
-        print "RELOAD!!! (todo)"
+        print("RELOAD!!! (todo)")
 

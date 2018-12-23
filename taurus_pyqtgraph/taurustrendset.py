@@ -22,6 +22,7 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
+from __future__ import absolute_import
 __all__ = ["TaurusTrendSet"]
 
 """This provides the pyqtgraph implementation of :class:`TaurusTrendSet`"""
@@ -34,7 +35,7 @@ from taurus.core.util.containers import ArrayBuffer, LoopList
 from taurus.external.qt import Qt
 from pyqtgraph import PlotDataItem
 
-from forcedreadtool import ForcedReadTool
+from .forcedreadtool import ForcedReadTool
 
 import taurus
 
