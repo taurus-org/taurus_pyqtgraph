@@ -24,6 +24,8 @@
 #############################################################################
 __all__ = ["TaurusPlot"]
 
+from future.utils import string_types
+
 import copy
 from taurus.core.util.containers import LoopList
 from taurus.qt.qtgui.base import TaurusBaseComponent
@@ -52,7 +54,7 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
     taurus-aware version of :class:`pyqtgraph.PlotWidget`.
 
     Apart from all the features already available in a regulat PlotWidget,
-    TaurusPGPlot incorporates the following tools/features:
+    TaurusPlot incorporates the following tools/features:
 
         - Secondary Y axis (right axis)
         - A plot configuration dialog, and save/restore configuration facilities
@@ -109,7 +111,14 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         """Set a list of models"""
         # TODO: remove previous models!
         # TODO: support setting xmodels as well
-        # TODO: Consider supporting a space-separated string as a model
+
+        if isinstance(models, string_types):
+            self.deprecated(
+                dep='calling tpg.TaurusPlot.setModel with a str as argument',
+                alt='an iterable of strings')
+            models = str(models).replace(',', ' ')
+            models = models.split()
+
         for model in models:
             curve = TaurusPlotDataItem(name=model)
             curve.setModel(model)
