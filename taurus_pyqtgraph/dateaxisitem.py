@@ -29,7 +29,7 @@ This module provides date-time aware axis
 from __future__ import division
 
 from builtins import range
-from past.utils import old_div
+
 __all__ = ["DateAxisItem"]
 
 # -------------------------------------------------------------------------
@@ -74,7 +74,7 @@ class DateAxisItem(AxisItem):
         rounding in a decimal base
         """
 
-        maxMajSteps = int(old_div(size,self._pxLabelWidth))
+        maxMajSteps = int(size/self._pxLabelWidth)
 
         dt1 = datetime.fromtimestamp(minVal)
         dt2 = datetime.fromtimestamp(maxVal)
@@ -145,7 +145,7 @@ class DateAxisItem(AxisItem):
 
         L = len(majticks)
         if L > maxMajSteps:
-            majticks = majticks[::int(numpy.ceil(old_div(float(L), maxMajSteps)))]
+            majticks = majticks[::int(numpy.ceil(float(L)/maxMajSteps))]
 
         # print("majticks <: ", majticks)
         # print "----------------------------"

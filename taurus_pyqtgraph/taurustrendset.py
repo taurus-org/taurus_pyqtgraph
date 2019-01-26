@@ -23,8 +23,7 @@
 ##
 #############################################################################
 from __future__ import absolute_import
-from builtins import zip
-from builtins import range
+
 __all__ = ["TaurusTrendSet"]
 
 """This provides the pyqtgraph implementation of :class:`TaurusTrendSet`"""

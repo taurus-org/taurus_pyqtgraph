@@ -23,7 +23,7 @@
 ##
 #############################################################################
 from __future__ import division
-from past.utils import old_div
+
 __all__ = ["TaurusPlotDataItem"]
 
 import copy
@@ -130,7 +130,7 @@ if __name__ == '__main__':
 
     # adding a regular data item (non-taurus)
     c1 = pg.PlotDataItem(name='st plot', pen='b', fillLevel=0, brush='c')
-    c1.setData(old_div(numpy.arange(300), 300.))
+    c1.setData(numpy.arange(300)/300.)
     w.addItem(c1)
 
     pen = pg.mkPen(color='r', style=4)

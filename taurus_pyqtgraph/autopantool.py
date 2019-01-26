@@ -24,7 +24,6 @@
 #############################################################################
 
 from __future__ import division
-from past.utils import old_div
 __all__ = ["XAutoPanTool"]
 
 from taurus.external.qt import QtGui, QtCore
@@ -74,7 +73,7 @@ class XAutoPanTool(QtGui.QAction):
             axisXrange = self._viewBox.state['viewRange'][0]
             x_range = axisXrange[1] - axisXrange[0]
 
-            t = int(old_div(x_range,10.))*1000
+            t = int(x_range/10.)*1000
             t = min(3000, t)
             t = max(50, t)
             self._timer.start(t)

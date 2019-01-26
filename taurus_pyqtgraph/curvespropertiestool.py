@@ -24,7 +24,7 @@
 #############################################################################
 from __future__ import absolute_import
 from __future__ import division
-from past.utils import old_div
+
 __all__ = ["CurvesPropertiesTool"]
 
 from taurus.external.qt import QtGui, Qt
@@ -124,7 +124,7 @@ if __name__ == '__main__':
         fillBrush='g'
         )
 
-    c1.setData(old_div(numpy.arange(300), 300.))
+    c1.setData(numpy.arange(300)/300.)
     w.addItem(c1)
 
     # adding a taurus data item
