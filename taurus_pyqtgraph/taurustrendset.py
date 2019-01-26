@@ -23,6 +23,8 @@
 ##
 #############################################################################
 from __future__ import absolute_import
+from builtins import zip
+from builtins import range
 __all__ = ["TaurusTrendSet"]
 
 """This provides the pyqtgraph implementation of :class:`TaurusTrendSet`"""
@@ -154,7 +156,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         base_name = (self.base_name()
                 or taurus.Attribute(self.getModel()).getSimpleName())
 
-        for i in xrange(ntrends):
+        for i in range(ntrends):
             subname = "%s[%i]" % (base_name, i)
             kw['name'] = subname
             curve = PlotDataItem(*a, **kw)

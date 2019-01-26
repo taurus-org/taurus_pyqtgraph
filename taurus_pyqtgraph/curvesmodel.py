@@ -30,6 +30,9 @@ curvesmodel Model and view for new CurveItem configuration
              Do not rely on current API of this module
 """
 from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
 __all__ = ['TaurusCurveItemTableModel', 'TaurusItemConf', 'TaurusItemConfDlg']
 
 import copy
@@ -45,7 +48,7 @@ from taurus.qt.qtgui.util.ui import UILoadable
 
 # columns:
 NUMCOLS = 3
-X, Y, TITLE = range(NUMCOLS)
+X, Y, TITLE = list(range(NUMCOLS))
 SRC_ROLE = Qt.Qt.UserRole + 1
 
 
