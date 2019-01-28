@@ -160,7 +160,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
             kw['name'] = subname
             curve = PlotDataItem(*a, **kw)
             if 'pen' not in kw:
-                curve.setPen(self._curveColors.next().color())
+                curve.setPen(next(self._curveColors).color())
             self._curves.append(curve)
         self._updateViewBox()
 
