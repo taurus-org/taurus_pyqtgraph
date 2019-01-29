@@ -36,7 +36,7 @@ from taurus.core.util.containers import ArrayBuffer, LoopList
 from taurus.external.qt import Qt
 from pyqtgraph import PlotDataItem
 
-from .forcedreadtool import ForcedReadTool
+from taurus_pyqtgraph.forcedreadtool import ForcedReadTool
 
 import taurus
 

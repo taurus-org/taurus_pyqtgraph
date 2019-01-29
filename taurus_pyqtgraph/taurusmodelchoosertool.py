@@ -32,9 +32,9 @@ __all__ = ["TaurusModelChooserTool", "TaurusImgModelChooserTool"]
 from taurus.external.qt import QtGui
 from taurus.core import TaurusElementType
 from taurus.qt.qtgui.panel import TaurusModelChooser
-from .taurusimageitem import TaurusImageItem
-from .taurusplotdataitem import TaurusPlotDataItem
-from .curvesmodel import TaurusItemConf, TaurusItemConfDlg
+from taurus_pyqtgraph.taurusimageitem import TaurusImageItem
+from taurus_pyqtgraph.taurusplotdataitem import TaurusPlotDataItem
+from taurus_pyqtgraph.curvesmodel import TaurusItemConf, TaurusItemConfDlg
 import taurus
 from collections import OrderedDict
 

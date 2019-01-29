@@ -29,7 +29,7 @@ __all__ = ["CurvesPropertiesTool"]
 
 from taurus.external.qt import QtGui, Qt
 from taurus.external.qt import QtCore
-from .curveproperties import CurvePropAdapter, CurvesAppearanceChooser
+from taurus_pyqtgraph.curveproperties import CurvePropAdapter, CurvesAppearanceChooser
 import pyqtgraph
 
 

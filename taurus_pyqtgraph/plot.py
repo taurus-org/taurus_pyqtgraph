@@ -28,11 +28,11 @@ __all__ = ["TaurusPlot"]
 import copy
 from taurus.core.util.containers import LoopList
 from taurus.qt.qtgui.base import TaurusBaseComponent
-from .curvespropertiestool import CurvesPropertiesTool
-from .taurusmodelchoosertool import TaurusXYModelChooserTool
-from .legendtool import PlotLegendTool
-from .taurusplotdataitem import TaurusPlotDataItem
-from .y2axis import Y2ViewBox
+from taurus_pyqtgraph.curvespropertiestool import CurvesPropertiesTool
+from taurus_pyqtgraph.taurusmodelchoosertool import TaurusXYModelChooserTool
+from taurus_pyqtgraph.legendtool import PlotLegendTool
+from taurus_pyqtgraph.taurusplotdataitem import TaurusPlotDataItem
+from taurus_pyqtgraph.y2axis import Y2ViewBox
 
 from taurus.external.qt import QtGui, Qt
 from pyqtgraph import PlotWidget

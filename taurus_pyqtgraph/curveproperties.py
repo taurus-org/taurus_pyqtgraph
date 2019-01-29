@@ -45,7 +45,7 @@ import copy
 from taurus.external.qt import Qt
 from taurus.core.util.containers import CaselessDict
 from taurus.qt.qtgui.util.ui import UILoadable
-from .y2axis import Y2ViewBox
+from taurus_pyqtgraph.y2axis import Y2ViewBox
 import pyqtgraph
 
 
