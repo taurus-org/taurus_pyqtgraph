@@ -31,7 +31,9 @@ curvesmodel Model and view for new CurveItem configuration
 """
 __all__ = ['TaurusCurveItemTableModel', 'TaurusItemConf', 'TaurusItemConfDlg']
 
+import sys
 import copy
+import pkg_resources
 
 from taurus.external.qt import Qt
 
@@ -343,6 +345,7 @@ class TaurusItemConfDlg(Qt.QWidget):
         try:  # TODO: Tango-centric!
             host = taurus.Factory('tango').getAuthority().getFullName()
             self.ui.tangoTree.setModel(host)
+            self.ui.tangoTree.addModels.connect(self.onModelsAdded)
         except Exception as e:
             taurus.info('Cannot populate Tango Tree: %r', e)
 
@@ -350,9 +353,29 @@ class TaurusItemConfDlg(Qt.QWidget):
         self.ui.applyBT.clicked.connect(self.onApply)
         self.ui.reloadBT.clicked.connect(self.onReload)
         self.ui.cancelBT.clicked.connect(self.close)
-        self.ui.tangoTree.addModels.connect(self.onModelsAdded)
         self.ui.curvesTable.customContextMenuRequested.connect(
             self.onTableContextMenu)
+
+        # ---------------------------------------------------------------------
+        # Note: this is an experimental feature
+        # It may be removed or changed in future releases
+        # Discover the taurus.modelselector plugins
+        
+        modelselector_ep = pkg_resources.iter_entry_points(
+            'taurus.modelselector')
+        modelselectors = []
+        modelselectors.extend([p.module_name for p in modelselector_ep])
+
+        for modelselector in modelselectors:
+            moduleName, conf_dict_name = modelselector.rsplit('.', 1)
+            __import__(moduleName)
+            module = sys.modules[moduleName]
+            conf_dict = getattr(module, conf_dict_name)
+            ms = conf_dict['klass']()
+            ms.setModel(conf_dict['model'])
+            self.ui.tabWidget.addTab(ms, conf_dict['name'])
+            ms.addModels.connect(self.onModelsAdded)
+        # ---------------------------------------------------------------------
 
     def onTableContextMenu(self, pos):
         index = self.ui.curvesTable.indexAt(pos)
