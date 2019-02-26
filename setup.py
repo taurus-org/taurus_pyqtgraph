@@ -49,7 +49,7 @@ platforms = ['Linux', 'Windows']
 keywords = ['Taurus', 'pyqtgraph', 'plugin', 'widgets']
 
 install_requires = [
-    'taurus>=4.3.0',
+    'taurus>=4.5.2',
     'taurus[taurus-qt]',
     'pyqtgraph',
 ]

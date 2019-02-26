@@ -31,7 +31,9 @@ curvesmodel Model and view for new CurveItem configuration
 """
 __all__ = ['TaurusCurveItemTableModel', 'TaurusItemConf', 'TaurusItemConfDlg']
 
+import sys
 import copy
+import pkg_resources
 
 from taurus.external.qt import Qt
 
@@ -40,7 +42,7 @@ from taurus.core import TaurusElementType
 from taurus.qt.qtcore.mimetypes import (TAURUS_MODEL_LIST_MIME_TYPE,
                                         TAURUS_ATTR_MIME_TYPE)
 from taurus.qt.qtgui.util.ui import UILoadable
-
+from taurus.qt.qtgui.panel import TaurusModelSelector
 
 # columns:
 NUMCOLS = 3
@@ -322,8 +324,6 @@ class TaurusItemConfDlg(Qt.QWidget):
                 TaurusItemConf(YModel=None, XModel=None, name=None)
             ]
 
-        self.ui.tangoTree.setButtonsPos(Qt.Qt.RightToolBarArea)
-
         # @todo: The action for this button is not yet implemented
         self.ui.reloadBT.setEnabled(False)
 
@@ -340,19 +340,16 @@ class TaurusItemConfDlg(Qt.QWidget):
         import taurus
         # -------------------------------------------------------------------
 
-        try:  # TODO: Tango-centric!
-            host = taurus.Factory('tango').getAuthority().getFullName()
-            self.ui.tangoTree.setModel(host)
-        except Exception as e:
-            taurus.info('Cannot populate Tango Tree: %r', e)
+        modelSelector = TaurusModelSelector(parent=self)
+        self.ui.verticalLayout.addWidget(modelSelector)
 
         # Connections
         self.ui.applyBT.clicked.connect(self.onApply)
         self.ui.reloadBT.clicked.connect(self.onReload)
         self.ui.cancelBT.clicked.connect(self.close)
-        self.ui.tangoTree.addModels.connect(self.onModelsAdded)
         self.ui.curvesTable.customContextMenuRequested.connect(
             self.onTableContextMenu)
+        modelSelector.modelsAdded.connect(self.onModelsAdded)
 
     def onTableContextMenu(self, pos):
         index = self.ui.curvesTable.indexAt(pos)
