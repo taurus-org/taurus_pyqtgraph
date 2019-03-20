@@ -29,7 +29,6 @@ Example on how to use a separate widget (LegendItem) for the legend of a plot.
 (Pure Qt)
 """
 
-from builtins import range
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 import sys

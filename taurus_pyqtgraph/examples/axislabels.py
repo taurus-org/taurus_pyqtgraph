@@ -31,7 +31,6 @@ of a given axis using AxisItem.setTicks().
 (Pure Qt)
 """
 
-from builtins import zip
 import sys
 from pyqtgraph.Qt import QtGui
 import pyqtgraph as pg
@@ -49,7 +48,6 @@ if __name__ == '__main__':
     xax = w.getAxis('bottom')
     xax.setTicks(ticks)
     w.plot(np.arange(9))
-
 
     w.show()
 
