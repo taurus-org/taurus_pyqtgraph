@@ -22,8 +22,6 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-from __future__ import absolute_import
-
 __all__ = ["TaurusTrendSet"]
 
 """This provides the pyqtgraph implementation of :class:`TaurusTrendSet`"""
@@ -36,7 +34,7 @@ from taurus.core.util.containers import ArrayBuffer, LoopList
 from taurus.external.qt import Qt
 from pyqtgraph import PlotDataItem
 
-from taurus_pyqtgraph.forcedreadtool import ForcedReadTool
+from forcedreadtool import ForcedReadTool
 
 import taurus
 
@@ -155,12 +153,12 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         base_name = (self.base_name()
                 or taurus.Attribute(self.getModel()).getSimpleName())
 
-        for i in range(ntrends):
+        for i in xrange(ntrends):
             subname = "%s[%i]" % (base_name, i)
             kw['name'] = subname
             curve = PlotDataItem(*a, **kw)
             if 'pen' not in kw:
-                curve.setPen(next(self._curveColors).color())
+                curve.setPen(self._curveColors.next().color())
             self._curves.append(curve)
         self._updateViewBox()
 

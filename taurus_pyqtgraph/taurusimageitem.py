@@ -44,7 +44,7 @@ class TaurusImageItem(ImageItem, TaurusBaseComponent):
         try:
             data = evt_val.rvalue
             self.setImage(data)
-        except Exception as e:
+        except Exception, e:
             self.warning('Exception in handleEvent: %s', e)
 
 

@@ -29,10 +29,6 @@ curvesmodel Model and view for new CurveItem configuration
 .. warning:: this is Work-in-progress. The API may change.
              Do not rely on current API of this module
 """
-from __future__ import print_function
-from builtins import bytes
-from builtins import range
-from builtins import object
 __all__ = ['TaurusCurveItemTableModel', 'TaurusItemConf', 'TaurusItemConfDlg']
 
 import sys
@@ -50,7 +46,7 @@ from taurus.qt.qtgui.panel import TaurusModelSelector
 
 # columns:
 NUMCOLS = 3
-X, Y, TITLE = list(range(NUMCOLS))
+X, Y, TITLE = range(NUMCOLS)
 SRC_ROLE = Qt.Qt.UserRole + 1
 
 
@@ -277,12 +273,11 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
             else:
                 column = parent.columnCount()
         if data.hasFormat(TAURUS_ATTR_MIME_TYPE):
-            model = bytes(data.data(TAURUS_ATTR_MIME_TYPE)).decode("utf-8")
-            self.setData(self.index(row, column), value=model)
+            self.setData(self.index(row, column),
+                         value=str(data.data(TAURUS_ATTR_MIME_TYPE)))
             return True
         elif data.hasFormat(TAURUS_MODEL_LIST_MIME_TYPE):
-            d = bytes(data.data(TAURUS_MODEL_LIST_MIME_TYPE))
-            models = d.decode("utf-8").split()
+            models = str(data.data(TAURUS_MODEL_LIST_MIME_TYPE)).split()
             if len(models) == 1:
                 self.setData(self.index(row, column),
                              value=models[0])
@@ -421,5 +416,5 @@ class TaurusItemConfDlg(Qt.QWidget):
 
     def onReload(self):
         # TODO
-        print("RELOAD!!! (todo)")
+        print "RELOAD!!! (todo)"
 

@@ -31,12 +31,9 @@ like TaurusPlotDataItem
 .. warning:: this is Work-in-progress. The API from this module may still
              change. Please
 """
-from __future__ import absolute_import
 
 # TODO: WIP
 
-from builtins import str
-from builtins import object
 __all__ = ["CurveAppearanceProperties", "CurvePropAdapter",
            "CurvesAppearanceChooser", "serialize_opts", "deserialize_opts"]
 
@@ -45,7 +42,7 @@ import copy
 from taurus.external.qt import Qt
 from taurus.core.util.containers import CaselessDict
 from taurus.qt.qtgui.util.ui import UILoadable
-from taurus_pyqtgraph.y2axis import Y2ViewBox
+from y2axis import Y2ViewBox
 import pyqtgraph
 
 
@@ -67,7 +64,7 @@ NamedLineStyles = {CONFLICT: "",
                    }
 
 ReverseNamedLineStyles = {}
-for k, v in NamedLineStyles.items():
+for k, v in NamedLineStyles.iteritems():
     ReverseNamedLineStyles[v] = k
 
 # TODO:allow the dialog to use this curve styles
@@ -81,7 +78,7 @@ NamedCurveStyles = {CONFLICT: "",
                     }
 
 ReverseNamedCurveStyles = {}
-for k, v in NamedCurveStyles.items():
+for k, v in NamedCurveStyles.iteritems():
     ReverseNamedCurveStyles[v] = k
 
 NamedSymbolStyles = {
@@ -101,7 +98,7 @@ NamedSymbolStyles = {
 }
 
 ReverseNamedSymbolStyles = {}
-for k, v in NamedSymbolStyles.items():
+for k, v in NamedSymbolStyles.iteritems():
     ReverseNamedSymbolStyles[v] = k
 
 NamedColors = ["Black", "Red", "Blue", "Magenta",
@@ -134,8 +131,8 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.loadUi()
         self.autoApply = autoApply
         self.sStyleCB.insertItems(0, sorted(NamedSymbolStyles.values()))
-        self.lStyleCB.insertItems(0, list(NamedLineStyles.values()))
-        self.cStyleCB.insertItems(0, list(NamedCurveStyles.values()))
+        self.lStyleCB.insertItems(0, NamedLineStyles.values())
+        self.cStyleCB.insertItems(0, NamedCurveStyles.values())
         self.sColorCB.addItem("")
         self.lColorCB.addItem("")
         if not showButtons:
@@ -218,7 +215,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self._curvePropDictOrig = copy.deepcopy(curvePropDict)
         self.curvesLW.clear()
         self.__itemsDict = CaselessDict()
-        for name, prop in self.curvePropDict.items():
+        for name, prop in self.curvePropDict.iteritems():
             # create and insert the item
             item = Qt.QListWidgetItem(prop.title, self.curvesLW)
             self.__itemsDict[name] = item
@@ -247,7 +244,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
         """
         if newTitlesDict is None:
             return
-        for name, title in newTitlesDict.items():
+        for name, title in newTitlesDict.iteritems():
             self.curvePropDict[name].title = title
             self.__itemsDict[name].setText(title)
 

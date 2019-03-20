@@ -22,22 +22,20 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-from __future__ import absolute_import
 __all__ = ["TaurusTrend"]
 
 import copy
 
+from curvespropertiestool import CurvesPropertiesTool
+from dateaxisitem import DateAxisItem
+from legendtool import PlotLegendTool
+from forcedreadtool import ForcedReadTool
 from taurus.core.util.containers import LoopList
 from taurus.external.qt import QtGui, Qt
 from taurus.qt.qtgui.base import TaurusBaseComponent
-
-from taurus_pyqtgraph.curvespropertiestool import CurvesPropertiesTool
-from taurus_pyqtgraph.dateaxisitem import DateAxisItem
-from taurus_pyqtgraph.legendtool import PlotLegendTool
-from taurus_pyqtgraph.forcedreadtool import ForcedReadTool
-from taurus_pyqtgraph.taurusmodelchoosertool import TaurusModelChooserTool
-from taurus_pyqtgraph.taurustrendset import TaurusTrendSet
-from taurus_pyqtgraph.y2axis import Y2ViewBox
+from taurusmodelchoosertool import TaurusModelChooserTool
+from taurustrendset import TaurusTrendSet
+from y2axis import Y2ViewBox
 from pyqtgraph import PlotWidget
 
 CURVE_COLORS = [Qt.QPen(Qt.Qt.red),

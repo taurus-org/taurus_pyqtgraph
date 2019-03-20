@@ -26,9 +26,6 @@
 """
 This module provides date-time aware axis
 """
-from __future__ import division
-
-from builtins import range
 
 __all__ = ["DateAxisItem"]
 
@@ -136,7 +133,7 @@ class DateAxisItem(AxisItem):
 
         elif dx > 2:  # 2s
             d = timedelta(seconds=1)
-            majticks = list(range(int(minVal), int(maxVal)))
+            majticks = range(int(minVal), int(maxVal))
 
         else:  # <2s , use standard implementation from parent
             return AxisItem.tickValues(self, minVal, maxVal, size)
@@ -145,7 +142,7 @@ class DateAxisItem(AxisItem):
 
         L = len(majticks)
         if L > maxMajSteps:
-            majticks = majticks[::int(numpy.ceil(float(L)/maxMajSteps))]
+            majticks = majticks[::int(numpy.ceil(float(L) / maxMajSteps))]
 
         # print("majticks <: ", majticks)
         # print "----------------------------"
