@@ -31,6 +31,7 @@ of a given axis using AxisItem.setTicks().
 (Pure Qt)
 """
 
+from builtins import zip
 import sys
 from pyqtgraph.Qt import QtGui
 import pyqtgraph as pg

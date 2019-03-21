@@ -23,6 +23,7 @@
 ##
 #############################################################################
 
+from __future__ import absolute_import
 from .y2axis import Y2ViewBox
 from .curvespropertiestool import CurvesPropertiesTool
 from .dateaxisitem import DateAxisItem
@@ -38,7 +39,7 @@ from .curvesmodel import TaurusItemConf, TaurusItemConfDlg
 from .taurusmodelchoosertool import (TaurusModelChooserTool,
                                      TaurusImgModelChooserTool,
                                      TaurusXYModelChooserTool)
-from curveproperties import (CurveAppearanceProperties,
+from .curveproperties import (CurveAppearanceProperties,
                              CurvePropAdapter,
                              CurvesAppearanceChooser,
                              serialize_opts,

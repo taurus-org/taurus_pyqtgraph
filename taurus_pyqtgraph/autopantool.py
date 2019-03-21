@@ -23,6 +23,7 @@
 ##
 #############################################################################
 
+from __future__ import division
 __all__ = ["XAutoPanTool"]
 
 from taurus.external.qt import QtGui, QtCore
