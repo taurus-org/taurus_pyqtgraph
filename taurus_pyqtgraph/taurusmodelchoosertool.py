@@ -23,10 +23,6 @@
 ##
 #############################################################################
 
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-
 __all__ = ["TaurusModelChooserTool", "TaurusImgModelChooserTool"]
 
 from taurus.external.qt import QtGui
@@ -102,7 +98,7 @@ class TaurusModelChooserTool(QtGui.QAction):
 
         # remove existing curves from plot (but not discarding the object)
         # so that they can be re-added later in the correct z-order
-        for k, v in list(currentModelItems.items()):
+        for k, v in currentModelItems.items():
             # v.getViewBox().removeItem(v)  # TODO : maybe this is needed forY2
             self.plot_item.removeItem(v)
             # -------------------------------------------------
@@ -115,7 +111,7 @@ class TaurusModelChooserTool(QtGui.QAction):
 
         # Add all curves (creating those that did not exist previously)
         # respecting the z-order
-        for modelName, model in list(models.items()):
+        for modelName, model in models.items():
             if modelName in currentModelNames:
                 item = currentModelItems[modelName]
                 self.plot_item.addItem(item)
@@ -176,7 +172,6 @@ class TaurusImgModelChooserTool(QtGui.QAction):
         res, ok = TaurusModelChooser.modelChooserDlg(
                     selectables=[TaurusElementType.Attribute],
                     singleModel=True, listedModels=listedModels)
-        print(ok)
         if ok:
             if res:
                 model = res[0]
@@ -239,8 +234,6 @@ class TaurusXYModelChooserTool(QtGui.QAction):
         conf, ok = TaurusItemConfDlg.showDlg(
             parent=self.parent(), taurusItemConf=taurusItems)
 
-        # print conf, ok
-
         if ok:
             yModels = OrderedDict()
             xModels = OrderedDict()
@@ -258,14 +251,14 @@ class TaurusXYModelChooserTool(QtGui.QAction):
                     from taurus import warning
                     warning(e)
 
-            for k, v in list(currentModelItems.items()):
+            for k, v in currentModelItems.items():
                 curve, parent = v
                 self.plot_item.removeItem(curve)
                 parent.removeItem(curve)
                 if self.legend is not None:
                     self.legend.removeItem(curve.name())
 
-            for modelName, model in list(yModels.items()):
+            for modelName, model in yModels.items():
                 # print modelName, model
                 if modelName in currentModelNames:
                     item, parent = currentModelItems[modelName]
@@ -313,7 +306,7 @@ def _demo_ModelChooser():
 
     # adding a regular data item (non-taurus)
     c1 = pg.PlotDataItem(name='st plot', pen='b', fillLevel=0, brush='c')
-    c1.setData(numpy.arange(300)/300.)
+    c1.setData(numpy.arange(300) / 300.)
     w.addItem(c1)
 
     # adding a taurus data item

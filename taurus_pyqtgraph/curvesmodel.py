@@ -31,8 +31,7 @@ curvesmodel Model and view for new CurveItem configuration
 """
 from __future__ import print_function
 from builtins import bytes
-from builtins import range
-from builtins import object
+
 __all__ = ['TaurusCurveItemTableModel', 'TaurusItemConf', 'TaurusItemConfDlg']
 
 import sys

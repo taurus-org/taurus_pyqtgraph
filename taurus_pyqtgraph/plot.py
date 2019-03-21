@@ -22,7 +22,7 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-from __future__ import absolute_import
+
 __all__ = ["TaurusPlot"]
 
 from future.utils import string_types

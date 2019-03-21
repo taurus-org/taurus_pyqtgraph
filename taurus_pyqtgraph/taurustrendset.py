@@ -22,8 +22,6 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-from __future__ import absolute_import
-
 __all__ = ["TaurusTrendSet"]
 
 """This provides the pyqtgraph implementation of :class:`TaurusTrendSet`"""
@@ -160,7 +158,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
             kw['name'] = subname
             curve = PlotDataItem(*a, **kw)
             if 'pen' not in kw:
-                curve.setPen(next(self._curveColors).color())
+                curve.setPen(self._curveColors.next().color())
             self._curves.append(curve)
         self._updateViewBox()
 
