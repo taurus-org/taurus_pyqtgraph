@@ -224,6 +224,26 @@ class TaurusXYModelChooserTool(QtGui.QAction):
         self.setParent(parentWidget or menu)
 
     def _onTriggered(self):
+        itemsconf = self.getTaurusPlotDataItemsConf()
+        conf, ok = TaurusItemConfDlg.showDlg(
+            parent=self.parent(), taurusItemConf=itemsconf)
+
+        if ok:
+            self.updatePlotItems(conf)
+
+    def getTaurusPlotDataItemsConf(self):
+        """Get all the TaurusItemConf of the existing TaurusPlotDataItems"""
+        items = []
+        for curve in self.plot_item.listDataItems():
+            if isinstance(curve, TaurusPlotDataItem):
+                xmodel, ymodel = curve.getFullModelNames()
+                items.append(TaurusItemConf(YModel=ymodel, XModel=xmodel,
+                                            name=curve.name()))
+        return items
+    def updatePlotItems(self, conf_items):
+        """
+        Update the current plot item list with the given configuration items
+        """
         currentModelItems = {}
         currentModelNames = []
         taurusItems = []
@@ -236,63 +256,54 @@ class TaurusXYModelChooserTool(QtGui.QAction):
                 taurusItems.append(TaurusItemConf(YModel=ymodel, XModel=xmodel,
                                                   name=curve.name()))
 
-        conf, ok = TaurusItemConfDlg.showDlg(
-            parent=self.parent(), taurusItemConf=taurusItems)
+        yModels = OrderedDict()
+        xModels = OrderedDict()
+        curve_name = OrderedDict()
+        for conf in conf_items:
+            try:
+                m = taurus.Attribute(conf.yModel)
+                n = conf.xModel
+                name = conf.curveLabel
+                yModels[n, m.getFullName()] = m
+                xModels[n, m.getFullName()] = n
+                curve_name[n, m.getFullName()] = name
+            except Exception as e:
+                from taurus import warning
+                warning(e)
+        for k, v in list(currentModelItems.items()):
+            curve, parent = v
+            self.plot_item.removeItem(curve)
+            parent.removeItem(curve)
+            if self.legend is not None:
+                self.legend.removeItem(curve.name())
+        for modelName, model in list(yModels.items()):
+            # print modelName, model
+            if modelName in currentModelNames:
+                item, parent = currentModelItems[modelName]
+                X = xModels[modelName]
+                c_name = curve_name[modelName]
+                item.opts['name'] = c_name
+                item.setXModel(X)
+                self.plot_item.addItem(item)
 
-        # print conf, ok
+                # checks if the viewBox associated to
+                # TaurusPlotDataItem(curve), it is the main view or not.
+                # If is the same, we dont have to addItem again in the
+                # parent (viewBox). This avoid duplicate objects in the
+                # ViewBox.scene() contained in PlotItem.
+                if parent is not self.plot_item.getViewBox():
+                    parent.addItem(item)
 
-        if ok:
-            yModels = OrderedDict()
-            xModels = OrderedDict()
-            curve_name = OrderedDict()
-            for c in conf:
-                try:
-                    # print c.yModel, type(c.yModel)
-                    m = taurus.Attribute(c.yModel)
-                    n = c.xModel
-                    name = c.curveLabel
-                    yModels[n, m.getFullName()] = m
-                    xModels[n, m.getFullName()] = n
-                    curve_name[n, m.getFullName()] = name
-                except Exception as e:
-                    from taurus import warning
-                    warning(e)
+            elif modelName not in currentModelNames:
+                x_model = xModels[modelName]
+                y_model = yModels[modelName]
+                c_name = curve_name[modelName]
+                item = TaurusPlotDataItem(
+                    xModel=x_model, yModel=y_model, name=c_name)
 
-            for k, v in list(currentModelItems.items()):
-                curve, parent = v
-                self.plot_item.removeItem(curve)
-                parent.removeItem(curve)
-                if self.legend is not None:
-                    self.legend.removeItem(curve.name())
-
-            for modelName, model in list(yModels.items()):
-                # print modelName, model
-                if modelName in currentModelNames:
-                    item, parent = currentModelItems[modelName]
-                    X = xModels[modelName]
-                    c_name = curve_name[modelName]
-                    item.opts['name'] = c_name
-                    item.setXModel(X)
-                    self.plot_item.addItem(item)
-
-                    # checks if the viewBox associated to
-                    # TaurusPlotDataItem(curve), it is the main view or not.
-                    # If is the same, we dont have to addItem again in the
-                    # parent (viewBox). This avoid duplicate objects in the
-                    # ViewBox.scene() contained in PlotItem.
-                    if parent is not self.plot_item.getViewBox():
-                        parent.addItem(item)
-
-                elif modelName not in currentModelNames:
-                    x_model = xModels[modelName]
-                    y_model = yModels[modelName]
-                    c_name = curve_name[modelName]
-                    item = TaurusPlotDataItem(
-                        xModel=x_model, yModel=y_model, name=c_name)
-
-                    if self._curveColors is not None:
-                        item.setPen(self._curveColors.next().color())
-                    self.plot_item.addItem(item)
+                if self._curveColors is not None:
+                    item.setPen(self._curveColors.next().color())
+                self.plot_item.addItem(item)
 
 
 def _demo_ModelChooser():
