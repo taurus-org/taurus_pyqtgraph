@@ -29,7 +29,7 @@ from __future__ import division
 
 __all__ = ["TaurusModelChooserTool", "TaurusImgModelChooserTool"]
 
-from taurus.external.qt import QtGui
+from taurus.external.qt import Qt, QtGui
 from taurus.core import TaurusElementType
 from taurus.qt.qtgui.panel import TaurusModelChooser
 from taurus_pyqtgraph.taurusimageitem import TaurusImageItem
@@ -37,6 +37,9 @@ from taurus_pyqtgraph.taurusplotdataitem import TaurusPlotDataItem
 from taurus_pyqtgraph.curvesmodel import TaurusItemConf, TaurusItemConfDlg
 import taurus
 from collections import OrderedDict
+from taurus.core.taurushelper import getValidatorFromName
+from taurus.qt.qtcore.mimetypes import (TAURUS_MODEL_LIST_MIME_TYPE,
+                                        TAURUS_ATTR_MIME_TYPE)
 
 
 class TaurusModelChooserTool(QtGui.QAction):
@@ -202,6 +205,10 @@ class TaurusXYModelChooserTool(QtGui.QAction):
         self.plot_item = None
         self.legend = None
         self._curveColors = None
+        self._parent = parent
+        if parent is not None:
+            # Filter drag and drop parent's event
+            parent.installEventFilter(self)
 
     def attachToPlotItem(self, plot_item,
                          parentWidget=None, curve_colors=None):
@@ -240,6 +247,46 @@ class TaurusXYModelChooserTool(QtGui.QAction):
                 items.append(TaurusItemConf(YModel=ymodel, XModel=xmodel,
                                             name=curve.name()))
         return items
+
+    def dropMimeData(self, data):
+        """Method to process the dropped MimeData"""
+        models = []
+        if data.hasFormat(TAURUS_ATTR_MIME_TYPE):
+            models.append(str(data.data(TAURUS_ATTR_MIME_TYPE)))
+
+        elif data.hasFormat(TAURUS_MODEL_LIST_MIME_TYPE):
+            models = str(data.data(TAURUS_MODEL_LIST_MIME_TYPE)).split()
+        elif data.hasText():
+            models.append(data.text())
+
+        if len(models) > 0:
+            conf_list = []
+            for model in models:
+                v = getValidatorFromName(model)
+                _, _, simple_name = v.getNames(model)
+                # TODO fill XModel maybe using validator?
+                conf_list.append(TaurusItemConf(YModel=model, XModel=None,
+                                                name=simple_name))
+            self.updatePlotItems(conf_list)
+            return True
+        return False
+
+    def eventFilter(self, source, event):
+        """
+        Reimplementation of eventFilter to delegate parent's drag and drop
+        events to TaurusXYModelChooserTool
+        """
+        if source is self._parent:
+            if event.type() == Qt.QEvent.DragEnter:
+                event.acceptProposedAction()
+                return True
+
+            if event.type() == Qt.QEvent.Drop:
+                event.acceptProposedAction()
+                return self.dropMimeData(event.mimeData())
+
+        return self._parent.eventFilter(source, event)
+
     def updatePlotItems(self, conf_items):
         """
         Update the current plot item list with the given configuration items
