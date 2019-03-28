@@ -293,15 +293,12 @@ class TaurusXYModelChooserTool(QtGui.QAction):
         """
         currentModelItems = {}
         currentModelNames = []
-        taurusItems = []
 
         for curve in self.plot_item.listDataItems():
             if isinstance(curve, TaurusPlotDataItem):
                 xmodel, ymodel = curve.getFullModelNames()
                 currentModelNames.append((xmodel, ymodel))
                 currentModelItems[(xmodel, ymodel)] = curve, curve.getViewBox()
-                taurusItems.append(TaurusItemConf(YModel=ymodel, XModel=xmodel,
-                                                  name=curve.name()))
 
         yModels = OrderedDict()
         xModels = OrderedDict()
@@ -317,12 +314,14 @@ class TaurusXYModelChooserTool(QtGui.QAction):
             except Exception as e:
                 from taurus import warning
                 warning(e)
+
         for k, v in list(currentModelItems.items()):
             curve, parent = v
             self.plot_item.removeItem(curve)
             parent.removeItem(curve)
             if self.legend is not None:
                 self.legend.removeItem(curve.name())
+
         for modelName, model in list(yModels.items()):
             # print modelName, model
             if modelName in currentModelNames:
