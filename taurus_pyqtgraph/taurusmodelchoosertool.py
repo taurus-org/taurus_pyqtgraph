@@ -206,9 +206,13 @@ class TaurusXYModelChooserTool(Qt.QAction):
         self.legend = None
         self._curveColors = None
         self._parent = parent
-        if parent is not None:
-            # Filter drag and drop parent's event
-            parent.installEventFilter(self)
+
+    def setParent(self, QObject):
+        """Reimplement setParent to add an event filter"""
+        Qt.QAction.setParent(self, QObject)
+        self._parent = QObject
+        if self._parent is not None:
+            self._parent.installEventFilter(self)
 
     def attachToPlotItem(self, plot_item,
                          parentWidget=None, curve_colors=None):
