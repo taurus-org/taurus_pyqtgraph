@@ -30,6 +30,7 @@ curvesmodel Model and view for new CurveItem configuration
              Do not rely on current API of this module
 """
 from __future__ import print_function
+from future.utils import string_types
 from builtins import bytes
 
 __all__ = ['TaurusCurveItemTableModel', 'TaurusItemConf', 'TaurusItemConfDlg']
@@ -379,8 +380,17 @@ class TaurusItemConfDlg(Qt.QWidget):
         rowcount = self.model.rowCount()
         self.model.insertRows(rowcount, nmodels)
         for i, m in enumerate(models):
+            if isinstance(m, string_types):
+                modelx, modely = None, m
+            else:
+                modelx, modely = m
+
+            if modelx is not None:
+                self.model.setData(self.model.index(
+                    rowcount + i, X), value=modelx)
+
             self.model.setData(self.model.index(
-                rowcount + i, Y), value=m)
+                rowcount + i, Y), value=modely)
             title = self.model.data(self.model.index(
                 rowcount + i, Y))  # the display data
 
