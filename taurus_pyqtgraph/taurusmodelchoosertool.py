@@ -264,7 +264,7 @@ class TaurusXYModelChooserTool(Qt.QAction):
             models.append(data.text())
 
         if len(models) > 0:
-            conf_list = []
+            conf_list = self.getTaurusPlotDataItemsConf()
             for model in models:
                 v = getValidatorFromName(model)
                 _, _, simple_name = v.getNames(model)
