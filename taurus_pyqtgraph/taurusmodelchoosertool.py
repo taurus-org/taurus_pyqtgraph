@@ -29,7 +29,7 @@ from __future__ import division
 
 __all__ = ["TaurusModelChooserTool", "TaurusImgModelChooserTool"]
 
-from taurus.external.qt import Qt, QtGui
+from taurus.external.qt import Qt
 from taurus.core import TaurusElementType
 from taurus.qt.qtgui.panel import TaurusModelChooser
 from taurus_pyqtgraph.taurusimageitem import TaurusImageItem
@@ -42,7 +42,7 @@ from taurus.qt.qtcore.mimetypes import (TAURUS_MODEL_LIST_MIME_TYPE,
                                         TAURUS_ATTR_MIME_TYPE)
 
 
-class TaurusModelChooserTool(QtGui.QAction):
+class TaurusModelChooserTool(Qt.QAction):
     """
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
     to which it is attached to show choosing taurus models to be shown.
@@ -50,7 +50,7 @@ class TaurusModelChooserTool(QtGui.QAction):
     PlotItem.
     """
     def __init__(self, parent=None, itemClass=None):
-        QtGui.QAction.__init__(self, 'Model chooser', parent)
+        Qt.QAction.__init__(self, 'Model chooser', parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.legend = None
@@ -132,7 +132,7 @@ class TaurusModelChooserTool(QtGui.QAction):
         # self.plot_item.enableAutoRange()  # TODO: Why? remove?
 
 
-class TaurusImgModelChooserTool(QtGui.QAction):
+class TaurusImgModelChooserTool(Qt.QAction):
     """
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
     to which it is attached for choosing a 2D taurus model to be shown.
@@ -143,7 +143,7 @@ class TaurusImgModelChooserTool(QtGui.QAction):
     # TODO: merge this with TaurusModelChooserTool (or use a common base)
 
     def __init__(self, parent=None):
-        QtGui.QAction.__init__(self, parent)
+        Qt.QAction.__init__(self, parent)
         self._plot_item = None
 
     def attachToPlotItem(self, plot_item):
@@ -155,7 +155,7 @@ class TaurusImgModelChooserTool(QtGui.QAction):
         self._plot_item = plot_item
         view = plot_item.getViewBox()
         menu = view.menu
-        model_chooser = QtGui.QAction('Model chooser', menu)
+        model_chooser = Qt.QAction('Model chooser', menu)
         model_chooser.triggered.connect(self._onTriggered)
         menu.addAction(model_chooser)
 
@@ -188,7 +188,7 @@ class TaurusImgModelChooserTool(QtGui.QAction):
             imageItem.setModel(model)
 
 
-class TaurusXYModelChooserTool(QtGui.QAction):
+class TaurusXYModelChooserTool(Qt.QAction):
     """
     (Work-in-Progress)
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
@@ -200,7 +200,7 @@ class TaurusXYModelChooserTool(QtGui.QAction):
 
     # TODO: This class is WIP.
     def __init__(self, parent=None):
-        QtGui.QAction.__init__(self, 'Model XY chooser', parent)
+        Qt.QAction.__init__(self, 'Model XY chooser', parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.legend = None
