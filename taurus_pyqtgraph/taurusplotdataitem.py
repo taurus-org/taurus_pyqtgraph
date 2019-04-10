@@ -88,7 +88,7 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
         try:
             self.setData(x=self._x, y=self._y)
         except Exception, e:
-            self.debug(repr(e))
+            self.debug('Could not set data. Reason: %r', e)
 
     def getOpts(self):
         from taurus.qt.qtgui.tpg import serialize_opts
