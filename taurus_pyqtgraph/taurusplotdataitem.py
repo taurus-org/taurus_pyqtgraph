@@ -85,7 +85,10 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
             self._y = evt_value.rvalue
         if self.xModel == evt_src and self.xModel is not None:
             self._x = evt_value.rvalue
-        self.setData(x=self._x, y=self._y)
+        try:
+            self.setData(x=self._x, y=self._y)
+        except Exception, e:
+            self.debug('Could not set data. Reason: %r', e)
 
     def getOpts(self):
         from taurus.qt.qtgui.tpg import serialize_opts
