@@ -297,20 +297,20 @@ class TaurusXYModelChooserTool(Qt.QAction):
                 currentModelNames.append((xmodel, ymodel))
                 currentModelItems[(xmodel, ymodel)] = curve, curve.getViewBox()
 
-            yModels = OrderedDict()
-            xModels = OrderedDict()
-            curve_name = OrderedDict()
+        yModels = OrderedDict()
+        xModels = OrderedDict()
+        curve_name = OrderedDict()
         for conf in conf_items:
-                try:
+            try:
                 m = taurus.Attribute(conf.yModel)
                 n = conf.xModel
                 name = conf.curveLabel
-                    yModels[n, m.getFullName()] = m
-                    xModels[n, m.getFullName()] = n
-                    curve_name[n, m.getFullName()] = name
-                except Exception as e:
-                    from taurus import warning
-                    warning(e)
+                yModels[n, m.getFullName()] = m
+                xModels[n, m.getFullName()] = n
+                curve_name[n, m.getFullName()] = name
+            except Exception as e:
+                from taurus import warning
+                warning(e)
 
             for k, v in currentModelItems.items():
                 curve, parent = v
