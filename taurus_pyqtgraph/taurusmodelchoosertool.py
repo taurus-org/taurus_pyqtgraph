@@ -25,7 +25,7 @@
 
 __all__ = ["TaurusModelChooserTool", "TaurusImgModelChooserTool"]
 
-from taurus.external.qt import QtGui
+from taurus.external.qt import Qt
 from taurus.core import TaurusElementType
 from taurus.qt.qtgui.panel import TaurusModelChooser
 from taurus_pyqtgraph.taurusimageitem import TaurusImageItem
@@ -33,9 +33,12 @@ from taurus_pyqtgraph.taurusplotdataitem import TaurusPlotDataItem
 from taurus_pyqtgraph.curvesmodel import TaurusItemConf, TaurusItemConfDlg
 import taurus
 from collections import OrderedDict
+from taurus.core.taurushelper import getValidatorFromName
+from taurus.qt.qtcore.mimetypes import (TAURUS_MODEL_LIST_MIME_TYPE,
+                                        TAURUS_ATTR_MIME_TYPE)
 
 
-class TaurusModelChooserTool(QtGui.QAction):
+class TaurusModelChooserTool(Qt.QAction):
     """
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
     to which it is attached to show choosing taurus models to be shown.
@@ -43,7 +46,7 @@ class TaurusModelChooserTool(QtGui.QAction):
     PlotItem.
     """
     def __init__(self, parent=None, itemClass=None):
-        QtGui.QAction.__init__(self, 'Model chooser', parent)
+        Qt.QAction.__init__(self, 'Model chooser', parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.legend = None
@@ -125,7 +128,7 @@ class TaurusModelChooserTool(QtGui.QAction):
         # self.plot_item.enableAutoRange()  # TODO: Why? remove?
 
 
-class TaurusImgModelChooserTool(QtGui.QAction):
+class TaurusImgModelChooserTool(Qt.QAction):
     """
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
     to which it is attached for choosing a 2D taurus model to be shown.
@@ -136,7 +139,7 @@ class TaurusImgModelChooserTool(QtGui.QAction):
     # TODO: merge this with TaurusModelChooserTool (or use a common base)
 
     def __init__(self, parent=None):
-        QtGui.QAction.__init__(self, parent)
+        Qt.QAction.__init__(self, parent)
         self._plot_item = None
 
     def attachToPlotItem(self, plot_item):
@@ -148,7 +151,7 @@ class TaurusImgModelChooserTool(QtGui.QAction):
         self._plot_item = plot_item
         view = plot_item.getViewBox()
         menu = view.menu
-        model_chooser = QtGui.QAction('Model chooser', menu)
+        model_chooser = Qt.QAction('Model chooser', menu)
         model_chooser.triggered.connect(self._onTriggered)
         menu.addAction(model_chooser)
 
@@ -180,7 +183,7 @@ class TaurusImgModelChooserTool(QtGui.QAction):
             imageItem.setModel(model)
 
 
-class TaurusXYModelChooserTool(QtGui.QAction):
+class TaurusXYModelChooserTool(Qt.QAction):
     """
     (Work-in-Progress)
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
@@ -192,11 +195,19 @@ class TaurusXYModelChooserTool(QtGui.QAction):
 
     # TODO: This class is WIP.
     def __init__(self, parent=None):
-        QtGui.QAction.__init__(self, 'Model XY chooser', parent)
+        Qt.QAction.__init__(self, 'Model XY chooser', parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.legend = None
         self._curveColors = None
+        self._parent = parent
+
+    def setParent(self, QObject):
+        """Reimplement setParent to add an event filter"""
+        Qt.QAction.setParent(self, QObject)
+        self._parent = QObject
+        if self._parent is not None:
+            self._parent.installEventFilter(self)
 
     def attachToPlotItem(self, plot_item,
                          parentWidget=None, curve_colors=None):
@@ -219,31 +230,83 @@ class TaurusXYModelChooserTool(QtGui.QAction):
         self.setParent(parentWidget or menu)
 
     def _onTriggered(self):
+        itemsconf = self.getTaurusPlotDataItemsConf()
+        conf, ok = TaurusItemConfDlg.showDlg(
+            parent=self.parent(), taurusItemConf=itemsconf)
+
+        if ok:
+            self.updatePlotItems(conf)
+
+    def getTaurusPlotDataItemsConf(self):
+        """Get all the TaurusItemConf of the existing TaurusPlotDataItems"""
+        items = []
+        for curve in self.plot_item.listDataItems():
+            if isinstance(curve, TaurusPlotDataItem):
+                xmodel, ymodel = curve.getFullModelNames()
+                items.append(TaurusItemConf(YModel=ymodel, XModel=xmodel,
+                                            name=curve.name()))
+        return items
+
+    def dropMimeData(self, data):
+        """Method to process the dropped MimeData"""
+        models = []
+        if data.hasFormat(TAURUS_ATTR_MIME_TYPE):
+            models.append(str(data.data(TAURUS_ATTR_MIME_TYPE)))
+
+        elif data.hasFormat(TAURUS_MODEL_LIST_MIME_TYPE):
+            models = str(data.data(TAURUS_MODEL_LIST_MIME_TYPE)).split()
+        elif data.hasText():
+            models.append(data.text())
+
+        if len(models) > 0:
+            conf_list = self.getTaurusPlotDataItemsConf()
+            for model in models:
+                v = getValidatorFromName(model)
+                _, _, simple_name = v.getNames(model)
+                # TODO fill XModel maybe using validator?
+                conf_list.append(TaurusItemConf(YModel=model, XModel=None,
+                                                name=simple_name))
+            self.updatePlotItems(conf_list)
+            return True
+        return False
+
+    def eventFilter(self, source, event):
+        """
+        Reimplementation of eventFilter to delegate parent's drag and drop
+        events to TaurusXYModelChooserTool
+        """
+        if source is self._parent:
+            if event.type() == Qt.QEvent.DragEnter:
+                event.acceptProposedAction()
+                return True
+
+            if event.type() == Qt.QEvent.Drop:
+                event.acceptProposedAction()
+                return self.dropMimeData(event.mimeData())
+
+        return self._parent.eventFilter(source, event)
+
+    def updatePlotItems(self, conf_items):
+        """
+        Update the current plot item list with the given configuration items
+        """
         currentModelItems = {}
         currentModelNames = []
-        taurusItems = []
 
         for curve in self.plot_item.listDataItems():
             if isinstance(curve, TaurusPlotDataItem):
                 xmodel, ymodel = curve.getFullModelNames()
                 currentModelNames.append((xmodel, ymodel))
                 currentModelItems[(xmodel, ymodel)] = curve, curve.getViewBox()
-                taurusItems.append(TaurusItemConf(YModel=ymodel, XModel=xmodel,
-                                                  name=curve.name()))
 
-        conf, ok = TaurusItemConfDlg.showDlg(
-            parent=self.parent(), taurusItemConf=taurusItems)
-
-        if ok:
             yModels = OrderedDict()
             xModels = OrderedDict()
             curve_name = OrderedDict()
-            for c in conf:
+        for conf in conf_items:
                 try:
-                    # print c.yModel, type(c.yModel)
-                    m = taurus.Attribute(c.yModel)
-                    n = c.xModel
-                    name = c.curveLabel
+                m = taurus.Attribute(conf.yModel)
+                n = conf.xModel
+                name = conf.curveLabel
                     yModels[n, m.getFullName()] = m
                     xModels[n, m.getFullName()] = n
                     curve_name[n, m.getFullName()] = name
@@ -306,7 +369,7 @@ def _demo_ModelChooser():
 
     # adding a regular data item (non-taurus)
     c1 = pg.PlotDataItem(name='st plot', pen='b', fillLevel=0, brush='c')
-    c1.setData(numpy.arange(300) / 300.)
+    c1.setData(numpy.arange(300)/300.)
     w.addItem(c1)
 
     # adding a taurus data item
