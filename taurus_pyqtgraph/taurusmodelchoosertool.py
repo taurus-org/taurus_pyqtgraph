@@ -200,14 +200,12 @@ class TaurusXYModelChooserTool(Qt.QAction):
         self.plot_item = None
         self.legend = None
         self._curveColors = None
-        self._parent = parent
 
-    def setParent(self, QObject):
+    def setParent(self, parent):
         """Reimplement setParent to add an event filter"""
-        Qt.QAction.setParent(self, QObject)
-        self._parent = QObject
-        if self._parent is not None:
-            self._parent.installEventFilter(self)
+        Qt.QAction.setParent(self, parent)
+        if parent is not None:
+            parent.installEventFilter(self)
 
     def attachToPlotItem(self, plot_item,
                          parentWidget=None, curve_colors=None):
@@ -275,7 +273,7 @@ class TaurusXYModelChooserTool(Qt.QAction):
         Reimplementation of eventFilter to delegate parent's drag and drop
         events to TaurusXYModelChooserTool
         """
-        if source is self._parent:
+        if source is self.parent():
             if event.type() == Qt.QEvent.DragEnter:
                 event.acceptProposedAction()
                 return True
@@ -284,7 +282,7 @@ class TaurusXYModelChooserTool(Qt.QAction):
                 event.acceptProposedAction()
                 return self.dropMimeData(event.mimeData())
 
-        return self._parent.eventFilter(source, event)
+        return self.parent().eventFilter(source, event)
 
     def updatePlotItems(self, conf_items):
         """
