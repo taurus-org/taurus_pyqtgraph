@@ -62,13 +62,14 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
                                     self.setXModel, 'XModel')
 
     def setXModel(self, xModel):
+        if self.xModel is not None:
+            self.xModel.removeListener(self)
+
         if not xModel:
-            if self.xModel is not None:
-                self.xModel.removeListener(self)
             self.xModel = None
             return
+
         self.xModel = Attribute(xModel)
-        self._x = self.xModel.read().rvalue
         self.xModel.addListener(self)
 
     def getXModelName(self):
