@@ -85,7 +85,7 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
             self._x = evt_value.rvalue
         try:
             self.setData(x=self._x, y=self._y)
-        except Exception, e:
+        except Exception as e:
             self.debug('Could not set data. Reason: %r', e)
 
     def getOpts(self):
