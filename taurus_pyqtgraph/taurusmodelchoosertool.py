@@ -367,7 +367,7 @@ def _demo_ModelChooser():
 
     # adding a regular data item (non-taurus)
     c1 = pg.PlotDataItem(name='st plot', pen='b', fillLevel=0, brush='c')
-    c1.setData(numpy.arange(300)/300.)
+    c1.setData(numpy.arange(300) / 300.)
     w.addItem(c1)
 
     # adding a taurus data item
