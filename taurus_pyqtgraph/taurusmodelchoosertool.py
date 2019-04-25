@@ -25,6 +25,8 @@
 
 __all__ = ["TaurusModelChooserTool", "TaurusImgModelChooserTool"]
 
+from builtins import bytes
+
 from taurus.external.qt import Qt
 from taurus.core import TaurusElementType
 from taurus.qt.qtgui.panel import TaurusModelChooser
@@ -249,10 +251,12 @@ class TaurusXYModelChooserTool(Qt.QAction):
         """Method to process the dropped MimeData"""
         models = []
         if data.hasFormat(TAURUS_ATTR_MIME_TYPE):
-            models.append(str(data.data(TAURUS_ATTR_MIME_TYPE)))
+            m = bytes(data.data(TAURUS_ATTR_MIME_TYPE)).decode("utf-8")
+            models.append(m)
 
         elif data.hasFormat(TAURUS_MODEL_LIST_MIME_TYPE):
-            models = str(data.data(TAURUS_MODEL_LIST_MIME_TYPE)).split()
+            models = bytes(data.data(TAURUS_MODEL_LIST_MIME_TYPE)
+                           ).decode("utf-8").split()
         elif data.hasText():
             models.append(data.text())
 
