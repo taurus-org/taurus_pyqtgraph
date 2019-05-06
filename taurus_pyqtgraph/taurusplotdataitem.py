@@ -60,13 +60,14 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
                                     self.setXModel, 'XModel')
 
     def setXModel(self, xModel):
+        if self.xModel is not None:
+            self.xModel.removeListener(self)
+
         if not xModel:
-            if self.xModel is not None:
-                self.xModel.removeListener(self)
             self.xModel = None
             return
+
         self.xModel = Attribute(xModel)
-        self._x = self.xModel.read().rvalue
         self.xModel.addListener(self)
 
     def getXModelName(self):
@@ -79,10 +80,16 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
         if evt_type not in (TaurusEventType.Change, TaurusEventType.Periodic):
             return
         yModel = self.getModelObj()
-        if yModel == evt_src and yModel is not None:
-            self._y = evt_value.rvalue
-        if self.xModel == evt_src and self.xModel is not None:
-            self._x = evt_value.rvalue
+        if yModel == evt_src:
+            if yModel is not None:
+                self._y = evt_value.rvalue
+            else:
+                self._y = None
+        if self.xModel == evt_src:
+            if self.xModel is not None:
+                self._x = evt_value.rvalue
+            else:
+                self._x = None
         try:
             self.setData(x=self._x, y=self._y)
         except Exception as e:
