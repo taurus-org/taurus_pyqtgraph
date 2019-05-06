@@ -110,7 +110,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
     def __init__(self, taurusItems=None):
         super(TaurusCurveItemTableModel, self).__init__()
         self.ncolumns = NUMCOLS
-        self.taurusItems = taurusItems
+        self.taurusItems = list(taurusItems)
 
     def dumpData(self):
         return copy.copy(self.taurusItems)
