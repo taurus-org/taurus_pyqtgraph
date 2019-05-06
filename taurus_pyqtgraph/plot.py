@@ -92,9 +92,11 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         legend_tool.attachToPlotItem(self.getPlotItem())
 
         # add model chooser
-        model_chooser_tool = TaurusXYModelChooserTool(self)
-        model_chooser_tool.attachToPlotItem(self.getPlotItem(), self,
-                                            self._curveColors)
+        # TODO: this is an *experimental* API added in v 0.3.1-alpha.
+        # `self.model_chooser_tool` may change or disappear in future versions
+        self.model_chooser_tool = TaurusXYModelChooserTool(self)
+        self.model_chooser_tool.attachToPlotItem(self.getPlotItem(), self,
+                                                 self._curveColors)
 
         # add Y2 axis
         self._y2 = Y2ViewBox()
