@@ -22,16 +22,19 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
+
 __all__ = ["TaurusPlot"]
+
+from future.utils import string_types
 
 import copy
 from taurus.core.util.containers import LoopList
 from taurus.qt.qtgui.base import TaurusBaseComponent
-from curvespropertiestool import CurvesPropertiesTool
-from taurusmodelchoosertool import TaurusXYModelChooserTool
-from legendtool import PlotLegendTool
-from taurusplotdataitem import TaurusPlotDataItem
-from y2axis import Y2ViewBox
+from taurus_pyqtgraph.curvespropertiestool import CurvesPropertiesTool
+from taurus_pyqtgraph.taurusmodelchoosertool import TaurusXYModelChooserTool
+from taurus_pyqtgraph.legendtool import PlotLegendTool
+from taurus_pyqtgraph.taurusplotdataitem import TaurusPlotDataItem
+from taurus_pyqtgraph.y2axis import Y2ViewBox
 
 from taurus.external.qt import QtGui, Qt
 from pyqtgraph import PlotWidget
@@ -52,7 +55,7 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
     taurus-aware version of :class:`pyqtgraph.PlotWidget`.
 
     Apart from all the features already available in a regulat PlotWidget,
-    TaurusPGPlot incorporates the following tools/features:
+    TaurusPlot incorporates the following tools/features:
 
         - Secondary Y axis (right axis)
         - A plot configuration dialog, and save/restore configuration facilities
@@ -74,11 +77,11 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         # add save & retrieve configuration actions
         menu = self.getPlotItem().getViewBox().menu
         saveConfigAction = QtGui.QAction('Save configuration', menu)
-        saveConfigAction.triggered[()].connect(self.saveConfigFile)
+        saveConfigAction.triggered.connect(self.saveConfigFile)
         menu.addAction(saveConfigAction)
 
         loadConfigAction = QtGui.QAction('Retrieve saved configuration', menu)
-        loadConfigAction.triggered[()].connect(self.loadConfigFile)
+        loadConfigAction.triggered.connect(self.loadConfigFile)
         menu.addAction(loadConfigAction)
 
         self.registerConfigProperty(self._getState,
@@ -89,9 +92,11 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         legend_tool.attachToPlotItem(self.getPlotItem())
 
         # add model chooser
-        model_chooser_tool = TaurusXYModelChooserTool(self)
-        model_chooser_tool.attachToPlotItem(self.getPlotItem(), self,
-                                            self._curveColors)
+        # TODO: this is an *experimental* API added in v 0.3.1-alpha.
+        # `self.model_chooser_tool` may change or disappear in future versions
+        self.model_chooser_tool = TaurusXYModelChooserTool(self)
+        self.model_chooser_tool.attachToPlotItem(self.getPlotItem(), self,
+                                                 self._curveColors)
 
         # add Y2 axis
         self._y2 = Y2ViewBox()
@@ -109,7 +114,14 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         """Set a list of models"""
         # TODO: remove previous models!
         # TODO: support setting xmodels as well
-        # TODO: Consider supporting a space-separated string as a model
+
+        if isinstance(models, string_types):
+            self.deprecated(
+                dep='calling tpg.TaurusPlot.setModel with a str as argument',
+                alt='an iterable of strings')
+            models = str(models).replace(',', ' ')
+            models = models.split()
+
         for model in models:
             curve = TaurusPlotDataItem(name=model)
             curve.setModel(model)

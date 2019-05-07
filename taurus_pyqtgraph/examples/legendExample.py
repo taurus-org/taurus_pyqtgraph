@@ -55,7 +55,7 @@ if __name__ == '__main__':
                   symbolBrush=0.5, name='red plot')
     c2 = plt.plot([2, 1, 4, 3], pen='g', fillLevel=0,
                   fillBrush=(255, 255, 255, 30), name='green plot')
-    c3 = plt.plot(range(7), pen='c', fillLevel=0)
+    c3 = plt.plot(list(range(7)), pen='c', fillLevel=0)
 
     # add the **named** curves to the legend
     for dataitem in plt.getPlotItem().listDataItems():

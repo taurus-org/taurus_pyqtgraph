@@ -71,7 +71,7 @@ class DateAxisItem(AxisItem):
         rounding in a decimal base
         """
 
-        maxMajSteps = int(size/self._pxLabelWidth)
+        maxMajSteps = int(size // self._pxLabelWidth)
 
         dt1 = datetime.fromtimestamp(minVal)
         dt2 = datetime.fromtimestamp(maxVal)
@@ -133,7 +133,7 @@ class DateAxisItem(AxisItem):
 
         elif dx > 2:  # 2s
             d = timedelta(seconds=1)
-            majticks = range(int(minVal), int(maxVal))
+            majticks = list(range(int(minVal), int(maxVal)))
 
         else:  # <2s , use standard implementation from parent
             return AxisItem.tickValues(self, minVal, maxVal, size)

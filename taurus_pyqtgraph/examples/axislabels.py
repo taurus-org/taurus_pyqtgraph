@@ -49,7 +49,6 @@ if __name__ == '__main__':
     xax.setTicks(ticks)
     w.plot(np.arange(9))
 
-
     w.show()
 
     sys.exit(app.exec_())

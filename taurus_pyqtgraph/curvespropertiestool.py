@@ -26,7 +26,8 @@ __all__ = ["CurvesPropertiesTool"]
 
 from taurus.external.qt import QtGui, Qt
 from taurus.external.qt import QtCore
-from curveproperties import CurvePropAdapter, CurvesAppearanceChooser
+from taurus_pyqtgraph.curveproperties import (CurvePropAdapter,
+                                              CurvesAppearanceChooser)
 import pyqtgraph
 
 
@@ -61,8 +62,8 @@ class CurvesPropertiesTool(QtGui.QAction):
         data_items = self.plot_item.listDataItems()
         # checks in all ViewBoxes from plot_item,
         # looking for a data_items (Curves).
-        items = self.plot_item.scene().items()
-        for item in items:
+
+        for item in self.plot_item.scene().items():
             if isinstance(item, pyqtgraph.ViewBox):
                 for data in item.addedItems:
                     if data not in data_items:

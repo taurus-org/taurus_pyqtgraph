@@ -29,9 +29,15 @@ curvesmodel Model and view for new CurveItem configuration
 .. warning:: this is Work-in-progress. The API may change.
              Do not rely on current API of this module
 """
+from __future__ import print_function
+from future.utils import string_types
+from builtins import bytes
+
 __all__ = ['TaurusCurveItemTableModel', 'TaurusItemConf', 'TaurusItemConfDlg']
 
+import sys
 import copy
+import pkg_resources
 
 from taurus.external.qt import Qt
 
@@ -40,11 +46,11 @@ from taurus.core import TaurusElementType
 from taurus.qt.qtcore.mimetypes import (TAURUS_MODEL_LIST_MIME_TYPE,
                                         TAURUS_ATTR_MIME_TYPE)
 from taurus.qt.qtgui.util.ui import UILoadable
-
+from taurus.qt.qtgui.panel import TaurusModelSelector
 
 # columns:
 NUMCOLS = 3
-X, Y, TITLE = range(NUMCOLS)
+X, Y, TITLE = list(range(NUMCOLS))
 SRC_ROLE = Qt.Qt.UserRole + 1
 
 
@@ -104,7 +110,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
     def __init__(self, taurusItems=None):
         super(TaurusCurveItemTableModel, self).__init__()
         self.ncolumns = NUMCOLS
-        self.taurusItems = taurusItems
+        self.taurusItems = list(taurusItems)
 
     def dumpData(self):
         return copy.copy(self.taurusItems)
@@ -243,12 +249,13 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
     def removeRows(self, position, rows=1, parentindex=None):
         if parentindex is None:
             parentindex = Qt.QModelIndex()
+        self.beginResetModel()
         self.beginRemoveRows(parentindex, position, position + rows - 1)
         self.taurusItems = (self.taurusItems[:position] +
                             self.taurusItems[position + rows:]
                             )
         self.endRemoveRows()
-        self.reset()
+        self.endResetModel()
         return True
 
     def clearAll(self):
@@ -271,11 +278,12 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
             else:
                 column = parent.columnCount()
         if data.hasFormat(TAURUS_ATTR_MIME_TYPE):
-            self.setData(self.index(row, column),
-                         value=str(data.data(TAURUS_ATTR_MIME_TYPE)))
+            model = bytes(data.data(TAURUS_ATTR_MIME_TYPE)).decode("utf-8")
+            self.setData(self.index(row, column), value=model)
             return True
         elif data.hasFormat(TAURUS_MODEL_LIST_MIME_TYPE):
-            models = str(data.data(TAURUS_MODEL_LIST_MIME_TYPE)).split()
+            d = bytes(data.data(TAURUS_MODEL_LIST_MIME_TYPE))
+            models = d.decode("utf-8").split()
             if len(models) == 1:
                 self.setData(self.index(row, column),
                              value=models[0])
@@ -322,8 +330,6 @@ class TaurusItemConfDlg(Qt.QWidget):
                 TaurusItemConf(YModel=None, XModel=None, name=None)
             ]
 
-        self.ui.tangoTree.setButtonsPos(Qt.Qt.RightToolBarArea)
-
         # @todo: The action for this button is not yet implemented
         self.ui.reloadBT.setEnabled(False)
 
@@ -340,19 +346,16 @@ class TaurusItemConfDlg(Qt.QWidget):
         import taurus
         # -------------------------------------------------------------------
 
-        try:  # TODO: Tango-centric!
-            host = taurus.Factory('tango').getAuthority().getFullName()
-            self.ui.tangoTree.setModel(host)
-        except Exception as e:
-            taurus.info('Cannot populate Tango Tree: %r', e)
+        modelSelector = TaurusModelSelector(parent=self)
+        self.ui.verticalLayout.addWidget(modelSelector)
 
         # Connections
         self.ui.applyBT.clicked.connect(self.onApply)
         self.ui.reloadBT.clicked.connect(self.onReload)
         self.ui.cancelBT.clicked.connect(self.close)
-        self.ui.tangoTree.addModels.connect(self.onModelsAdded)
         self.ui.curvesTable.customContextMenuRequested.connect(
             self.onTableContextMenu)
+        modelSelector.modelsAdded.connect(self.onModelsAdded)
 
     def onTableContextMenu(self, pos):
         index = self.ui.curvesTable.indexAt(pos)
@@ -377,8 +380,17 @@ class TaurusItemConfDlg(Qt.QWidget):
         rowcount = self.model.rowCount()
         self.model.insertRows(rowcount, nmodels)
         for i, m in enumerate(models):
+            if isinstance(m, string_types):
+                modelx, modely = None, m
+            else:
+                modelx, modely = m
+
+            if modelx is not None:
+                self.model.setData(self.model.index(
+                    rowcount + i, X), value=modelx)
+
             self.model.setData(self.model.index(
-                rowcount + i, Y), value=m)
+                rowcount + i, Y), value=modely)
             title = self.model.data(self.model.index(
                 rowcount + i, Y))  # the display data
 
@@ -419,5 +431,5 @@ class TaurusItemConfDlg(Qt.QWidget):
 
     def onReload(self):
         # TODO
-        print "RELOAD!!! (todo)"
+        print("RELOAD!!! (todo)")
 

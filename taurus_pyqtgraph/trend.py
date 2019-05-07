@@ -22,22 +22,22 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-
 __all__ = ["TaurusTrend"]
 
 import copy
 
-from curvespropertiestool import CurvesPropertiesTool
-from dateaxisitem import DateAxisItem
-from legendtool import PlotLegendTool
-from forcedreadtool import ForcedReadTool
-from datainspectortool import DataInspectorTool
 from taurus.core.util.containers import LoopList
 from taurus.external.qt import QtGui, Qt
 from taurus.qt.qtgui.base import TaurusBaseComponent
-from taurusmodelchoosertool import TaurusModelChooserTool
-from taurustrendset import TaurusTrendSet
-from y2axis import Y2ViewBox
+
+from taurus_pyqtgraph.curvespropertiestool import CurvesPropertiesTool
+from taurus_pyqtgraph.dateaxisitem import DateAxisItem
+from taurus_pyqtgraph.legendtool import PlotLegendTool
+from taurus_pyqtgraph.forcedreadtool import ForcedReadTool
+from taurus_pyqtgraph.datainspectortool import DataInspectorTool
+from taurus_pyqtgraph.taurusmodelchoosertool import TaurusModelChooserTool
+from taurus_pyqtgraph.taurustrendset import TaurusTrendSet
+from taurus_pyqtgraph.y2axis import Y2ViewBox
 from pyqtgraph import PlotWidget
 
 CURVE_COLORS = [Qt.QPen(Qt.Qt.red),
@@ -81,11 +81,11 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
 
         # add save & retrieve configuration actions
         saveConfigAction = QtGui.QAction('Save configuration', menu)
-        saveConfigAction.triggered[()].connect(self.saveConfigFile)
+        saveConfigAction.triggered.connect(self.saveConfigFile)
         menu.addAction(saveConfigAction)
 
         loadConfigAction = QtGui.QAction('Retrieve saved configuration', menu)
-        loadConfigAction.triggered[()].connect(self.loadConfigFile)
+        loadConfigAction.triggered.connect(self.loadConfigFile)
         menu.addAction(loadConfigAction)
 
         self.registerConfigProperty(self._getState,

@@ -34,7 +34,7 @@ from taurus.core.util.containers import ArrayBuffer, LoopList
 from taurus.external.qt import Qt
 from pyqtgraph import PlotDataItem
 
-from forcedreadtool import ForcedReadTool
+from taurus_pyqtgraph.forcedreadtool import ForcedReadTool
 
 import taurus
 
@@ -153,7 +153,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         base_name = (self.base_name()
                 or taurus.Attribute(self.getModel()).getSimpleName())
 
-        for i in xrange(ntrends):
+        for i in range(ntrends):
             subname = "%s[%i]" % (base_name, i)
             kw['name'] = subname
             curve = PlotDataItem(*a, **kw)
