@@ -28,7 +28,7 @@ from taurus.external.qt import QtGui
 from pyqtgraph import SignalProxy
 from taurus.qt.qtcore.configuration import BaseConfigurableClass
 
-from taurus_pyqtgraph.datainspectormodel import DataInspectorModel
+from taurus_pyqtgraph.datainspectorline import DataInspectorLine
 
 
 class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
@@ -49,7 +49,7 @@ class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
 
         self.plot_item = None
         self.enable = False
-        self.data_inspector = DataInspectorModel()
+        self.data_inspector = DataInspectorLine()
 
     def attachToPlotItem(self, plot_item):
         """

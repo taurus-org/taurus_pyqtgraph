@@ -30,9 +30,9 @@ from pyqtgraph import TextItem, InfiniteLine
 from taurus_pyqtgraph.dateaxisitem import DateAxisItem
 
 
-class DataInspectorModel(InfiniteLine):
+class DataInspectorLine(InfiniteLine):
     """
-    DataInspectorModel is a general class use to point-picking.
+    DataInspectorLine is a general class use to point-picking.
     This class use a numpy library to finding the nearest point.
     Attach :class:`pyqtgraph.TextItem` widget to the plot -
     to showing the x,y value of the selected point.
@@ -40,7 +40,7 @@ class DataInspectorModel(InfiniteLine):
     """
 
     def __init__(self, y_format="%0.4f", trigger_point_size=20):
-        super(DataInspectorModel, self).__init__(angle=90, movable=True)
+        super(DataInspectorLine, self).__init__(angle=90, movable=True)
         self._labels = []
         self._plot_item = None
 
@@ -51,12 +51,11 @@ class DataInspectorModel(InfiniteLine):
 
     def onMoved(self, evt):
         """
-        Slot use to handle the mouse move event, and preform the action
+        Slot to handle the mouse move event, and peform the action
         on the plot.
 
         :param evt: mouse event
         """
-
         pos = evt[0]
         x_px_size, _ = self.getViewBox().viewPixelSize()
         inspector_x = self._plot_item.vb.mapSceneToView(pos).x()
@@ -112,7 +111,6 @@ class DataInspectorModel(InfiniteLine):
         :param x: current x value
         :return: time or normal x value (depends of the x axis type)
         """
-
         x_axis = self._plot_item.getAxis("bottom")
         if isinstance(x_axis, DateAxisItem):
             return self._timestampToDateTime(x)
@@ -120,7 +118,6 @@ class DataInspectorModel(InfiniteLine):
             return x
 
     def _getYValue(self, y):
-
         return str(self.y_format % y)
 
     def _timestampToDateTime(self, timestamp):
@@ -140,7 +137,7 @@ class DataInspectorModel(InfiniteLine):
 
     def attachToPlotItem(self, plot):
         """
-        Method to attach :class:`DataInspectorModel` to the plot
+        Method to attach :class:`DataInspectorLine` to the plot
 
         :param plot: to attach
         """
@@ -149,7 +146,7 @@ class DataInspectorModel(InfiniteLine):
 
     def dettach(self):
         """
-        Method use to detach the class:`DataInspectorModel` from the plot
+        Method use to detach the class:`DataInspectorLine` from the plot
         """
         self._removeLabels()
         self._plot_item.removeItem(self)
