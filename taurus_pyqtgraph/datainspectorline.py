@@ -79,8 +79,8 @@ class DataInspectorLine(InfiniteLine):
                     # Clean the trigger points
                     c.updateItems()
 
-                self.setPos(inspector_x)
-                self._createLabels(c, points)
+        self.setPos(inspector_x)
+        self._createLabels(c, points)
 
     def _createLabels(self, curves, points):
         for x, y in points:
