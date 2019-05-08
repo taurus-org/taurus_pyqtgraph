@@ -71,13 +71,18 @@ class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
             # the onMoved method in the data inspector object
             self.proxy = SignalProxy(self.plot_item.scene().sigMouseMoved,
                                      rateLimit=60,
-                                     slot=self.data_inspector.onMoved)
+                                     slot=self._followMouse)
             self.enable = True
 
         else:
             self.proxy.disconnect()
             self.data_inspector.dettach()
             self.enable = False
+
+    def _followMouse(self, evt):
+        mouse_pos = evt[0]
+        inspector_x = self.plot_item.vb.mapSceneToView(mouse_pos).x()
+        self.data_inspector.setPos(inspector_x)
 
 
 if __name__ == '__main__':
