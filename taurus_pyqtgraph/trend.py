@@ -113,8 +113,8 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
         cprop_tool.attachToPlotItem(plot_item, y2=self._y2)
 
         # add data inspector widget
-        datainspector = DataInspectorTool(self)
-        datainspector.attachToPlotItem(self.getPlotItem())
+        inspector_tool = DataInspectorTool(self)
+        inspector_tool.attachToPlotItem(self.getPlotItem())
 
         # add force read tool
         fr_tool = ForcedReadTool(self)
@@ -124,6 +124,7 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
         self.registerConfigDelegate(self._y2, 'Y2Axis')
         self.registerConfigDelegate(legend_tool, 'legend')
         self.registerConfigDelegate(fr_tool, 'forceread')
+        self.registerConfigDelegate(inspector_tool, 'inspector')
 
     def setModel(self, names):
         """Set a list of models"""

@@ -114,6 +114,7 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         # Register config properties
         self.registerConfigDelegate(self._y2, 'Y2Axis')
         self.registerConfigDelegate(legend_tool, 'legend')
+        self.registerConfigDelegate(inspector_tool, 'inspector')
 
     def setModel(self, models):
         """Set a list of models"""

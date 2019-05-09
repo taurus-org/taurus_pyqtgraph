@@ -171,6 +171,7 @@ class DataInspectorTool(Qt.QWidgetAction, BaseConfigurableClass):
     """
 
     def __init__(self, parent=None):
+        BaseConfigurableClass.__init__(self)
         Qt.QWidgetAction.__init__(self, parent)
         self._cb = Qt.QCheckBox()
         self._cb.setText('Data Inspector')
@@ -180,6 +181,9 @@ class DataInspectorTool(Qt.QWidgetAction, BaseConfigurableClass):
         self.plot_item = None
         self.enable = False
         self.data_inspector = DataInspectorLine()
+
+        self.registerConfigProperty(self.isChecked, self.setChecked,
+                                    'checked')
 
     def attachToPlotItem(self, plot_item):
         """
