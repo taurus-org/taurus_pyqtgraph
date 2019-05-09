@@ -39,7 +39,9 @@ class DataInspectorLine(InfiniteLine):
     Also this class blink the selected scatter point item.
     """
 
-    #TODO: support more than 1 viewbox (e.g. y2axis).
+    # TODO: support more than 1 viewbox (e.g. y2axis).
+    # TODO: modify anchor of labels so that they are plotted on the left if
+    #       they do not fit in the view
 
     def __init__(self, date_format="%Y-%m-%d %H:%M:%S", y_format="%0.4f",
                  trigger_point_size=10):
