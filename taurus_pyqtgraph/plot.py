@@ -25,7 +25,6 @@
 
 __all__ = ["TaurusPlot"]
 
-from future.utils import string_types
 
 import copy
 from taurus.core.util.containers import LoopList
@@ -66,7 +65,8 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
     """
 
     def __init__(self, parent=None,  **kwargs):
-
+        # TODO: consider inheriting from BaseConfigurableClass instead of
+        #       TaurusBaseComponent
         TaurusBaseComponent.__init__(self, 'TaurusPlot')
         PlotWidget.__init__(self, parent=parent, **kwargs)
 
@@ -92,11 +92,10 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         legend_tool.attachToPlotItem(self.getPlotItem())
 
         # add model chooser
-        # TODO: this is an *experimental* API added in v 0.3.1-alpha.
-        # `self.model_chooser_tool` may change or disappear in future versions
-        self.model_chooser_tool = TaurusXYModelChooserTool(self)
-        self.model_chooser_tool.attachToPlotItem(self.getPlotItem(), self,
-                                                 self._curveColors)
+        self._model_chooser_tool = TaurusXYModelChooserTool(self)
+        self._model_chooser_tool.attachToPlotItem(
+            self.getPlotItem(), self, self._curveColors
+        )
 
         # add Y2 axis
         self._y2 = Y2ViewBox()
@@ -110,30 +109,19 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         self.registerConfigDelegate(self._y2, 'Y2Axis')
         self.registerConfigDelegate(legend_tool, 'legend')
 
-    def setModel(self, models):
-        """Set a list of models"""
-        # TODO: remove previous models!
-        # TODO: support setting xmodels as well
+    def setModel(self, names):
+        """Reimplemented to delegate to the """
+        self._model_chooser_tool.updateModels(names)
 
-        if isinstance(models, string_types):
-            self.deprecated(
-                dep='calling tpg.TaurusPlot.setModel with a str as argument',
-                alt='an iterable of strings')
-            models = str(models).replace(',', ' ')
-            models = models.split()
-
-        for model in models:
-            curve = TaurusPlotDataItem(name=model)
-            curve.setModel(model)
-            curve.setPen(self._curveColors.next().color())
-            self.addItem(curve)
+    def addModels(self, names):
+        """Reimplemented to delegate to the """
+        self._model_chooser_tool.addModels(names)
 
     def createConfig(self, allowUnpickable=False):
         """
         Reimplemented from BaseConfigurableClass to manage the config
         properties of the curves attached to this plot
         """
-
         try:
             # Temporarily register curves as delegates
             tmpreg = []
@@ -204,9 +192,6 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
                 if curve.getFullModelNames() in self._y2.getCurves():
                     self.getPlotItem().getViewBox().removeItem(curve)
                     self._y2.addItem(curve)
-
-
-
         finally:
             # Ensure that temporary delegates are unregistered
             for n in tmpreg:
