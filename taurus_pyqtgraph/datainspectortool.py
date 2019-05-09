@@ -73,6 +73,8 @@ class DataInspectorTool(QtGui.QWidgetAction, BaseConfigurableClass):
                                      rateLimit=60,
                                      slot=self._followMouse)
             self.enable = True
+            # auto-close the menu so that the user can start inspecting
+            self.plot_item.getViewBox().menu.close()
 
         else:
             self.proxy.disconnect()
