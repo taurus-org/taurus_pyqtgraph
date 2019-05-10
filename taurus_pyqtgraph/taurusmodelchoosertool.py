@@ -26,6 +26,7 @@
 __all__ = ["TaurusModelChooserTool", "TaurusImgModelChooserTool"]
 
 from builtins import bytes
+from future.utils import string_types
 
 from taurus.external.qt import Qt
 from taurus.core import TaurusElementType
@@ -335,7 +336,12 @@ class TaurusXYModelChooserTool(Qt.QAction):
         # Add only the curves defined in xy_names (reusing existing ones and
         # creating those that did not exist) in the desired z-order
         _already_added = []
-        for (xname, yname) in xy_names:
+        for xy_name in xy_names:
+            # each member of xy_names can be yname or a (xname, yname) tuple
+            if isinstance(xy_name, string_types):
+                xname, yname = None, xy_name
+            else:
+                xname, yname = xy_name
             # make sure that fullnames are used
             try:
                 if xname is not None:
