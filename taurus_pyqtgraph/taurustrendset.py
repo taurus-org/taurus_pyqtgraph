@@ -334,7 +334,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                       all.
         """
         value = self.getModelValueObj(cache=cache)
-        if cache:
+        if cache and value is not None:
             value = copy.copy(value)
             value.time = TaurusTimeVal.now()
         self.fireEvent(self, TaurusEventType.Periodic, value)
