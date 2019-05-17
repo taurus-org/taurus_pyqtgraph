@@ -69,15 +69,15 @@ class CurvesPropertiesTool(QtGui.QAction):
                     if data not in data_items:
                         data_items.append(data)
 
-        # The dialog allows display and/or change the properties of any curve
-        # that doesn't contain the attribute "_UImodifiable"
-        for data in data_items:
-            if getattr(data, "_UImodifiable", True) is False:
-                data_items.remove(data)
+        # The dialog will ignore curves that define `._UImodifiable=False`
+        modifiable_items = []
+        for item in data_items:
+            if getattr(item, "_UImodifiable", True):
+                modifiable_items.append(item)
 
         # It is necessary a CurvePropAdapter object for 'translate'
         # the PlotDataItem properties into generic form given for the dialog
-        curvePropAdapter = CurvePropAdapter(data_items,
+        curvePropAdapter = CurvePropAdapter(modifiable_items,
                                             self.plot_item, self.Y2Axis)
         curves = curvePropAdapter.getCurveProperties()
 

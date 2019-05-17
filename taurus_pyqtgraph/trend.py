@@ -34,6 +34,7 @@ from taurus_pyqtgraph.curvespropertiestool import CurvesPropertiesTool
 from taurus_pyqtgraph.dateaxisitem import DateAxisItem
 from taurus_pyqtgraph.legendtool import PlotLegendTool
 from taurus_pyqtgraph.forcedreadtool import ForcedReadTool
+from taurus_pyqtgraph.datainspectortool import DataInspectorTool
 from taurus_pyqtgraph.taurusmodelchoosertool import TaurusModelChooserTool
 from taurus_pyqtgraph.taurustrendset import TaurusTrendSet
 from taurus_pyqtgraph.y2axis import Y2ViewBox
@@ -111,6 +112,10 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
         cprop_tool = CurvesPropertiesTool(self)
         cprop_tool.attachToPlotItem(plot_item, y2=self._y2)
 
+        # add data inspector widget
+        inspector_tool = DataInspectorTool(self)
+        inspector_tool.attachToPlotItem(self.getPlotItem())
+
         # add force read tool
         fr_tool = ForcedReadTool(self)
         fr_tool.attachToPlotItem(self.getPlotItem())
@@ -119,6 +124,7 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
         self.registerConfigDelegate(self._y2, 'Y2Axis')
         self.registerConfigDelegate(legend_tool, 'legend')
         self.registerConfigDelegate(fr_tool, 'forceread')
+        self.registerConfigDelegate(inspector_tool, 'inspector')
 
     def setModel(self, names):
         """Set a list of models"""
@@ -250,8 +256,6 @@ def TaurusTrendMain():
     w.setWindowTitle(options.window_name)
 
     # options.config_file = 'tmp/TaurusTrend.pck'
-
-
 
     if options.demo:
         args.extend(['eval:rand()', 'eval:1+rand(2)'])

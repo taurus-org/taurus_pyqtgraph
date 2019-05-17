@@ -32,6 +32,7 @@ from taurus.qt.qtgui.base import TaurusBaseComponent
 from taurus_pyqtgraph.curvespropertiestool import CurvesPropertiesTool
 from taurus_pyqtgraph.taurusmodelchoosertool import TaurusXYModelChooserTool
 from taurus_pyqtgraph.legendtool import PlotLegendTool
+from taurus_pyqtgraph.datainspectortool import DataInspectorTool
 from taurus_pyqtgraph.taurusplotdataitem import TaurusPlotDataItem
 from taurus_pyqtgraph.y2axis import Y2ViewBox
 
@@ -105,9 +106,14 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         cprop_tool = CurvesPropertiesTool(self)
         cprop_tool.attachToPlotItem(self.getPlotItem(), y2=self._y2)
 
+        # add a data inspector
+        inspector_tool = DataInspectorTool(self)
+        inspector_tool.attachToPlotItem(self.getPlotItem())
+
         # Register config properties
         self.registerConfigDelegate(self._y2, 'Y2Axis')
         self.registerConfigDelegate(legend_tool, 'legend')
+        self.registerConfigDelegate(inspector_tool, 'inspector')
 
     def setModel(self, names):
         """Reimplemented to delegate to the """
