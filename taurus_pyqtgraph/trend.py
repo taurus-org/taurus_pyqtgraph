@@ -224,44 +224,26 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
         return state
 
 
-def TaurusTrendMain():
+def trend_main(models=(), config_file=None, demo=False,
+               window_name='TaurusTrend (pg)'):
+    """Launch a TaurusTrend"""
     import sys
-    import taurus.qt.qtgui.application
-    import taurus.core.util.argparse
+    from taurus.qt.qtgui.application import TaurusApplication
 
-    parser = taurus.core.util.argparse.get_taurus_parser()
-    parser.set_usage("%prog [options] [<model1> [<model2>] ...]")
-    parser.set_description("a taurus application for plotting 1D data sets")
-    parser.add_option("--config", "--config-file", dest="config_file",
-                      default=None,
-                      help="use the given config file for initialization"
-                      )
-    parser.add_option("--demo", action="store_true", dest="demo",
-                      default=False, help="show a demo of the widget")
-    parser.add_option("--window-name", dest="window_name",
-                      default="TaurusTrend (pg)", help="Name of the window")
+    app = TaurusApplication(cmd_line_parser=None, app_name="taurustrend(pg)")
 
-    app = taurus.qt.qtgui.application.TaurusApplication(
-        cmd_line_parser=parser,
-        app_name="taurustrend(pg)",
-        app_version=taurus.Release.version
-    )
-
-    args = app.get_command_line_args()
-    options = app.get_command_line_options()
-
-    models = args
     w = TaurusTrend()
 
-    w.setWindowTitle(options.window_name)
+    w.setWindowTitle(window_name)
 
-    # options.config_file = 'tmp/TaurusTrend.pck'
+    # config_file = 'tmp/TaurusTrend.pck'
 
-    if options.demo:
-        args.extend(['eval:rand()', 'eval:1+rand(2)'])
+    if demo:
+        models = list(models)
+        models.extend(['eval:rand()', 'eval:1+rand(2)'])
 
-    if options.config_file is not None:
-        w.loadConfigFile(options.config_file)
+    if config_file is not None:
+        w.loadConfigFile(config_file)
 
     if models:
         w.setModel(models)
@@ -276,4 +258,4 @@ def TaurusTrendMain():
 
 
 if __name__ == '__main__':
-    TaurusTrendMain()
+    trend_main()
