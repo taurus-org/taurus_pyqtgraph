@@ -24,8 +24,13 @@
 import pkg_resources
 import click
 
+_tpg_version = pkg_resources.require("taurus_pyqtgraph")[0].version
+_taurus_version = pkg_resources.require("taurus")[0].version
+_version = "{0} (with taurus {1})".format(_tpg_version, _taurus_version)
+
 
 @click.group('tpg')
+@click.version_option(version=_version, prog_name='tpg')
 def tpg():
     """Taurus-pyqtgraph related commands"""
     pass
