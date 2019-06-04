@@ -41,9 +41,9 @@ def tpg():
 @click.option('--config', 'config_file', type=click.File(),
               help='configuration file for initialization')
 @click.option("-x", "--x-axis-mode", "x_axis_mode",
+              type=click.Choice(['t', 'n']),
               default='n',
               show_default=True,
-              metavar="t|n",
               help=('X axis mode. "t" implies using a Date axis'
                     + '"n" uses the regular axis')
               )
