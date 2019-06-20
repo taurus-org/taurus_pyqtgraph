@@ -25,6 +25,7 @@
 
 __all__ = ["Y2ViewBox"]
 
+
 from pyqtgraph import ViewBox
 
 from taurus.qt.qtcore.configuration.configuration import BaseConfigurableClass
@@ -62,6 +63,8 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
 
         self.plotItem = plot_item
 
+        self._addLogAxisActions()
+
     def _updateViews(self, viewBox):
         self.setGeometry(viewBox.sceneBoundingRect())
         self.linkedViewChanged(viewBox, self.XAxis)
@@ -90,7 +93,7 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
             self.plotItem.getAxis('right').linkToView(self)
             self.setXLink(self.plotItem)
 
-        if (len(self.addedItems) > 0
+        if hasattr(item, 'getFullModelNames') and (len(self.addedItems) > 0
                 and item.getFullModelNames() not in self._curvesModelNames):
             self._curvesModelNames.append(item.getFullModelNames())
 
@@ -120,3 +123,64 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         """Remove the added items"""
         for c in self.addedItems:
             self.removeItem(c)
+
+    def _addLogAxisActions(self):
+        # insert & connect actions Log Scale Actions
+        # X (bottom)
+        menu = self.plotItem.getViewBox().menu.axes[0]
+        action = menu.addAction('Log scale')
+        action.setCheckable(True)
+        action.setChecked(self.plotItem.getAxis('bottom').logMode)
+        action.setParent(menu)
+        action.toggled.connect(self._onXLogToggled)
+        self.menu.axes[0].addAction(action)  # Add same action to X2 menu too
+        # Y1 (left)
+        menu = self.plotItem.getViewBox().menu.axes[1]
+        action = menu.addAction('Log scale')
+        action.setCheckable(True)
+        action.setChecked(self.plotItem.getAxis('left').logMode)
+        action.setParent(menu)
+        action.toggled.connect(self._onY1LogToggled)
+        # Y2 (right)
+        menu = self.menu.axes[1]
+        action = menu.addAction('Log scale')
+        action.setCheckable(True)
+        action.setChecked(self.plotItem.getAxis('right').logMode)
+        action.setParent(menu)
+        action.toggled.connect(self._onY2LogToggled)
+
+    def _onXLogToggled(self, checked):
+        logx = checked
+
+        # set log mode for items of main viewbox
+        logy = self.plotItem.getAxis('left').logMode
+        for i in self.plotItem.getViewBox().addedItems:
+            if hasattr(i, 'setLogMode'):
+                i.setLogMode(logx, logy)
+        # set log mode for items of Y2 viewbox
+        logy = self.plotItem.getAxis('right').logMode
+        for i in self.addedItems:
+            if hasattr(i, 'setLogMode'):
+                i.setLogMode(logx, logy)
+        # set log mode for the bottom axis
+        self.plotItem.getAxis('bottom').setLogMode(checked)
+
+    def _onY1LogToggled(self, checked):
+        # set log mode for items of main viewbox
+        logx = self.plotItem.getAxis('bottom').logMode
+        logy = checked
+        for i in self.plotItem.getViewBox().addedItems:
+            if hasattr(i, 'setLogMode'):
+                i.setLogMode(logx, logy)
+        # set log mode for the left axis
+        self.plotItem.getAxis('left').setLogMode(checked)
+
+    def _onY2LogToggled(self, checked):
+        # set log mode for items of Y2 viewbox
+        logx = self.plotItem.getAxis('bottom').logMode
+        logy = checked
+        for i in self.addedItems:
+            if hasattr(i, 'setLogMode'):
+                i.setLogMode(logx, logy)
+        # set log mode for the right axis
+        self.plotItem.getAxis('right').setLogMode(checked)
