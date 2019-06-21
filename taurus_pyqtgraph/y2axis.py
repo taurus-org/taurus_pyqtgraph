@@ -26,9 +26,20 @@
 __all__ = ["Y2ViewBox"]
 
 
-from pyqtgraph import ViewBox
+from pyqtgraph import ViewBox, PlotItem
 
 from taurus.qt.qtcore.configuration.configuration import BaseConfigurableClass
+
+
+def _PlotItem_addItem(self, item, *args, **kwargs):
+    """replacement for `PlotItem.addItem` that Y2Axis will use to monkey-patch
+    the original one
+    """
+    PlotItem.addItem(self, item, *args, **kwargs)
+
+    if hasattr(item, 'setLogMode'):
+        item.setLogMode(self.getAxis('bottom').logMode,
+                        self.getAxis('left').logMode)
 
 
 class Y2ViewBox(ViewBox, BaseConfigurableClass):
@@ -68,6 +79,11 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         # disable the standard (custom view-unfriendly) log actions
         self.plotItem.ctrl.logXCheck.setEnabled(False)
         self.plotItem.ctrl.logYCheck.setEnabled(False)
+
+        # monkey-patch the addItem method of the PlotItem
+        from types import MethodType
+        self.plotItem.addItem = MethodType(_PlotItem_addItem, self.plotItem)
+
 
     def _updateViews(self, viewBox):
         self.setGeometry(viewBox.sceneBoundingRect())
