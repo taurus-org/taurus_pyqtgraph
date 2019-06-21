@@ -609,9 +609,11 @@ class CurvePropAdapter(object):
 
             # Set the Y1 / Y2 axis if required
             old_view = dataItem.getViewBox()  # current view for the curve
-            if y2:
+            if y2 is None:  # axis is not to be changed
+                new_view = old_view
+            elif y2:  # Y axis must be Y2
                 new_view = self.y2axis  # y2 axis view
-            elif y2 is False:  # we use "is" to avoid matching None
+            else:  # Y axis must be Y1
                 new_view = self.plotItem.getViewBox()  # main view
 
             if new_view is not old_view:
