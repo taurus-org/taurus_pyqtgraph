@@ -97,6 +97,11 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
             self.plotItem.getAxis('right').linkToView(self)
             self.setXLink(self.plotItem)
 
+        # set the item log mode to match this view:
+        if hasattr(item, 'setLogMode'):
+            item.setLogMode(self.plotItem.getAxis('bottom').logMode,
+                            self.plotItem.getAxis('right').logMode)
+
         if hasattr(item, 'getFullModelNames') and (len(self.addedItems) > 0
                 and item.getFullModelNames() not in self._curvesModelNames):
             self._curvesModelNames.append(item.getFullModelNames())

@@ -619,6 +619,13 @@ class CurvePropAdapter(object):
             if new_view is not old_view:
                 if old_view is not None:
                     old_view.removeItem(dataItem)
+                if not y2:
+                    # adapt the log mode to the main view logMode
+                    # (this is already done automatically when adding to y2)
+                    dataItem.setLogMode(
+                        self.plotItem.getAxis('bottom').logMode,
+                        self.plotItem.getAxis('left').logMode
+                    )
                 new_view.addItem(dataItem)
                 old_view.autoRange()
                 new_view.autoRange()
