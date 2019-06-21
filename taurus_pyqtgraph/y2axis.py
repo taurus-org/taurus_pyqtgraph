@@ -63,7 +63,11 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
 
         self.plotItem = plot_item
 
+        # add axis-independent actions for logarithmic scale
         self._addLogAxisActions()
+        # disable the standard (custom view-unfriendly) log actions
+        self.plotItem.ctrl.logXCheck.setEnabled(False)
+        self.plotItem.ctrl.logYCheck.setEnabled(False)
 
     def _updateViews(self, viewBox):
         self.setGeometry(viewBox.sceneBoundingRect())
