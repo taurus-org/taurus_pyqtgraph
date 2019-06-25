@@ -52,10 +52,14 @@ install_requires = [
     'taurus>=4.5.2',
     'taurus[taurus-qt]',
     'pyqtgraph',
+    'click',
 ]
 
 entry_points = {
     'taurus.qt.qtgui': ['tpg = taurus_pyqtgraph',],
+    'taurus.cli.subcommands': [
+        'tpg = taurus_pyqtgraph.cli:tpg',
+    ],
 }
 
 classifiers = [

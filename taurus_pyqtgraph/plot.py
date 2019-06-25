@@ -213,55 +213,31 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
         return state
 
 
-def TaurusPlotMain():
+def plot_main(models=(), config_file=None, x_axis_mode='n', demo=False,
+              window_name='TaurusPlot (pg)'):
+    """Launch a TaurusPlot"""
     import sys
-    import taurus.qt.qtgui.application
-    import taurus.core.util.argparse
+    from taurus.qt.qtgui.application import TaurusApplication
 
-    parser = taurus.core.util.argparse.get_taurus_parser()
-    parser.set_usage("%prog [options] [<model1> [<model2>] ...]")
-    parser.set_description("a taurus application for plotting 1D data sets")
-    parser.add_option("--config", "--config-file", dest="config_file",
-                      default=None,
-                      help="use the given config file for initialization"
-                      )
-    parser.add_option ("-x", "--x-axis-mode", dest="x_axis_mode", default='n',
-                       metavar="t|n",
-                       help=('X axis mode. "t" implies using a Date axis' +
-                             '"n" uses the regular axis'
-                             )
-                       )
-    parser.add_option ("--demo", action="store_true", dest="demo",
-                       default=False, help="show a demo of the widget")
-    parser.add_option("--window-name", dest="window_name",
-                      default="TaurusPlot (pg)", help="Name of the window")
+    app = TaurusApplication(cmd_line_parser=None, app_name="taurusplot(pg)")
 
-    app = taurus.qt.qtgui.application.TaurusApplication(
-        cmd_line_parser=parser,
-        app_name="taurusplot(pg)",
-        app_version=taurus.Release.version
-    )
-
-    args = app.get_command_line_args()
-    options = app.get_command_line_options()
-
-    models = args
     w = TaurusPlot()
 
     # w.loadConfigFile('tmp/TaurusPlot.pck')
 
-    w.setWindowTitle(options.window_name)
+    w.setWindowTitle(window_name)
 
-    if options.demo:
-        args.extend(['eval:rand(100)', 'eval:0.5*sqrt(arange(100))'])
+    if demo:
+        models = list(models)
+        models.extend(['eval:rand(100)', 'eval:0.5*sqrt(arange(100))'])
 
-    if options.x_axis_mode.lower() == 't':
+    if x_axis_mode.lower() == 't':
         from taurus.qt.qtgui.tpg import DateAxisItem
         axis = DateAxisItem(orientation='bottom')
         axis.attachToPlotItem(w.getPlotItem())
 
-    if options.config_file is not None:
-        w.loadConfigFile(options.config_file)
+    if config_file is not None:
+        w.loadConfigFile(config_file)
 
     if models:
         w.setModel(models)
@@ -276,6 +252,6 @@ def TaurusPlotMain():
 
 
 if __name__ == '__main__':
-    TaurusPlotMain()
+    plot_main()
 
 
