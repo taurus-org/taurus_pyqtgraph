@@ -26,7 +26,7 @@
 from setuptools import setup, find_packages
 
 # Do not modify the __version manually. To be modified by bumpversion
-__version = '0.1.2-alpha'
+__version = '0.2.1'
 
 description = 'Taurus extension providing pyqtgraph-based widgets'
 
