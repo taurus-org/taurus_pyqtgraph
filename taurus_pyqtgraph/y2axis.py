@@ -99,7 +99,8 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
             self.plotItem.scene().removeItem(self)
             self.plotItem.hideAxis('right')
 
-        self._curvesModelNames.remove(item.getFullModelNames())
+        if hasattr(item, 'getFullModelNames'):
+            self._curvesModelNames.remove(item.getFullModelNames())
 
     def addItem(self, item, ignoreBounds=False):
         """Reimplemented from :class:`pyqtgraph.ViewBox`"""
