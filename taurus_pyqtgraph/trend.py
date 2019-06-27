@@ -22,23 +22,28 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
+from __future__ import absolute_import
+
 __all__ = ["TaurusTrend"]
 
 import copy
 
-from taurus.core.util.containers import LoopList
 from taurus.external.qt import QtGui, Qt
-from taurus.qt.qtgui.base import TaurusBaseComponent
+from taurus.core.util.containers import LoopList
+from taurus.qt.qtcore.configuration import BaseConfigurableClass
 
-from taurus_pyqtgraph.curvespropertiestool import CurvesPropertiesTool
-from taurus_pyqtgraph.dateaxisitem import DateAxisItem
-from taurus_pyqtgraph.legendtool import PlotLegendTool
-from taurus_pyqtgraph.forcedreadtool import ForcedReadTool
-from taurus_pyqtgraph.datainspectortool import DataInspectorTool
-from taurus_pyqtgraph.taurusmodelchoosertool import TaurusModelChooserTool
-from taurus_pyqtgraph.taurustrendset import TaurusTrendSet
-from taurus_pyqtgraph.y2axis import Y2ViewBox
 from pyqtgraph import PlotWidget
+
+from .curvespropertiestool import CurvesPropertiesTool
+from .dateaxisitem import DateAxisItem
+from .legendtool import PlotLegendTool
+from .forcedreadtool import ForcedReadTool
+from .datainspectortool import DataInspectorTool
+from .taurusmodelchoosertool import TaurusModelChooserTool
+from .taurustrendset import TaurusTrendSet
+from .y2axis import Y2ViewBox
+from .autopantool import XAutoPanTool
+
 
 CURVE_COLORS = [Qt.QPen(Qt.Qt.red),
                 Qt.QPen(Qt.Qt.blue),
@@ -49,7 +54,7 @@ CURVE_COLORS = [Qt.QPen(Qt.Qt.red),
                 Qt.QPen(Qt.Qt.white)]
 
 
-class TaurusTrend(PlotWidget, TaurusBaseComponent):
+class TaurusTrend(PlotWidget, BaseConfigurableClass):
     """
     TaurusTrend is a general widget for plotting the evolution of a value
     over time. It is an extended taurus-aware version of
@@ -144,7 +149,7 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
                     tmpreg.append(name)
                     self.registerConfigDelegate(item, name)
 
-            configdict = copy.deepcopy(TaurusBaseComponent.createConfig(
+            configdict = copy.deepcopy(BaseConfigurableClass.createConfig(
                 self, allowUnpickable=allowUnpickable))
 
         finally:
@@ -173,7 +178,7 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
             # remove the trendsets from the second axis (Y2) to avoid dups
             self._y2.clearItems()
 
-            TaurusBaseComponent.applyConfig(
+            BaseConfigurableClass.applyConfig(
                 self, configdict=configdict, depth=depth)
 
             plot_item = self.getPlotItem()
@@ -257,4 +262,4 @@ def trend_main(models=(), config_file=None, demo=False,
 
 
 if __name__ == '__main__':
-    trend_main()
+    trend_main(models=('eval:rand()', 'sys/tg_test/1/ampli'))
