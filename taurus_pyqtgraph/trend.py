@@ -124,6 +124,10 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         fr_tool = ForcedReadTool(self)
         fr_tool.attachToPlotItem(self.getPlotItem())
 
+        # Add the auto-pan ("oscilloscope mode") tool
+        autopan = XAutoPanTool()
+        autopan.attachToPlotItem(self.getPlotItem())
+
         # Register config properties
         self.registerConfigDelegate(self._y2, 'Y2Axis')
         self.registerConfigDelegate(legend_tool, 'legend')
