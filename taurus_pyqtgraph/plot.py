@@ -66,10 +66,8 @@ class TaurusPlot(PlotWidget, TaurusBaseComponent):
     """
 
     def __init__(self, parent=None,  **kwargs):
-        # TODO: consider inheriting from BaseConfigurableClass instead of
-        #       TaurusBaseComponent
-        TaurusBaseComponent.__init__(self, 'TaurusPlot')
-        PlotWidget.__init__(self, parent=parent, **kwargs)
+
+        super(TaurusPlot, self).__init__(parent=None,  **kwargs)
 
         # set up cyclic color generator
         self._curveColors = LoopList(CURVE_COLORS)

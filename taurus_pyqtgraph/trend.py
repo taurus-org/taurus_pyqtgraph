@@ -69,8 +69,7 @@ class TaurusTrend(PlotWidget, TaurusBaseComponent):
 
     def __init__(self, parent=None, **kwargs):
 
-        TaurusBaseComponent.__init__(self, 'TaurusTrend')
-        PlotWidget.__init__(self, parent=parent, **kwargs)
+        super(TaurusTrend, self).__init__(parent=parent, **kwargs)
 
         # set up cyclic color generator
         self._curveColors = LoopList(CURVE_COLORS)
