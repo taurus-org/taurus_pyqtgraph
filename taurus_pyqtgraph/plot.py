@@ -115,6 +115,17 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         self.registerConfigDelegate(legend_tool, 'legend')
         self.registerConfigDelegate(inspector_tool, 'inspector')
 
+    # --------------------------------------------------------------------
+    # workaround for bug in pyqtgraph v<=0.10.0, already fixed in
+    # https://github.com/pyqtgraph/pyqtgraph/commit/52754d4859
+    # TODO: remove this once pyqtgraph v>0.10 is released
+    def __getattr__(self, item):
+        try:
+            return PlotWidget.__getattr__(self, item)
+        except NameError:
+            raise AttributeError()
+    # --------------------------------------------------------------------
+
     def setModel(self, names):
         """Reimplemented to delegate to the """
         self._model_chooser_tool.updateModels(names)
