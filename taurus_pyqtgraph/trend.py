@@ -149,7 +149,9 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         try:
             return PlotWidget.__getattr__(self, item)
         except NameError:
-            raise AttributeError()
+            raise AttributeError('{} has no attribute {}'.format(
+                self.__class__.__name__, item)
+            )
     # --------------------------------------------------------------------
 
     def setModel(self, names):
