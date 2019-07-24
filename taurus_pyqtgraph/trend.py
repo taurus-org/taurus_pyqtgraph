@@ -26,6 +26,8 @@ from __future__ import absolute_import
 
 __all__ = ["TaurusTrend"]
 
+
+import sys
 import copy
 
 from taurus.external.qt import QtGui, Qt
@@ -74,7 +76,12 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     def __init__(self, parent=None, **kwargs):
 
-        super(TaurusTrend, self).__init__(parent=parent, **kwargs)
+        if sys.version_info.major < 3:
+            # Workaround to issue when using super with py2
+            BaseConfigurableClass.__init__(self)
+            PlotWidget.__init__(self, parent=parent, **kwargs)
+        else:
+            super(TaurusTrend, self).__init__(parent=parent, **kwargs)
 
         # set up cyclic color generator
         self._curveColors = LoopList(CURVE_COLORS)
