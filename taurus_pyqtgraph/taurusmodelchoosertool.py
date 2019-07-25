@@ -49,7 +49,7 @@ class TaurusModelChooserTool(Qt.QAction):
     PlotItem.
     """
     def __init__(self, parent=None, itemClass=None):
-        Qt.QAction.__init__(self, 'Model chooser', parent)
+        Qt.QAction.__init__(self, 'Model selection', parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.legend = None
@@ -154,7 +154,7 @@ class TaurusImgModelChooserTool(Qt.QAction):
         self._plot_item = plot_item
         view = plot_item.getViewBox()
         menu = view.menu
-        model_chooser = Qt.QAction('Model chooser', menu)
+        model_chooser = Qt.QAction('Model selection', menu)
         model_chooser.triggered.connect(self._onTriggered)
         menu.addAction(model_chooser)
 
@@ -200,7 +200,7 @@ class TaurusXYModelChooserTool(Qt.QAction):
 
     # TODO: This class is WIP.
     def __init__(self, parent=None, itemClass=None):
-        Qt.QAction.__init__(self, 'Model XY chooser', parent)
+        Qt.QAction.__init__(self, 'Model selection', parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.legend = None
