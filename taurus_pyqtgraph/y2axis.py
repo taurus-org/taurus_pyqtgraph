@@ -26,10 +26,8 @@
 __all__ = ["Y2ViewBox"]
 
 
-from pyqtgraph import ViewBox, PlotItem
-
 from taurus.qt.qtcore.configuration.configuration import BaseConfigurableClass
-
+from pyqtgraph import ViewBox, PlotItem
 
 def _PlotItem_addItem(self, item, *args, **kwargs):
     """replacement for `PlotItem.addItem` that Y2Axis will use to monkey-patch
