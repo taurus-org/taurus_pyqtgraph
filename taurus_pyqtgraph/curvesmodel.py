@@ -353,12 +353,12 @@ class TaurusItemConfDlg(Qt.QWidget):
         self._removeAllAction = self._toolbar.addAction(
             Qt.QIcon.fromTheme("edit-clear"), "Remove all rows",
             self._onClearAll)
-        self._goUpAction = self._toolbar.addAction(Qt.QIcon.fromTheme("go-up"),
+        self._moveUpAction = self._toolbar.addAction(Qt.QIcon.fromTheme("go-up"),
                                                    "Move up the row",
-                                                   self._moveUpAction)
-        self._goDownAction = self._toolbar.addAction(
+                                                     self._onMoveUpAction)
+        self._moveDownAction = self._toolbar.addAction(
             Qt.QIcon.fromTheme("go-down"), "Move down the row",
-            self._moveDownAction)
+            self._onMoveDownAction)
 
         table = self.ui.curvesTable
         table.setModel(self.model)
@@ -411,8 +411,8 @@ class TaurusItemConfDlg(Qt.QWidget):
         isLastElem = row == self.model.rowCount() - 1
         isFirstElem = row == 0
         self._removeAction.setEnabled(lrows == 1)
-        self._goUpAction.setEnabled(lrows == 1 and not isFirstElem)
-        self._goDownAction.setEnabled(lrows == 1 and not isLastElem)
+        self._moveUpAction.setEnabled(lrows == 1 and not isFirstElem)
+        self._moveDownAction.setEnabled(lrows == 1 and not isLastElem)
 
     def _onAddAction(self):
         """ Add a new row"""
@@ -430,17 +430,17 @@ class TaurusItemConfDlg(Qt.QWidget):
         """ Remove all rows"""
         self.model.clearAll()
         self._removeAction.setEnabled(False)
-        self._goUpAction.setEnabled(False)
-        self._goDownAction.setEnabled(False)
+        self._moveUpAction.setEnabled(False)
+        self._moveDownAction.setEnabled(False)
         self._removeAllAction.setEnabled(False)
 
-    def _moveUpAction(self):
+    def _onMoveUpAction(self):
         """ Move up action swap the selected row with the previous one"""
         i1 = self.ui.curvesTable.currentIndex()
         i2 = self.ui.curvesTable.model().index(i1.row() - 1, 0)
         self.model.swapItems(i1, i2)
 
-    def _moveDownAction(self):
+    def _onMoveDownAction(self):
         """ Move down action swap the selected row with the next one"""
         i1 = self.ui.curvesTable.currentIndex()
         i2 = self.ui.curvesTable.model().index(i1.row() + 1, 0)
