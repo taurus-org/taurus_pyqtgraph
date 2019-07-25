@@ -156,7 +156,7 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
                     tmpreg.append(name)
                     self.registerConfigDelegate(curve, name)
 
-            configdict = copy.deepcopy(TaurusBaseComponent.createConfig(
+            configdict = copy.deepcopy(BaseConfigurableClass.createConfig(
                 self, allowUnpickable=allowUnpickable))
 
         finally:
@@ -185,7 +185,7 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
             # remove the curves from the second axis (Y2) for avoid dups
             self._y2.clearItems()
 
-            TaurusBaseComponent.applyConfig(
+            BaseConfigurableClass.applyConfig(
                 self, configdict=configdict, depth=depth)
 
             # keep a dict of existing curves (to use it for avoiding dups)
