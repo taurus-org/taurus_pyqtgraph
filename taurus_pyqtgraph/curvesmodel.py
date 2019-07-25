@@ -121,6 +121,13 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
     def columnCount(self, index=Qt.QModelIndex()):
         return self.ncolumns
 
+    def swapItems(self, index1, index2):
+        """ swap the items described by index1 and index2 in the list"""
+        r1, r2 = index1.row(), index2.row()
+        items = self.taurusItems
+        items[r1], items[r2] = items[r2], items[r1]
+        self.dataChanged.emit(index1, index2)
+
     def data(self, index, role=Qt.Qt.DisplayRole):
         if not index.isValid() or not (0 <= index.row() < self.rowCount()):
             return None
@@ -335,9 +342,30 @@ class TaurusItemConfDlg(Qt.QWidget):
 
         self.model = TaurusCurveItemTableModel(taurusItemsConf)
 
+        self._toolbar = Qt.QToolBar("Selector toolbar")
+        self.ui.horizontalLayout_2.addWidget(self._toolbar)
+        self._toolbar.setIconSize(Qt.QSize(16, 16))
+        self._toolbar.addAction(Qt.QIcon.fromTheme("list-add"),
+                                "Add row", self._onAddAction)
+        self._removeAction = self._toolbar.addAction(
+            Qt.QIcon.fromTheme("list-remove"), "Remove selected row",
+            self._onRemoveThisAction)
+        self._removeAllAction = self._toolbar.addAction(
+            Qt.QIcon.fromTheme("edit-clear"), "Remove all rows",
+            self._onClearAll)
+        self._moveUpAction = self._toolbar.addAction(Qt.QIcon.fromTheme("go-up"),
+                                                   "Move up the row",
+                                                     self._onMoveUpAction)
+        self._moveDownAction = self._toolbar.addAction(
+            Qt.QIcon.fromTheme("go-down"), "Move down the row",
+            self._onMoveDownAction)
+
         table = self.ui.curvesTable
         table.setModel(self.model)
         table.setColumnHidden(X, not self._showXcol)
+
+        selectionmodel = table.selectionModel()
+        selectionmodel.selectionChanged.connect(self._onSelectionChanged)
 
         # -------------------------------------------------------------------
         # I get "UnboundLocalError: local variable 'taurus' referenced before
@@ -371,9 +399,54 @@ class TaurusItemConfDlg(Qt.QWidget):
 
         menu.exec_(Qt.QCursor.pos())
 
+    def _onSelectionChanged(self):
+        """ Modify the status of the actions"""
+        selected = self.ui.curvesTable.selectedIndexes()
+        rows = []
+        for item in selected:
+            if item.row() not in rows:
+                rows.append(item.row())
+        lrows = len(rows)
+        row = self.ui.curvesTable.currentIndex().row()
+        isLastElem = row == self.model.rowCount() - 1
+        isFirstElem = row == 0
+        self._removeAction.setEnabled(lrows == 1)
+        self._moveUpAction.setEnabled(lrows == 1 and not isFirstElem)
+        self._moveDownAction.setEnabled(lrows == 1 and not isLastElem)
+
+    def _onAddAction(self):
+        """ Add a new row"""
+        self.model.insertRows()
+        self._removeAllAction.setEnabled(True)
+
     def _onRemoveThisAction(self):
+        """ Remove the selected row"""
         row = self.ui.curvesTable.currentIndex().row()
         self.model.removeRows(row)
+        if self.model.rowCount() == 0:
+            self._removeAllAction.setEnabled(False)
+
+    def _onClearAll(self):
+        """ Remove all rows"""
+        self.model.clearAll()
+        self._removeAction.setEnabled(False)
+        self._moveUpAction.setEnabled(False)
+        self._moveDownAction.setEnabled(False)
+        self._removeAllAction.setEnabled(False)
+
+    def _onMoveUpAction(self):
+        """ Move up action swap the selected row with the previous one"""
+        i1 = self.ui.curvesTable.currentIndex()
+        i2 = self.ui.curvesTable.model().index(i1.row() - 1, 0)
+        self.model.swapItems(i1, i2)
+        self.ui.curvesTable.setCurrentIndex(i2)
+
+    def _onMoveDownAction(self):
+        """ Move down action swap the selected row with the next one"""
+        i1 = self.ui.curvesTable.currentIndex()
+        i2 = self.ui.curvesTable.model().index(i1.row() + 1, 0)
+        self.model.swapItems(i1, i2)
+        self.ui.curvesTable.setCurrentIndex(i2)
 
     def onModelsAdded(self, models):
         nmodels = len(models)

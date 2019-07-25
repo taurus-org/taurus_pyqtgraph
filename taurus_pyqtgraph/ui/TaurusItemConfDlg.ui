@@ -67,22 +67,6 @@
              </property>
             </spacer>
            </item>
-           <item>
-            <widget class="QToolButton" name="removeCurvesBT">
-             <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
-             </property>
-             <property name="text">
-              <string> Remove</string>
-             </property>
-             <property name="popupMode">
-              <enum>QToolButton::MenuButtonPopup</enum>
-             </property>
-             <property name="toolButtonStyle">
-              <enum>Qt::ToolButtonTextBesideIcon</enum>
-             </property>
-            </widget>
-           </item>
           </layout>
          </item>
         </layout>
