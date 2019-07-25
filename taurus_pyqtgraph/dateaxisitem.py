@@ -142,7 +142,10 @@ class DateAxisItem(AxisItem):
 
         L = len(majticks)
         if L > maxMajSteps:
-            majticks = majticks[::int(numpy.ceil(float(L) / maxMajSteps))]
+            if maxMajSteps == 0:
+                majticks = []
+            else:
+                majticks = majticks[::int(numpy.ceil(float(L) / maxMajSteps))]
 
         # print("majticks <: ", majticks)
         # print "----------------------------"
