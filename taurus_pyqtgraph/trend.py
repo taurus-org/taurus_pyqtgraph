@@ -26,7 +26,7 @@ from __future__ import absolute_import
 
 __all__ = ["TaurusTrend"]
 
-
+from future.utils import string_types
 import sys
 import copy
 
@@ -156,6 +156,9 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     def setModel(self, names):
         """Set a list of models"""
+        # support passing a string  in names instead of a sequence
+        if isinstance(names, string_types):
+            names = [names]
         self._model_chooser_tool.updateModels(names or [])
 
     def createConfig(self, allowUnpickable=False):

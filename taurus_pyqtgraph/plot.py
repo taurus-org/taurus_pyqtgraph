@@ -27,7 +27,7 @@ from __future__ import absolute_import
 
 __all__ = ["TaurusPlot"]
 
-
+from future.utils import string_types
 import sys
 import copy
 from taurus.external.qt import QtGui, Qt
@@ -135,10 +135,17 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
 
     def setModel(self, names):
         """Reimplemented to delegate to the """
+
+        # support passing a string in names
+        if isinstance(names, string_types):
+            names = [names]
         self._model_chooser_tool.updateModels(names)
 
     def addModels(self, names):
         """Reimplemented to delegate to the """
+        # support passing a string in names
+        if isinstance(names, string_types):
+            names = [names]
         self._model_chooser_tool.addModels(names)
 
     def createConfig(self, allowUnpickable=False):
