@@ -439,12 +439,14 @@ class TaurusItemConfDlg(Qt.QWidget):
         i1 = self.ui.curvesTable.currentIndex()
         i2 = self.ui.curvesTable.model().index(i1.row() - 1, 0)
         self.model.swapItems(i1, i2)
+        self.ui.curvesTable.setCurrentIndex(i2)
 
     def _onMoveDownAction(self):
         """ Move down action swap the selected row with the next one"""
         i1 = self.ui.curvesTable.currentIndex()
         i2 = self.ui.curvesTable.model().index(i1.row() + 1, 0)
         self.model.swapItems(i1, i2)
+        self.ui.curvesTable.setCurrentIndex(i2)
 
     def onModelsAdded(self, models):
         nmodels = len(models)
