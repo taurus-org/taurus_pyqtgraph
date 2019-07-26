@@ -125,8 +125,10 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         """ swap the items described by index1 and index2 in the list"""
         r1, r2 = index1.row(), index2.row()
         items = self.taurusItems
+        self.layoutAboutToBeChanged.emit()
         items[r1], items[r2] = items[r2], items[r1]
         self.dataChanged.emit(index1, index2)
+        self.layoutChanged.emit()
 
     def data(self, index, role=Qt.Qt.DisplayRole):
         if not index.isValid() or not (0 <= index.row() < self.rowCount()):
