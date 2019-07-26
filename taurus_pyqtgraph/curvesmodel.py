@@ -356,7 +356,7 @@ class TaurusItemConfDlg(Qt.QWidget):
             Qt.QIcon.fromTheme("edit-clear"), "Remove all rows",
             self._onClearAll)
         self._moveUpAction = self._toolbar.addAction(Qt.QIcon.fromTheme("go-up"),
-                                                   "Move up the row",
+                                                     "Move up the row",
                                                      self._onMoveUpAction)
         self._moveDownAction = self._toolbar.addAction(
             Qt.QIcon.fromTheme("go-down"), "Move down the row",
@@ -440,6 +440,7 @@ class TaurusItemConfDlg(Qt.QWidget):
         """ Move up action swap the selected row with the previous one"""
         i1 = self.ui.curvesTable.currentIndex()
         i2 = self.ui.curvesTable.model().index(i1.row() - 1, 0)
+        self.__commitAndCloseEditor(i1)
         self.model.swapItems(i1, i2)
         self.ui.curvesTable.setCurrentIndex(i2)
 
@@ -447,8 +448,19 @@ class TaurusItemConfDlg(Qt.QWidget):
         """ Move down action swap the selected row with the next one"""
         i1 = self.ui.curvesTable.currentIndex()
         i2 = self.ui.curvesTable.model().index(i1.row() + 1, 0)
+        self.__commitAndCloseEditor(i1)
         self.model.swapItems(i1, i2)
         self.ui.curvesTable.setCurrentIndex(i2)
+
+    def __commitAndCloseEditor(self, idx):
+        """if an editor is open, commit the data and close it before moving
+
+        :param idx: qmodel index
+        """
+        w = self.ui.curvesTable.indexWidget(idx)
+        if w is not None:
+            self.ui.curvesTable.commitData(w)
+            self.ui.curvesTable.closePersistentEditor(idx)
 
     def onModelsAdded(self, models):
         nmodels = len(models)
@@ -507,4 +519,18 @@ class TaurusItemConfDlg(Qt.QWidget):
     def onReload(self):
         # TODO
         print("RELOAD!!! (todo)")
+
+
+if __name__ == '__main__':
+    from taurus.qt.qtgui.application import TaurusApplication
+    from taurus.qt.qtgui.tpg import TaurusItemConfDlg
+
+    import sys
+
+    app = TaurusApplication(cmd_line_parser=None)
+
+    TaurusItemConfDlg.showDlg()
+
+    sys.exit(app.exec_())
+
 
