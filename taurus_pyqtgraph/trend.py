@@ -109,7 +109,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         # add model chooser
         self._model_chooser_tool = TaurusModelChooserTool(
             self, itemClass=TaurusTrendSet)
-        self._model_chooser_tool.attachToPlotItem(plot_item)
+        self._model_chooser_tool.attachToPlotItem(plot_item, self)
 
         # add Y2 axis
         self._y2 = Y2ViewBox()
