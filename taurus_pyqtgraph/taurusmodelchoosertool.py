@@ -57,7 +57,7 @@ class TaurusModelChooserTool(Qt.QAction):
             itemClass = TaurusPlotDataItem
         self.itemClass = itemClass
 
-    def attachToPlotItem(self, plot_item):
+    def attachToPlotItem(self, plot_item, parentWidget=None):
         """
         Use this method to add this tool to a plot
 
@@ -69,6 +69,7 @@ class TaurusModelChooserTool(Qt.QAction):
 
         menu = self.plot_item.getViewBox().menu
         menu.addAction(self)
+        self.setParent(parentWidget or menu)
 
     def _onTriggered(self):
         currentModelNames = []
@@ -129,6 +130,49 @@ class TaurusModelChooserTool(Qt.QAction):
                 self.plot_item.addItem(item)
 
         # self.plot_item.enableAutoRange()  # TODO: Why? remove?
+
+    def setParent(self, parent):
+        """Reimplement setParent to add an event filter"""
+        Qt.QAction.setParent(self, parent)
+        if parent is not None:
+            parent.installEventFilter(self)
+
+    def _dropMimeData(self, data):
+        """Method to process the dropped MimeData"""
+        ymodels = []
+        if data.hasFormat(TAURUS_ATTR_MIME_TYPE):
+            m = bytes(data.data(TAURUS_ATTR_MIME_TYPE)).decode("utf-8")
+            ymodels.append(m)
+
+        elif data.hasFormat(TAURUS_MODEL_LIST_MIME_TYPE):
+            ymodels = bytes(data.data(TAURUS_MODEL_LIST_MIME_TYPE)
+                           ).decode("utf-8").split()
+        elif data.hasText():
+            ymodels.append(data.text())
+
+        # Add models
+        current = []
+        for item in self.plot_item.items:
+            if isinstance(item, self.itemClass):
+                current.append(item.getFullModelName())
+        self.updateModels(current + ymodels)
+        return True
+
+    def eventFilter(self, source, event):
+        """
+        Reimplementation of eventFilter to delegate parent's drag and drop
+        events to TaurusModelChooserTool
+        """
+        if source is self.parent():
+            if event.type() == Qt.QEvent.DragEnter:
+                event.acceptProposedAction()
+                return True
+
+            if event.type() == Qt.QEvent.Drop:
+                event.acceptProposedAction()
+                return self._dropMimeData(event.mimeData())
+
+        return self.parent().eventFilter(source, event)
 
 
 class TaurusImgModelChooserTool(Qt.QAction):
