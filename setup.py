@@ -31,15 +31,15 @@ long_description = '''taurus_pyqtgraph is an extension for the Taurus package.
 It adds the taurus.qt.qtgui.tpg submodule which provides pyqtgraph-based 
 widgets.'''
 
-author = 'Taurus Community',
+author = 'Taurus Community'
 
-maintainer = author,
+maintainer = author
 
-maintainer_email = 'tauruslib-devel@lists.sourceforge.net',
+maintainer_email = 'tauruslib-devel@lists.sourceforge.net'
 
-url = 'http://github.com/taurus-org/taurus_pyqtgraph',
+url = 'https://github.com/taurus-org/taurus_pyqtgraph'
 
-download_url = url,
+download_url = url
 
 platforms = ['Linux', 'Windows']
 
