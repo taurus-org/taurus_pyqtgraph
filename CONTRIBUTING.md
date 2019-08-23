@@ -1,5 +1,9 @@
 # Guidelines for Contributing to taurus_pyqtgraph
 
+Contributions are always welcome. You can contribute by sending feedback 
+(use our [issue tracker][] for that) or by proposing a code change via a 
+[Pull Request][]
+
 The taurus_pyqtgraph repository uses the [GithubFlow][] branching 
 model (i.e. features are developed on individual feature branches 
 and they are eventually merged into the master branch, which is 
@@ -55,6 +59,7 @@ In general, the contributions to should consider following:
   Issue][tag_issue_closing]
 
 
+[issue tracker]: https://github.com/taurus-org/taurus_pyqtgraph/issues
 [gitflow]: http://nvie.com/posts/a-successful-git-branching-model/
 [Fork & Pull Model]: https://en.wikipedia.org/wiki/Fork_and_pull_model
 [forks]: https://help.github.com/articles/fork-a-repo/

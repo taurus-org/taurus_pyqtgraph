@@ -23,6 +23,8 @@
 ##
 #############################################################################
 
+"""Top-level package for taurus_pyqtgraph."""
+
 from __future__ import absolute_import
 import taurus.external.qt as _ # avoid API1 errors due to pyqtgraph imports
 from .y2axis import Y2ViewBox
@@ -46,3 +48,6 @@ from .curveproperties import (CurveAppearanceProperties,
                              serialize_opts,
                              deserialize_opts)
 
+
+# Do not modify the __version__ manually. To be modified by bumpversion
+__version__ = '0.3.0-alpha'

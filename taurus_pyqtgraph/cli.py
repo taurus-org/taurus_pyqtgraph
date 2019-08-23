@@ -81,4 +81,5 @@ def trend_cmd(models, config_file, demo, window_name):
 
 
 if __name__ == '__main__':
-    tpg()
+    import sys
+    sys.exit(tpg())  # pragma: no cover

@@ -25,9 +25,6 @@
 
 from setuptools import setup, find_packages
 
-# Do not modify the __version manually. To be modified by bumpversion
-__version = '0.2.5-alpha'
-
 description = 'Taurus extension providing pyqtgraph-based widgets'
 
 long_description = '''taurus_pyqtgraph is an extension for the Taurus package. 
@@ -49,10 +46,19 @@ platforms = ['Linux', 'Windows']
 keywords = ['Taurus', 'pyqtgraph', 'plugin', 'widgets']
 
 install_requires = [
-    'taurus>=4.5.2',
-    'taurus[taurus-qt]',
     'pyqtgraph',
     'click',
+    'taurus>=4.5.2',
+    'lxml',
+    'ply',
+]
+
+setup_requirements = [
+    'pytest-runner',
+]
+
+test_requirements = [
+    'pytest',
 ]
 
 entry_points = {
@@ -68,14 +74,19 @@ classifiers = [
     'Environment :: Win32 (MS Windows)',
     'Intended Audience :: Developers',
     'Intended Audience :: Science/Research',
-    'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+    'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
     'Operating System :: Microsoft :: Windows',
     'Operating System :: POSIX',
     'Operating System :: POSIX :: Linux',
     'Operating System :: Unix',
     'Operating System :: OS Independent',
-    'Programming Language :: Python',
+    'Natural Language :: English',
+    'Programming Language :: Python :: 2',
     'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
     'Topic :: Scientific/Engineering',
     'Topic :: Software Development :: Libraries',
     'Topic :: Software Development :: User Interfaces',
@@ -84,7 +95,7 @@ classifiers = [
 
 
 setup(name='taurus_pyqtgraph',
-      version=__version,
+      version='0.3.0-alpha',
       description=description,
       long_description=long_description,
       author=author,
@@ -93,11 +104,14 @@ setup(name='taurus_pyqtgraph',
       url=url,
       download_url=download_url,
       platforms=platforms,
-      license='LGPL',
+      license='LGPLv3+',
       keywords=keywords,
       packages=find_packages(),
       classifiers=classifiers,
       include_package_data=True,
       entry_points=entry_points,
+      test_suite='tests',
+      tests_require=test_requirements,
       install_requires=install_requires,
+      setup_requires=setup_requirements,
       )

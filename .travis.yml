@@ -1,0 +1,27 @@
+# Config file for automatic testing at travis-ci.org
+
+language: python
+python:
+  - 3.7
+  - 3.6
+  - 3.5
+
+# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+install: pip install -U tox-travis
+
+# Command to run tests, e.g. python setup.py test
+script: tox
+
+# Use travis-encrypt to encrypt the PyPI password for Travis:
+# travis-encrypt taurus-org taurus_pyqtgraph
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: taurus_bot
+  password:
+    secure: KGOmOt3B/ARfJCtDy/JmnTvRz51sK5Y8P0WuZOU93aI1SkrOK7nWz7p7eTTXMuDG7BlH6A7WxyvpHLmvVmdX2H4HSTPPYIJ/0pCd1u2YJi5rU4PDozacQNpVwU5p6jw9zFuuD5e7+cIjOXYnuPvHMxoerkmJsEogJRDQpzwwegvH/mJqj5w33tuweKA6PU4KfRoi2ce8e0r7ALzxKHAAklTCeyWz+WfvhP31wlWOWp0suZGyvYc4mKnA19v/K/hpbByT0EaqFA7Sjkbs0p1m5NknFt0/10fTKJc/jnjeR5Y+1fR0fj7WgU+wKFr+S04wp4Cl6pucLr+Y7ujN7wPH9+TK+pmmTSQRJj1eu7U0jont8BqPPHwwCPdSkAtZqbAHhgYsauWaEETjCE/q+FEKrHyrH9c3W5+1rz7ZrzDpcKwposF+Radx1jCySnyNdRmp/LnNeuwCCt418C58FmyIF/4OwY7NB59zPf4V0op+FAzHYXnP0Gb1hpdr29Cjbg7kSjKl3RQr9RL337Rgc7DOWolawublLMVQZQvl24iswho36MzKXc6b6cY5P9tZYxFFvZOIf3EsFF/7Brjlz4kZ29C97He0pLfCn6DZeFW9vZ9OzyKTTbstcEmB2w2hm6gkRIt4WuNn7umjDbinhzchjIGF5ipLejkepC1z3cGgGn8=
+  on:
+    tags: true
+    condition: "$TRAVIS_TAG =~ ^[0-9]+.[0-9]+.[0-9]+$"
+    repo: taurus-org/taurus_pyqtgraph
+    python: 3.6
