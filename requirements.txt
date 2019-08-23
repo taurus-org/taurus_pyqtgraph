@@ -1,0 +1,9 @@
+sip==4.19.8
+PyQt5==5.13.0
+
+pyqtgraph==0.10.0
+
+Cython==0.29.13
+guidata==1.7.6
+
+taurus[taurus-qt]
