@@ -9,7 +9,6 @@ Welcome to taurus_pyqtgraph's documentation!
    installation
    usage
    modules
-   history
 
 Indices and tables
 ==================

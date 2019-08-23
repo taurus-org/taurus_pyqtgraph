@@ -1,54 +1,116 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-"""The setup script."""
+##############################################################################
+##
+# This file is part of Taurus
+##
+# http://taurus-scada.org
+##
+# Copyright 2011 CELLS / ALBA Synchrotron, Bellaterra, Spain
+##
+# Taurus is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+##
+# Taurus is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+##
+# You should have received a copy of the GNU Lesser General Public License
+# along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
+##
+##############################################################################
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
+description = 'Taurus extension providing pyqtgraph-based widgets'
 
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
+long_description = '''taurus_pyqtgraph is an extension for the Taurus package. 
+It adds the taurus.qt.qtgui.tpg submodule which provides pyqtgraph-based 
+widgets.'''
 
-requirements = ['Click>=6.0', ]
+author = 'Taurus Community',
 
-setup_requirements = ['pytest-runner', ]
+maintainer = author,
 
-test_requirements = ['pytest', ]
+maintainer_email = 'tauruslib-devel@lists.sourceforge.net',
 
-setup(
-    author="Taurus Community",
-    author_email='tauruslib-devel@lists.sourceforge.net',
-    classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
-        'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+url = 'http://github.com/taurus-org/taurus_pyqtgraph',
+
+download_url = url,
+
+platforms = ['Linux', 'Windows']
+
+keywords = ['Taurus', 'pyqtgraph', 'plugin', 'widgets']
+
+install_requires = [
+    'taurus>=4.5.2',
+    'taurus[taurus-qt]',
+    'pyqtgraph',
+    'click',
+]
+
+setup_requirements = [
+    'pytest-runner',
+]
+
+test_requirements = [
+    'pytest',
+]
+
+entry_points = {
+    'taurus.qt.qtgui': ['tpg = taurus_pyqtgraph',],
+    'taurus.cli.subcommands': [
+        'tpg = taurus_pyqtgraph.cli:tpg',
     ],
-    description="Taurus extension providing pyqtgraph-based widgets",
-    entry_points={
-        'console_scripts': [
-            'taurus_pyqtgraph=taurus_pyqtgraph.cli:main',
-        ],
-    },
-    install_requires=requirements,
-    license="LGPLv3+",
-    long_description=readme + '\n\n' + history,
-    include_package_data=True,
-    keywords='taurus_pyqtgraph',
-    name='taurus_pyqtgraph',
-    packages=find_packages(include=['taurus_pyqtgraph']),
-    setup_requires=setup_requirements,
-    test_suite='tests',
-    tests_require=test_requirements,
-    url='https://github.com/taurus-org/taurus_pyqtgraph',
-    version='0.3.0-alpha',
-    zip_safe=False,
-)
+}
+
+classifiers = [
+    'Development Status :: 3 - Alpha',
+    'Environment :: X11 Applications :: Qt',
+    'Environment :: Win32 (MS Windows)',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: POSIX',
+    'Operating System :: POSIX :: Linux',
+    'Operating System :: Unix',
+    'Operating System :: OS Independent',
+    'Natural Language :: English',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Topic :: Scientific/Engineering',
+    'Topic :: Software Development :: Libraries',
+    'Topic :: Software Development :: User Interfaces',
+    'Topic :: Software Development :: Widget Sets',
+]
+
+
+setup(name='taurus_pyqtgraph',
+      version='0.2.5-alpha',
+      description=description,
+      long_description=long_description,
+      author=author,
+      maintainer=maintainer,
+      maintainer_email=maintainer_email,
+      url=url,
+      download_url=download_url,
+      platforms=platforms,
+      license='LGPLv3+',
+      keywords=keywords,
+      packages=find_packages(),
+      classifiers=classifiers,
+      include_package_data=True,
+      entry_points=entry_points,
+      test_suite='tests',
+      tests_require=test_requirements,
+      install_requires=install_requires,
+      setup_requires=setup_requirements,
+      )
