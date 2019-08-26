@@ -25,7 +25,6 @@
 __all__ = ["TaurusImageItem"]
 
 import sys
-import taurus
 from taurus.qt.qtgui.application import TaurusApplication
 from taurus.qt.qtgui.base import TaurusBaseComponent
 from pyqtgraph import ImageItem
@@ -35,18 +34,18 @@ class TaurusImageItem(ImageItem, TaurusBaseComponent):
     """
     Displays 2D and 3D image data
     """
+
     # TODO: clear image if .setModel(None)
     def __init__(self, *args, **kwargs):
         ImageItem.__init__(self, *args, **kwargs)
-        TaurusBaseComponent.__init__(self, 'TaurusImageItem')
+        TaurusBaseComponent.__init__(self, "TaurusImageItem")
 
     def handleEvent(self, evt_src, evt_type, evt_val):
         try:
             data = evt_val.rvalue
             self.setImage(data)
         except Exception as e:
-            self.warning('Exception in handleEvent: %s', e)
-
+            self.warning("Exception in handleEvent: %s", e)
 
 
 if __name__ == "__main__":
@@ -59,15 +58,15 @@ if __name__ == "__main__":
 
     image_item = TaurusImageItem()
 
-    #Add taurus 2D image data
-    image_item.setModel('eval:randint(0,256,(16,16))')
+    # Add taurus 2D image data
+    image_item.setModel("eval:randint(0,256,(16,16))")
 
-    #add TarusImageItem to a PlotItem
+    # add TarusImageItem to a PlotItem
     plot_item.addItem(image_item)
 
-    #show or hide axis from the plot
-    plot_item.showAxis('left', show=True)
-    plot_item.showAxis('bottom', show=True)
+    # show or hide axis from the plot
+    plot_item.showAxis("left", show=True)
+    plot_item.showAxis("bottom", show=True)
 
     plot_widget.show()
 

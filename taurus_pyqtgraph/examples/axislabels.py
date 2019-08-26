@@ -37,15 +37,15 @@ import pyqtgraph as pg
 import numpy as np
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     app = QtGui.QApplication([])
 
     w = pg.PlotWidget()
 
     # define a list of position,label tuples
-    ticks = [list(zip((1, 2, 3, 7, 8), ('a', 'b', 'c', 'd', 'e')))]
-    xax = w.getAxis('bottom')
+    ticks = [list(zip((1, 2, 3, 7, 8), ("a", "b", "c", "d", "e")))]
+    xax = w.getAxis("bottom")
     xax.setTicks(ticks)
     w.plot(np.arange(9))
 

@@ -25,7 +25,7 @@
 
 """Example on using a tpg.TaurusPlotDataItem on a pure pyqtgraph plot"""
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     import numpy
     from taurus.qt.qtgui.application import TaurusApplication
@@ -37,16 +37,16 @@ if __name__ == '__main__':
     # a standard pyqtgraph plot_item
     w = pg.PlotWidget()
 
-    #add legend to the plot, for that we have to give a name to plot items
+    # add legend to the plot, for that we have to give a name to plot items
     w.addLegend()
 
     # add a regular data item (non-taurus)
-    c1 = pg.PlotDataItem(name='pg item', pen='b', fillLevel=0, brush='c')
+    c1 = pg.PlotDataItem(name="pg item", pen="b", fillLevel=0, brush="c")
     c1.setData(numpy.linspace(0, 2, 250))
     w.addItem(c1)
 
     # add a taurus data item
-    c2 = TaurusPlotDataItem(name='taurus item', pen='r', symbol='o')
+    c2 = TaurusPlotDataItem(name="taurus item", pen="r", symbol="o")
     c2.setModel('eval:Quantity(rand(256),"m")')
     w.addItem(c2)
 

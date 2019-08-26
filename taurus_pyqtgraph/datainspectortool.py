@@ -45,8 +45,12 @@ class DataInspectorLine(InfiniteLine):
     # TODO: modify anchor of labels so that they are plotted on the left if
     #       they do not fit in the view
 
-    def __init__(self, date_format="%Y-%m-%d %H:%M:%S", y_format="%0.4f",
-                 trigger_point_size=10):
+    def __init__(
+        self,
+        date_format="%Y-%m-%d %H:%M:%S",
+        y_format="%0.4f",
+        trigger_point_size=10,
+    ):
         super(DataInspectorLine, self).__init__(angle=90, movable=True)
         self._labels = []
         self._plot_item = None
@@ -57,16 +61,19 @@ class DataInspectorLine(InfiniteLine):
         self._label_style = "background-color: #35393C;"
         self.sigPositionChanged.connect(self._inspect)
         self._highlights = ScatterPlotItem(
-            pos=(), symbol='s', brush="35393C88", pxMode=True,
-            size=trigger_point_size
+            pos=(),
+            symbol="s",
+            brush="35393C88",
+            pxMode=True,
+            size=trigger_point_size,
         )
         # hack to make the CurvesPropertiesTool ignore the highlight points
         self._highlights._UImodifiable = False
 
     def _inspect(self):
         """
-        Slot to re inspector line movemethe mouse move event, and peform the action
-        on the plot.
+        Slot to re inspector line movemethe mouse move event, and perform
+        the action on the plot.
 
         :param evt: mouse event
         """
@@ -84,7 +91,7 @@ class DataInspectorLine(InfiniteLine):
                 adiff = numpy.abs(c.xData - xpos)
                 idx = numpy.argmin(adiff)
                 # only add a label if the line touches the symbol
-                tolerance = .5 * max(1, c.opts['symbolSize']) * x_px_size
+                tolerance = 0.5 * max(1, c.opts["symbolSize"]) * x_px_size
                 if adiff[idx] < tolerance:
                     points.append((c.xData[idx], c.yData[idx]))
 
@@ -97,11 +104,14 @@ class DataInspectorLine(InfiniteLine):
             _y = self._getYValue(y)
             text_item = TextItem()
             text_item.setPos(x, y)
-            text_item.setHtml(("<div style='{}'> "
-                               + "<span><b>x=</b>{} "
-                               + "<span><b>y=</b>{}</span> "
-                               + "</div>").format(self._label_style, _x, _y)
-                              )
+            text_item.setHtml(
+                (
+                    "<div style='{}'> "
+                    + "<span><b>x=</b>{} "
+                    + "<span><b>y=</b>{}</span> "
+                    + "</div>"
+                ).format(self._label_style, _x, _y)
+            )
             self._labels.append(text_item)
             self._plot_item.addItem(text_item, ignoreBounds=True)
         # Add "highlight" marker at each point
@@ -174,7 +184,7 @@ class DataInspectorTool(Qt.QWidgetAction, BaseConfigurableClass):
         BaseConfigurableClass.__init__(self)
         Qt.QWidgetAction.__init__(self, parent)
         self._cb = Qt.QCheckBox()
-        self._cb.setText('Data Inspector')
+        self._cb.setText("Data Inspector")
         self._cb.toggled.connect(self._onToggled)
         self.setDefaultWidget(self._cb)
 
@@ -182,8 +192,7 @@ class DataInspectorTool(Qt.QWidgetAction, BaseConfigurableClass):
         self.enable = False
         self.data_inspector = DataInspectorLine()
 
-        self.registerConfigProperty(self.isChecked, self.setChecked,
-                                    'checked')
+        self.registerConfigProperty(self.isChecked, self.setChecked, "checked")
 
     def attachToPlotItem(self, plot_item):
         """
@@ -203,9 +212,11 @@ class DataInspectorTool(Qt.QWidgetAction, BaseConfigurableClass):
             self.data_inspector.attachToPlotItem(self.plot_item)
             # Signal Proxy which connect the movement of the mouse with
             # the onMoved method in the data inspector object
-            self.proxy = SignalProxy(self.plot_item.scene().sigMouseMoved,
-                                     rateLimit=60,
-                                     slot=self._followMouse)
+            self.proxy = SignalProxy(
+                self.plot_item.scene().sigMouseMoved,
+                rateLimit=60,
+                slot=self._followMouse,
+            )
             self.enable = True
             # auto-close the menu so that the user can start inspecting
             self.plot_item.getViewBox().menu.close()
@@ -221,19 +232,23 @@ class DataInspectorTool(Qt.QWidgetAction, BaseConfigurableClass):
         self.data_inspector.setPos(inspector_x)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from taurus.qt.qtgui.application import TaurusApplication
     import pyqtgraph as pg
     import sys
 
     app = TaurusApplication()
 
-    w = pg.PlotWidget(title='[hint: enable inspector mode from context menu]')
+    w = pg.PlotWidget(title="[hint: enable inspector mode from context menu]")
 
-    w.plot(y=numpy.arange(4), pen='r', symbol='o')
-    w.plot(y=numpy.random.rand(4), pen='c')
-    w.plot(x=numpy.linspace(0, 3, 40), y=1 + numpy.random.rand(40), pen='w',
-           symbol='+')
+    w.plot(y=numpy.arange(4), pen="r", symbol="o")
+    w.plot(y=numpy.random.rand(4), pen="c")
+    w.plot(
+        x=numpy.linspace(0, 3, 40),
+        y=1 + numpy.random.rand(40),
+        pen="w",
+        symbol="+",
+    )
 
     t = DataInspectorTool(w)
     t.attachToPlotItem(w.getPlotItem())

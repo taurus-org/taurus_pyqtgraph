@@ -33,7 +33,8 @@ __all__ = ["DateAxisItem"]
 # There is a conflict problem with PyQt versions. Pyqtgraph imports his own
 # library of PyQt, and Taurus too. So we have to import Qt from own version
 # first as a workaround for forcing our own (as a workaround)
-from taurus.external.qt import Qt
+from taurus.external.qt import Qt  # noqa
+
 # -------------------------------------------------------------------------
 
 import numpy
@@ -54,7 +55,6 @@ class DateAxisItem(AxisItem):
     It provides a  :meth:`attachToPlotItem` method to add it to a given
     PlotItem
     """
-
 
     # TODO: Document this class and methods
     # Max width in pixels reserved for each label in axis
@@ -87,8 +87,10 @@ class DateAxisItem(AxisItem):
 
         elif dx > 5270400:  # 3600s*24*61 = 61 days
             d = timedelta(days=31)
-            dt = dt1.replace(day=1, hour=0, minute=0,
-                             second=0, microsecond=0) + d
+            dt = (
+                dt1.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                + d
+            )
             while dt < dt2:
                 # make sure that we are on day 1 (even if always sum 31 days)
                 dt = dt.replace(day=1)
@@ -111,8 +113,12 @@ class DateAxisItem(AxisItem):
 
         elif dx > 1200:  # 60s*20 = 20 minutes
             d = timedelta(minutes=10)
-            dt = dt1.replace(minute=(dt1.minute // 10) * 10,
-                             second=0, microsecond=0) + d
+            dt = (
+                dt1.replace(
+                    minute=(dt1.minute // 10) * 10, second=0, microsecond=0
+                )
+                + d
+            )
             while dt < dt2:
                 majticks.append(mktime(dt.timetuple()))
                 dt += d
@@ -145,7 +151,7 @@ class DateAxisItem(AxisItem):
             if maxMajSteps == 0:
                 majticks = []
             else:
-                majticks = majticks[::int(numpy.ceil(float(L) / maxMajSteps))]
+                majticks = majticks[:: int(numpy.ceil(float(L) / maxMajSteps))]
 
         # print("majticks <: ", majticks)
         # print "----------------------------"
@@ -189,14 +195,14 @@ class DateAxisItem(AxisItem):
         else:
             # less than 2s (show microseconds)
             # fmt = '%S.%f"'
-            fmt = '[+%fms]'  # explicitly relative to last second
+            fmt = "[+%fms]"  # explicitly relative to last second
 
         for x in values:
             try:
                 t = datetime.fromtimestamp(x)
                 ret.append(t.strftime(fmt))
             except ValueError:  # Windows can't handle dates before 1970
-                ret.append('')
+                ret.append("")
 
         return ret
 
@@ -208,10 +214,10 @@ class DateAxisItem(AxisItem):
         self.setParentItem(plotItem)
         viewBox = plotItem.getViewBox()
         self.linkToView(viewBox)
-        self._oldAxis = plotItem.axes[self.orientation]['item']
+        self._oldAxis = plotItem.axes[self.orientation]["item"]
         self._oldAxis.hide()
-        plotItem.axes[self.orientation]['item'] = self
-        pos = plotItem.axes[self.orientation]['pos']
+        plotItem.axes[self.orientation]["item"] = self
+        pos = plotItem.axes[self.orientation]["pos"]
         plotItem.layout.addItem(self, *pos)
         self.setZValue(-1000)
 
@@ -222,19 +228,18 @@ class DateAxisItem(AxisItem):
         pass  # TODO
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     import sys
     import pyqtgraph as pg
     from taurus.qt.qtgui.application import TaurusApplication
     from taurus.qt.qtgui.tpg import TaurusPlotDataItem
 
-
     app = TaurusApplication()
 
     # a standard pyqtgraph plot_item
     w = pg.PlotWidget()
-    axis = DateAxisItem(orientation='bottom')
+    axis = DateAxisItem(orientation="bottom")
 
     axis.attachToPlotItem(w.getPlotItem())
 
@@ -245,4 +250,3 @@ if __name__ == '__main__':
     w.show()
 
     sys.exit(app.exec_())
-

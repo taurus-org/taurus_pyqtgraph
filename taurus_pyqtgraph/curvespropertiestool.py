@@ -26,8 +26,10 @@ __all__ = ["CurvesPropertiesTool"]
 
 from taurus.external.qt import QtGui, Qt
 from taurus.external.qt import QtCore
-from taurus_pyqtgraph.curveproperties import (CurvePropAdapter,
-                                              CurvesAppearanceChooser)
+from taurus_pyqtgraph.curveproperties import (
+    CurvePropAdapter,
+    CurvesAppearanceChooser,
+)
 import pyqtgraph
 
 
@@ -40,7 +42,7 @@ class CurvesPropertiesTool(QtGui.QAction):
     """
 
     def __init__(self, parent=None):
-        QtGui.QAction.__init__(self, 'Plot configuration', parent)
+        QtGui.QAction.__init__(self, "Plot configuration", parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.Y2Axis = None
@@ -77,58 +79,64 @@ class CurvesPropertiesTool(QtGui.QAction):
 
         # It is necessary a CurvePropAdapter object for 'translate'
         # the PlotDataItem properties into generic form given for the dialog
-        curvePropAdapter = CurvePropAdapter(modifiable_items,
-                                            self.plot_item, self.Y2Axis)
+        curvePropAdapter = CurvePropAdapter(
+            modifiable_items, self.plot_item, self.Y2Axis
+        )
         curves = curvePropAdapter.getCurveProperties()
 
         dlg = Qt.QDialog(parent=self.parent())
-        dlg.setWindowTitle('Plot Configuration')
+        dlg.setWindowTitle("Plot Configuration")
         layout = Qt.QVBoxLayout()
 
-        w = CurvesAppearanceChooser(parent=dlg, curvePropDict=curves,
-                                    showButtons=True, Y2Axis=self.Y2Axis,
-                                    curvePropAdapter=curvePropAdapter)
+        w = CurvesAppearanceChooser(
+            parent=dlg,
+            curvePropDict=curves,
+            showButtons=True,
+            Y2Axis=self.Y2Axis,
+            curvePropAdapter=curvePropAdapter,
+        )
         layout.addWidget(w)
         dlg.setLayout(layout)
         dlg.exec_()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     import numpy
     import pyqtgraph as pg
     from taurus.qt.qtgui.tpg import TaurusPlotDataItem
     from taurus.qt.qtgui.application import TaurusApplication
-    from taurus.qt.qtgui.tpg import CurvesPropertiesTool
 
     app = TaurusApplication()
 
     # a standard pyqtgraph plot_item
     w = pg.PlotWidget()
 
-    #add legend to the plot, for that we have to give a name to plot items
+    # add legend to the plot, for that we have to give a name to plot items
     w.addLegend()
 
     # add a Y2 axis
     from taurus.qt.qtgui.tpg import Y2ViewBox
+
     y2ViewBox = Y2ViewBox()
     y2ViewBox.attachToPlotItem(w.getPlotItem())
 
     # adding a regular data item (non-taurus)
     c1 = pg.PlotDataItem(
-        name='st plot',
-        pen=dict(color='y', width=3, style=QtCore.Qt.DashLine),
+        name="st plot",
+        pen=dict(color="y", width=3, style=QtCore.Qt.DashLine),
         fillLevel=0.3,
-        fillBrush='g'
-        )
+        fillBrush="g",
+    )
 
-    c1.setData(numpy.arange(300) / 300.)
+    c1.setData(numpy.arange(300) / 300.0)
     w.addItem(c1)
 
     # adding a taurus data item
-    c2 = TaurusPlotDataItem(name='st2 plot',  pen='r', symbol='o',
-                            symbolSize=10)
-    c2.setModel('sys/tg_test/1/wave')
+    c2 = TaurusPlotDataItem(
+        name="st2 plot", pen="r", symbol="o", symbolSize=10
+    )
+    c2.setModel("sys/tg_test/1/wave")
 
     w.addItem(c2)
 
@@ -139,6 +147,6 @@ if __name__ == '__main__':
     w.show()
 
     # directly trigger the tool
-    tool.trigger ()
+    tool.trigger()
 
     sys.exit(app.exec_())

@@ -37,8 +37,14 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import object
-__all__ = ["CurveAppearanceProperties", "CurvePropAdapter",
-           "CurvesAppearanceChooser", "serialize_opts", "deserialize_opts"]
+
+__all__ = [
+    "CurveAppearanceProperties",
+    "CurvePropAdapter",
+    "CurvesAppearanceChooser",
+    "serialize_opts",
+    "deserialize_opts",
+]
 
 import copy
 
@@ -54,31 +60,34 @@ class CONFLICT(object):
     This is just a do-nothing class to be used to indicate that there are
     conflicting values when merging properties from different curves
     """
+
     pass
 
 
-NamedLineStyles = {CONFLICT: "",
-                   Qt.Qt.NoPen: "No line",
-                   Qt.Qt.SolidLine: "_____",
-                   Qt.Qt.DashLine: "_ _ _",
-                   Qt.Qt.DotLine: ".....",
-                   Qt.Qt.DashDotLine: "_._._",
-                   Qt.Qt.DashDotDotLine: ".._..",
-                   }
+NamedLineStyles = {
+    CONFLICT: "",
+    Qt.Qt.NoPen: "No line",
+    Qt.Qt.SolidLine: "_____",
+    Qt.Qt.DashLine: "_ _ _",
+    Qt.Qt.DotLine: ".....",
+    Qt.Qt.DashDotLine: "_._._",
+    Qt.Qt.DashDotDotLine: ".._..",
+}
 
 ReverseNamedLineStyles = {}
 for k, v in NamedLineStyles.items():
     ReverseNamedLineStyles[v] = k
 
 # TODO:allow the dialog to use this curve styles
-NamedCurveStyles = {CONFLICT: "",
-                    None: "",
-                    "No curve": "No curve",
-                    "Lines": "Lines",
-                    "Sticks": "Sticks",
-                    "Steps": "Steps",
-                    "Dots": "Dots"
-                    }
+NamedCurveStyles = {
+    CONFLICT: "",
+    None: "",
+    "No curve": "No curve",
+    "Lines": "Lines",
+    "Sticks": "Sticks",
+    "Steps": "Steps",
+    "Dots": "Dots",
+}
 
 ReverseNamedCurveStyles = {}
 for k, v in NamedCurveStyles.items():
@@ -87,25 +96,34 @@ for k, v in NamedCurveStyles.items():
 NamedSymbolStyles = {
     CONFLICT: "",
     None: "No symbol",
-    'o': "Circle",
-    's': "Square",
-    'd': "Diamond",
-    't': "Down Triangle",
-    't1': "Up triangle",
-    't3': "Left Triangle",
-    't2': "Right Triangle",
-    '+': "Cross",
-    'star': "Star",
-    'p': "Pentagon",
-    'h': "Hexagon"
+    "o": "Circle",
+    "s": "Square",
+    "d": "Diamond",
+    "t": "Down Triangle",
+    "t1": "Up triangle",
+    "t3": "Left Triangle",
+    "t2": "Right Triangle",
+    "+": "Cross",
+    "star": "Star",
+    "p": "Pentagon",
+    "h": "Hexagon",
 }
 
 ReverseNamedSymbolStyles = {}
 for k, v in NamedSymbolStyles.items():
     ReverseNamedSymbolStyles[v] = k
 
-NamedColors = ["Black", "Red", "Blue", "Magenta",
-               "Green", "Cyan", "Yellow", "Gray", "White"]
+NamedColors = [
+    "Black",
+    "Red",
+    "Blue",
+    "Magenta",
+    "Green",
+    "Cyan",
+    "Yellow",
+    "Gray",
+    "White",
+]
 
 
 @UILoadable
@@ -125,10 +143,17 @@ class CurvesAppearanceChooser(Qt.QWidget):
 
     controlChanged = Qt.pyqtSignal()
     curveAppearanceChanged = Qt.pyqtSignal(object, list)
-    CurveTitleEdited = Qt.pyqtSignal('QString', 'QString')
+    CurveTitleEdited = Qt.pyqtSignal("QString", "QString")
 
-    def __init__(self, parent=None, curvePropDict={}, showButtons=False,
-                 autoApply=False, Y2Axis=None, curvePropAdapter=None):
+    def __init__(
+        self,
+        parent=None,
+        curvePropDict={},
+        showButtons=False,
+        autoApply=False,
+        Y2Axis=None,
+        curvePropAdapter=None,
+    ):
         # try:
         super(CurvesAppearanceChooser, self).__init__(parent)
         self.loadUi()
@@ -152,7 +177,9 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.bckgndBT.setIcon(Qt.QIcon(":color-fill.svg"))
 
         # connections.
-        self.curvesLW.itemSelectionChanged.connect(self._onSelectedCurveChanged)
+        self.curvesLW.itemSelectionChanged.connect(
+            self._onSelectedCurveChanged
+        )
         self.curvesLW.itemChanged.connect(self._onItemChanged)
         self.applyBT.clicked.connect(self.onApply)
         self.resetBT.clicked.connect(self.onReset)
@@ -201,7 +228,8 @@ class CurvesAppearanceChooser(Qt.QWidget):
         """Launches a dialog for choosing the parent's canvas background color
         """
         color = Qt.QColorDialog.getColor(
-            self.curvePropAdapter.getBackgroundColor(), self)
+            self.curvePropAdapter.getBackgroundColor(), self
+        )
         if Qt.QColor.isValid(color):
             self.curvePropAdapter.setBackgroundColor(color)
 
@@ -224,9 +252,13 @@ class CurvesAppearanceChooser(Qt.QWidget):
             self.__itemsDict[name] = item
             item.setData(self.NAME_ROLE, name)
             item.setToolTip("<b>Curve Name:</b> %s" % name)
-            item.setFlags(Qt.Qt.ItemIsEnabled | Qt.Qt.ItemIsSelectable |
-                          Qt.Qt.ItemIsUserCheckable | Qt.Qt.ItemIsDragEnabled |
-                          Qt.Qt.ItemIsEditable)
+            item.setFlags(
+                Qt.Qt.ItemIsEnabled
+                | Qt.Qt.ItemIsSelectable
+                | Qt.Qt.ItemIsUserCheckable
+                | Qt.Qt.ItemIsDragEnabled
+                | Qt.Qt.ItemIsEditable
+            )
         self.curvesLW.setCurrentRow(0)
 
     def _onItemChanged(self, item):
@@ -260,8 +292,9 @@ class CurvesAppearanceChooser(Qt.QWidget):
 
         :return: (string_list) the names of the selected curves
         """
-        return [item.data(self.NAME_ROLE)
-                for item in self.curvesLW.selectedItems()]
+        return [
+            item.data(self.NAME_ROLE) for item in self.curvesLW.selectedItems()
+        ]
 
     def showProperties(self, prop=None):
         """Updates the dialog to show the given properties.
@@ -276,11 +309,14 @@ class CurvesAppearanceChooser(Qt.QWidget):
             prop = self._shownProp
         # set the Style comboboxes
         self.sStyleCB.setCurrentIndex(
-            self.sStyleCB.findText(NamedSymbolStyles[prop.sStyle]))
+            self.sStyleCB.findText(NamedSymbolStyles[prop.sStyle])
+        )
         self.lStyleCB.setCurrentIndex(
-            self.lStyleCB.findText(NamedLineStyles[prop.lStyle]))
+            self.lStyleCB.findText(NamedLineStyles[prop.lStyle])
+        )
         self.cStyleCB.setCurrentIndex(
-            self.cStyleCB.findText(NamedCurveStyles[prop.cStyle]))
+            self.cStyleCB.findText(NamedCurveStyles[prop.cStyle])
+        )
 
         if prop.y2 is CONFLICT:
             self.assignToY1BT.setChecked(False)
@@ -309,8 +345,11 @@ class CurvesAppearanceChooser(Qt.QWidget):
             index = self.sColorCB.findData(Qt.QColor(prop.sColor))
         if index == -1:  # if the color is not supported, add it to combobox
             index = self.sColorCB.count()
-            self.sColorCB.addItem(self._colorIcon(
-                Qt.QColor(prop.sColor)), "", Qt.QColor(prop.sColor))
+            self.sColorCB.addItem(
+                self._colorIcon(Qt.QColor(prop.sColor)),
+                "",
+                Qt.QColor(prop.sColor),
+            )
         self.sColorCB.setCurrentIndex(index)
         if prop.lColor is None or prop.lColor is CONFLICT:
             index = 0
@@ -318,8 +357,11 @@ class CurvesAppearanceChooser(Qt.QWidget):
             index = self.lColorCB.findData(Qt.QColor(prop.lColor))
         if index == -1:  # if the color is not supported, add it to combobox
             index = self.lColorCB.count()
-            self.lColorCB.addItem(self._colorIcon(
-                Qt.QColor(prop.lColor)), "", Qt.QColor(prop.lColor))
+            self.lColorCB.addItem(
+                self._colorIcon(Qt.QColor(prop.lColor)),
+                "",
+                Qt.QColor(prop.lColor),
+            )
         self.lColorCB.setCurrentIndex(index)
         # set the Fill Checkbox. The prop.sFill value can be in 3 states: True,
         # False and None
@@ -356,8 +398,9 @@ class CurvesAppearanceChooser(Qt.QWidget):
 
     def _onSelectedCurveChanged(self):
         """Updates the shown properties when the curve selection changes"""
-        plist = [self.curvePropDict[name]
-                 for name in self.getSelectedCurveNames()]
+        plist = [
+            self.curvePropDict[name] for name in self.getSelectedCurveNames()
+        ]
         if len(plist) == 0:
             plist = [CurveAppearanceProperties()]
             self.lineGB.setEnabled(False)
@@ -378,7 +421,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
         :param text: (str) the new symbol style label
         """
         text = str(text)
-        if self.sSizeSB.value() < 2 and not text in ["", "No symbol"]:
+        if self.sSizeSB.value() < 2 and text not in ["", "No symbol"]:
             # a symbol size of 0 is invisible and 1 means you should use
             # cStyle=dots
             self.sSizeSB.setValue(3)
@@ -397,7 +440,8 @@ class CurvesAppearanceChooser(Qt.QWidget):
         # get the values from the Style comboboxes. Note that the empty string
         # ("") translates into CONFLICT
         prop.sStyle = ReverseNamedSymbolStyles[
-            str(self.sStyleCB.currentText())]
+            str(self.sStyleCB.currentText())
+        ]
         prop.lStyle = ReverseNamedLineStyles[str(self.lStyleCB.currentText())]
         prop.cStyle = ReverseNamedCurveStyles[str(self.cStyleCB.currentText())]
         # get sSize and lWidth from the spinboxes (-1 means conflict)
@@ -449,7 +493,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
             prop.y2 = True
         else:
             # both buttons should never be checked simultaneously
-            raise RuntimeError('Inconsistent state of Y-axis buttons')
+            raise RuntimeError("Inconsistent state of Y-axis buttons")
 
         # store the props
         self._shownProp = copy.deepcopy(prop)
@@ -473,7 +517,8 @@ class CurvesAppearanceChooser(Qt.QWidget):
         for n in names:
             self.curvePropDict[n] = CurveAppearanceProperties.merge(
                 [self.curvePropDict[n], prop],
-                conflict=CurveAppearanceProperties.inConflict_update_a)
+                conflict=CurveAppearanceProperties.inConflict_update_a,
+            )
         # emit a (PyQt) signal telling what properties (first argument) need to
         # be applied to which curves (second argument)
         # self.curveAppearanceChanged.emit(prop, names)
@@ -522,12 +567,12 @@ class CurvePropAdapter(object):
             y2 = isinstance(item.getViewBox(), Y2ViewBox)
 
             opts = item.opts
-            pen = pyqtgraph.mkPen(opts['pen'])
-            symbol_pen = pyqtgraph.mkPen(opts['symbolPen'])
-            symbol_brush = pyqtgraph.mkBrush(opts['symbolBrush'])
-            title = opts.get('name')
-            sStyle = opts['symbol']
-            sSize = opts['symbolSize']
+            pen = pyqtgraph.mkPen(opts["pen"])
+            symbol_pen = pyqtgraph.mkPen(opts["symbolPen"])
+            symbol_brush = pyqtgraph.mkBrush(opts["symbolBrush"])
+            title = opts.get("name")
+            sStyle = opts["symbol"]
+            sSize = opts["symbolSize"]
 
             if sStyle is None:
                 sColor = None
@@ -546,12 +591,21 @@ class CurvePropAdapter(object):
             lColor = pen.color()
             cStyle = None
 
-            cFill = opts['fillLevel']
+            cFill = opts["fillLevel"]
 
             curve_appearance_properties = CurveAppearanceProperties(
-                sStyle=sStyle, sSize=sSize, sColor=sColor, sFill=sFill,
-                lStyle=lStyle, lWidth=lWidth, lColor=lColor, cStyle=cStyle,
-                cFill=cFill, y2=y2, title=title)
+                sStyle=sStyle,
+                sSize=sSize,
+                sColor=sColor,
+                sFill=sFill,
+                lStyle=lStyle,
+                lWidth=lWidth,
+                lColor=lColor,
+                cStyle=cStyle,
+                cFill=cFill,
+                y2=y2,
+                title=title,
+            )
             curves_prop[title] = curve_appearance_properties
             self._curve_items[title] = item
         return curves_prop
@@ -589,7 +643,7 @@ class CurvePropAdapter(object):
                 try:
                     cFillColor = Qt.QColor(lColor)
                     cFillColor.setAlphaF(0.5)  # set to semitransparent
-                except:
+                except Exception:
                     cFillColor = lColor
                 dataItem.setFillBrush(cFillColor)
             else:
@@ -623,13 +677,12 @@ class CurvePropAdapter(object):
                     # adapt the log mode to the main view logMode
                     # (this is already done automatically when adding to y2)
                     dataItem.setLogMode(
-                        self.plotItem.getAxis('bottom').logMode,
-                        self.plotItem.getAxis('left').logMode
+                        self.plotItem.getAxis("bottom").logMode,
+                        self.plotItem.getAxis("left").logMode,
                     )
                 new_view.addItem(dataItem)
                 old_view.autoRange()
                 new_view.autoRange()
-
 
     # change background color of the whole window, not just the plot area
     # def setBackgroundColor(self, color):
@@ -642,19 +695,30 @@ class CurvePropAdapter(object):
         self.plotItem.getViewBox().setBackgroundColor(color)
 
     def getBackgroundColor(self):
-        backgroundColor = self.plotItem.getViewBox().state['background']
+        backgroundColor = self.plotItem.getViewBox().state["background"]
         if backgroundColor is None:
-            return Qt.QColor('black')
+            return Qt.QColor("black")
         return backgroundColor
 
 
 class CurveAppearanceProperties(object):
     """An object describing the appearance of a TaurusCurve"""
 
-    def __init__(self, sStyle=CONFLICT, sSize=CONFLICT, sColor=CONFLICT,
-                 sFill=CONFLICT, lStyle=CONFLICT, lWidth=CONFLICT,
-                 lColor=CONFLICT, cStyle=CONFLICT, y2=CONFLICT,
-                 cFill=CONFLICT, title=CONFLICT, visible=CONFLICT):
+    def __init__(
+        self,
+        sStyle=CONFLICT,
+        sSize=CONFLICT,
+        sColor=CONFLICT,
+        sFill=CONFLICT,
+        lStyle=CONFLICT,
+        lWidth=CONFLICT,
+        lColor=CONFLICT,
+        cStyle=CONFLICT,
+        y2=CONFLICT,
+        cFill=CONFLICT,
+        title=CONFLICT,
+        visible=CONFLICT,
+    ):
         """
         Possible keyword arguments are:
             - sStyle= symbolstyle
@@ -692,9 +756,20 @@ class CurveAppearanceProperties(object):
         self.y2 = y2
         self.title = title
         self.visible = visible
-        self.propertyList = ["sStyle", "sSize", "sColor", "sFill", "lStyle",
-                             "lWidth", "lColor", "cStyle", "cFill", "y2",
-                             "title", "visible"]
+        self.propertyList = [
+            "sStyle",
+            "sSize",
+            "sColor",
+            "sFill",
+            "lStyle",
+            "lWidth",
+            "lColor",
+            "cStyle",
+            "cFill",
+            "y2",
+            "title",
+            "visible",
+        ]
 
     @staticmethod
     def inConflict_update_a(a, b):
@@ -724,7 +799,8 @@ class CurveAppearanceProperties(object):
             vself = getattr(self, aname)
             vother = getattr(other, aname)
             if vself != vother and (
-                        strict or not (CONFLICT in (vself, vother))):
+                strict or not (CONFLICT in (vself, vother))
+            ):
                 result.append(aname)
         return result
 
@@ -753,9 +829,19 @@ class CurveAppearanceProperties(object):
         if n == 1:
             return plist[0]
         if attributes is None:
-            attributes = ["sStyle", "sSize", "sColor", "sFill", "lStyle",
-                          "lWidth", "lColor", "cStyle", "cFill", "y2",
-                          "title"]
+            attributes = [
+                "sStyle",
+                "sSize",
+                "sColor",
+                "sFill",
+                "lStyle",
+                "lWidth",
+                "lColor",
+                "cStyle",
+                "cFill",
+                "y2",
+                "title",
+            ]
         if conflict is None:
             conflict = CurveAppearanceProperties.inConflict_CONFLICT
         p = CurveAppearanceProperties()
@@ -780,29 +866,26 @@ def deserialize_opts(opts):
     :return: (dict) deserialized properties (acceptable by PlotDataItem)
     """
     # pen property
-    if opts['pen'] is not None:
-        opts['pen'] = _unmarshallingQPainter(
-            opts, 'pen', 'pen')
+    if opts["pen"] is not None:
+        opts["pen"] = _unmarshallingQPainter(opts, "pen", "pen")
 
     # shadowPen property
-    if opts['shadowPen'] is not None:
-        opts['shadowPen'] = _unmarshallingQPainter(
-            opts, 'shadowPen', 'pen')
+    if opts["shadowPen"] is not None:
+        opts["shadowPen"] = _unmarshallingQPainter(opts, "shadowPen", "pen")
 
     # symbolPen property
-    if opts['symbolPen'] is not None:
-        opts['symbolPen'] = _unmarshallingQPainter(
-            opts, 'symbolPen', 'pen')
+    if opts["symbolPen"] is not None:
+        opts["symbolPen"] = _unmarshallingQPainter(opts, "symbolPen", "pen")
 
     # fillBrush property
-    if opts['fillBrush'] is not None:
-        opts['fillBrush'] = _unmarshallingQPainter(
-            opts, 'fillBrush', 'brush')
+    if opts["fillBrush"] is not None:
+        opts["fillBrush"] = _unmarshallingQPainter(opts, "fillBrush", "brush")
 
     # symbolBrush property
-    if opts['symbolBrush'] is not None:
-        opts['symbolBrush'] = _unmarshallingQPainter(
-            opts, 'symbolBrush', 'brush')
+    if opts["symbolBrush"] is not None:
+        opts["symbolBrush"] = _unmarshallingQPainter(
+            opts, "symbolBrush", "brush"
+        )
 
     return opts
 
@@ -817,60 +900,60 @@ def serialize_opts(opts):
     :return: (dict) serialized properties (can be pickled)
     """
     # pen property (QPen object)
-    if opts['pen'] is not None:
-        _marshallingQPainter(opts, 'pen', 'pen')
+    if opts["pen"] is not None:
+        _marshallingQPainter(opts, "pen", "pen")
 
     # shadowPen property (QPen object)
-    if opts['shadowPen'] is not None:
-        _marshallingQPainter(opts, 'shadowPen', 'pen')
+    if opts["shadowPen"] is not None:
+        _marshallingQPainter(opts, "shadowPen", "pen")
 
     # symbolPen property (QPen object)
-    if opts['symbolPen'] is not None:
-        _marshallingQPainter(opts, 'symbolPen', 'pen')
+    if opts["symbolPen"] is not None:
+        _marshallingQPainter(opts, "symbolPen", "pen")
 
     # fillBrush property (QBrush object)
-    if opts['fillBrush'] is not None:
-        _marshallingQPainter(opts, 'fillBrush', 'brush')
+    if opts["fillBrush"] is not None:
+        _marshallingQPainter(opts, "fillBrush", "brush")
 
     # symbolBrush property (QBrush object)
-    if opts['symbolBrush'] is not None:
-        _marshallingQPainter(
-            opts, 'symbolBrush', 'brush')
+    if opts["symbolBrush"] is not None:
+        _marshallingQPainter(opts, "symbolBrush", "brush")
 
     return opts
 
 
 def _marshallingQPainter(opts, prop_name, qPainter):
-    if qPainter == 'pen':
+    if qPainter == "pen":
         painter = pyqtgraph.mkPen(opts[prop_name])
-        opts[prop_name + '_width'] = painter.width()
-        opts[prop_name + '_dash'] = painter.dashPattern()
-        opts[prop_name + '_cosmetic'] = painter.isCosmetic()
-    elif qPainter == 'brush':
+        opts[prop_name + "_width"] = painter.width()
+        opts[prop_name + "_dash"] = painter.dashPattern()
+        opts[prop_name + "_cosmetic"] = painter.isCosmetic()
+    elif qPainter == "brush":
         painter = pyqtgraph.mkBrush(opts[prop_name])
     else:
         return
 
     color = pyqtgraph.colorStr(painter.color())
     opts[prop_name] = color
-    opts[prop_name + '_style'] = painter.style()
+    opts[prop_name + "_style"] = painter.style()
 
 
 def _unmarshallingQPainter(opts, prop_name, qPainter):
     color = opts[prop_name]
-    style = opts[prop_name + '_style']
-    del opts[prop_name + '_style']
+    style = opts[prop_name + "_style"]
+    del opts[prop_name + "_style"]
 
-    if qPainter == 'pen':
-        width = opts[prop_name + '_width']
-        dash = opts[prop_name + '_dash']
-        cosmetic = opts[prop_name + '_cosmetic']
-        del opts[prop_name + '_width']
-        del opts[prop_name + '_dash']
-        del opts[prop_name + '_cosmetic']
-        painter = pyqtgraph.mkPen(color=color, style=style,
-                                  width=width, dash=dash, cosmetic=cosmetic)
-    elif qPainter == 'brush':
+    if qPainter == "pen":
+        width = opts[prop_name + "_width"]
+        dash = opts[prop_name + "_dash"]
+        cosmetic = opts[prop_name + "_cosmetic"]
+        del opts[prop_name + "_width"]
+        del opts[prop_name + "_dash"]
+        del opts[prop_name + "_cosmetic"]
+        painter = pyqtgraph.mkPen(
+            color=color, style=style, width=width, dash=dash, cosmetic=cosmetic
+        )
+    elif qPainter == "brush":
         painter = pyqtgraph.mkBrush(color=color)
         painter.setStyle(style)
     else:

@@ -34,33 +34,44 @@ from pyqtgraph.Qt import QtGui
 import sys
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     app = QtGui.QApplication([])
 
     # instantiate the main plot
     plt = pg.PlotWidget()
-    plt.setWindowTitle('pyqtgraph example: PLOT')
+    plt.setWindowTitle("pyqtgraph example: PLOT")
 
     # instantiate a graphics view to contain the legend
     gv = QtGui.QGraphicsView(QtGui.QGraphicsScene())
-    gv.setWindowTitle('pyqtgraph example: Legend')
-    gv.setBackgroundBrush(QtGui.QBrush(QtGui.QColor('black')))
+    gv.setWindowTitle("pyqtgraph example: Legend")
+    gv.setBackgroundBrush(QtGui.QBrush(QtGui.QColor("black")))
 
-    l = pg.LegendItem((100,60), offset=(70,30))  # args are (size, offset)
-    gv.scene().addItem(l)
+    legend = pg.LegendItem(size=(100, 60), offset=(70, 30))
+    gv.scene().addItem(legend)
 
     # create 3 curves
-    c1 = plt.plot([1, 3, 2, 4], pen='r', symbol='o', symbolPen='r',
-                  symbolBrush=0.5, name='red plot')
-    c2 = plt.plot([2, 1, 4, 3], pen='g', fillLevel=0,
-                  fillBrush=(255, 255, 255, 30), name='green plot')
-    c3 = plt.plot(list(range(7)), pen='c', fillLevel=0)
+    c1 = plt.plot(
+        [1, 3, 2, 4],
+        pen="r",
+        symbol="o",
+        symbolPen="r",
+        symbolBrush=0.5,
+        name="red plot",
+    )
+    c2 = plt.plot(
+        [2, 1, 4, 3],
+        pen="g",
+        fillLevel=0,
+        fillBrush=(255, 255, 255, 30),
+        name="green plot",
+    )
+    c3 = plt.plot(list(range(7)), pen="c", fillLevel=0)
 
     # add the **named** curves to the legend
     for dataitem in plt.getPlotItem().listDataItems():
         if dataitem.name():
-            l.addItem(dataitem, dataitem.name())
+            legend.addItem(dataitem, dataitem.name())
 
     plt.show()
     gv.show()

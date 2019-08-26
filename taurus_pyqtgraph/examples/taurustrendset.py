@@ -27,11 +27,15 @@
 """Example on using a tpg.TaurusTrendSet and some related tools
 on a pure pyqtgraph plot"""
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     from taurus.qt.qtgui.application import TaurusApplication
-    from taurus.qt.qtgui.tpg import (TaurusTrendSet, DateAxisItem,
-                                     XAutoPanTool, ForcedReadTool)
+    from taurus.qt.qtgui.tpg import (
+        TaurusTrendSet,
+        DateAxisItem,
+        XAutoPanTool,
+        ForcedReadTool,
+    )
     import pyqtgraph as pg
 
     from taurus.core.taurusmanager import TaurusManager
@@ -42,7 +46,7 @@ if __name__ == '__main__':
     app = TaurusApplication()
 
     # Add a date-time X axis
-    axis = DateAxisItem(orientation='bottom')
+    axis = DateAxisItem(orientation="bottom")
     w = pg.PlotWidget()
     axis.attachToPlotItem(w.getPlotItem())
 
@@ -58,8 +62,8 @@ if __name__ == '__main__':
     w.addLegend()
 
     # adding a taurus data item...
-    c2 = TaurusTrendSet(name='foo')
-    c2.setModel('eval:rand(2)')
+    c2 = TaurusTrendSet(name="foo")
+    c2.setModel("eval:rand(2)")
     w.addItem(c2)
 
     w.show()

@@ -37,9 +37,10 @@ def _PlotItem_addItem(self, item, *args, **kwargs):
     """
     PlotItem.addItem(self, item, *args, **kwargs)
 
-    if hasattr(item, 'setLogMode'):
-        item.setLogMode(self.getAxis('bottom').logMode,
-                        self.getAxis('left').logMode)
+    if hasattr(item, "setLogMode"):
+        item.setLogMode(
+            self.getAxis("bottom").logMode, self.getAxis("left").logMode
+        )
 
 
 class Y2ViewBox(ViewBox, BaseConfigurableClass):
@@ -54,8 +55,8 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         BaseConfigurableClass.__init__(self)
         ViewBox.__init__(self, *args, **kwargs)
 
-        self.registerConfigProperty(self.getCurves, self.setCurves, 'Y2Curves')
-        self.registerConfigProperty(self._getState, self.setState, 'viewState')
+        self.registerConfigProperty(self.getCurves, self.setCurves, "Y2Curves")
+        self.registerConfigProperty(self._getState, self.setState, "viewState")
         self._isAttached = False
         self.plotItem = None
         self._curvesModelNames = []
@@ -82,8 +83,8 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
 
         # monkey-patch the addItem method of the PlotItem
         from types import MethodType
-        self.plotItem.addItem = MethodType(_PlotItem_addItem, self.plotItem)
 
+        self.plotItem.addItem = MethodType(_PlotItem_addItem, self.plotItem)
 
     def _updateViews(self, viewBox):
         self.setGeometry(viewBox.sceneBoundingRect())
@@ -97,9 +98,9 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         # axis from scene and hide the axis.
         if len(self.addedItems) < 1:
             self.plotItem.scene().removeItem(self)
-            self.plotItem.hideAxis('right')
+            self.plotItem.hideAxis("right")
 
-        if hasattr(item, 'getFullModelNames'):
+        if hasattr(item, "getFullModelNames"):
             self._curvesModelNames.remove(item.getFullModelNames())
 
     def addItem(self, item, ignoreBounds=False):
@@ -109,18 +110,22 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         if len(self.addedItems) == 1:
             # when the first curve is added to self (axis Y2), we must
             # add Y2 to main scene(), show the axis and link X axis to self.
-            self.plotItem.showAxis('right')
+            self.plotItem.showAxis("right")
             self.plotItem.scene().addItem(self)
-            self.plotItem.getAxis('right').linkToView(self)
+            self.plotItem.getAxis("right").linkToView(self)
             self.setXLink(self.plotItem)
 
         # set the item log mode to match this view:
-        if hasattr(item, 'setLogMode'):
-            item.setLogMode(self.plotItem.getAxis('bottom').logMode,
-                            self.plotItem.getAxis('right').logMode)
+        if hasattr(item, "setLogMode"):
+            item.setLogMode(
+                self.plotItem.getAxis("bottom").logMode,
+                self.plotItem.getAxis("right").logMode,
+            )
 
-        if hasattr(item, 'getFullModelNames') and (len(self.addedItems) > 0
-                and item.getFullModelNames() not in self._curvesModelNames):
+        if hasattr(item, "getFullModelNames") and (
+            len(self.addedItems) > 0
+            and item.getFullModelNames() not in self._curvesModelNames
+        ):
             self._curvesModelNames.append(item.getFullModelNames())
 
     def getCurves(self):
@@ -142,7 +147,7 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         a refresh with targetRange when loading
         """
         state = self.getState(copy=True)
-        del state['viewRange']
+        del state["viewRange"]
         return state
 
     def clearItems(self):
@@ -154,24 +159,24 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         # insert & connect actions Log Scale Actions
         # X (bottom)
         menu = self.plotItem.getViewBox().menu.axes[0]
-        action = menu.addAction('Log scale')
+        action = menu.addAction("Log scale")
         action.setCheckable(True)
-        action.setChecked(self.plotItem.getAxis('bottom').logMode)
+        action.setChecked(self.plotItem.getAxis("bottom").logMode)
         action.setParent(menu)
         action.toggled.connect(self._onXLogToggled)
         self.menu.axes[0].addAction(action)  # Add same action to X2 menu too
         # Y1 (left)
         menu = self.plotItem.getViewBox().menu.axes[1]
-        action = menu.addAction('Log scale')
+        action = menu.addAction("Log scale")
         action.setCheckable(True)
-        action.setChecked(self.plotItem.getAxis('left').logMode)
+        action.setChecked(self.plotItem.getAxis("left").logMode)
         action.setParent(menu)
         action.toggled.connect(self._onY1LogToggled)
         # Y2 (right)
         menu = self.menu.axes[1]
-        action = menu.addAction('Log scale')
+        action = menu.addAction("Log scale")
         action.setCheckable(True)
-        action.setChecked(self.plotItem.getAxis('right').logMode)
+        action.setChecked(self.plotItem.getAxis("right").logMode)
         action.setParent(menu)
         action.toggled.connect(self._onY2LogToggled)
 
@@ -179,34 +184,34 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         logx = checked
 
         # set log mode for items of main viewbox
-        logy = self.plotItem.getAxis('left').logMode
+        logy = self.plotItem.getAxis("left").logMode
         for i in self.plotItem.getViewBox().addedItems:
-            if hasattr(i, 'setLogMode'):
+            if hasattr(i, "setLogMode"):
                 i.setLogMode(logx, logy)
         # set log mode for items of Y2 viewbox
-        logy = self.plotItem.getAxis('right').logMode
+        logy = self.plotItem.getAxis("right").logMode
         for i in self.addedItems:
-            if hasattr(i, 'setLogMode'):
+            if hasattr(i, "setLogMode"):
                 i.setLogMode(logx, logy)
         # set log mode for the bottom axis
-        self.plotItem.getAxis('bottom').setLogMode(checked)
+        self.plotItem.getAxis("bottom").setLogMode(checked)
 
     def _onY1LogToggled(self, checked):
         # set log mode for items of main viewbox
-        logx = self.plotItem.getAxis('bottom').logMode
+        logx = self.plotItem.getAxis("bottom").logMode
         logy = checked
         for i in self.plotItem.getViewBox().addedItems:
-            if hasattr(i, 'setLogMode'):
+            if hasattr(i, "setLogMode"):
                 i.setLogMode(logx, logy)
         # set log mode for the left axis
-        self.plotItem.getAxis('left').setLogMode(checked)
+        self.plotItem.getAxis("left").setLogMode(checked)
 
     def _onY2LogToggled(self, checked):
         # set log mode for items of Y2 viewbox
-        logx = self.plotItem.getAxis('bottom').logMode
+        logx = self.plotItem.getAxis("bottom").logMode
         logy = checked
         for i in self.addedItems:
-            if hasattr(i, 'setLogMode'):
+            if hasattr(i, "setLogMode"):
                 i.setLogMode(logx, logy)
         # set log mode for the right axis
-        self.plotItem.getAxis('right').setLogMode(checked)
+        self.plotItem.getAxis("right").setLogMode(checked)

@@ -37,7 +37,7 @@ class XAutoPanTool(QtGui.QAction):
     """
 
     def __init__(self, parent=None):
-        QtGui.QAction.__init__(self, 'Fixed range scale', parent)
+        QtGui.QAction.__init__(self, "Fixed range scale", parent)
         self.setCheckable(True)
         self.toggled.connect(self._onToggled)
         self._timer = QtCore.QTimer()
@@ -59,7 +59,7 @@ class XAutoPanTool(QtGui.QAction):
 
     def _addToMenu(self, menu):
         for m in menu.axes:
-            if m.title() == 'X Axis':
+            if m.title() == "X Axis":
                 x_menu = m
                 self._XactionMenu = x_menu.actions()[0]
                 x_menu.insertAction(self._XactionMenu, self)
@@ -70,10 +70,10 @@ class XAutoPanTool(QtGui.QAction):
             self._originalXAutoRange = self._viewBox.autoRangeEnabled()[0]
             self._viewBox.enableAutoRange(x=False)
 
-            axisXrange = self._viewBox.state['viewRange'][0]
+            axisXrange = self._viewBox.state["viewRange"][0]
             x_range = axisXrange[1] - axisXrange[0]
 
-            t = int(x_range / 10.) * 1000
+            t = int(x_range / 10.0) * 1000
             t = min(3000, t)
             t = max(50, t)
             self._timer.start(t)
@@ -96,7 +96,7 @@ class XAutoPanTool(QtGui.QAction):
         children_bounds = self._viewBox.childrenBounds()
         _, boundMax = children_bounds[0]
 
-        axis_X_range, _ = self._viewBox.state['viewRange']
+        axis_X_range, _ = self._viewBox.state["viewRange"]
 
         x_range = axis_X_range[1] - axis_X_range[0]
 
@@ -106,9 +106,10 @@ class XAutoPanTool(QtGui.QAction):
             step = min(max(x_range * self._scrollStep, x_min), x_max)
 
             self._viewBox.sigXRangeChanged.disconnect(self._onXRangeChanged)
-            self._viewBox.setXRange(axis_X_range[0]+step, axis_X_range[1]+step,
-                                    padding=0.0, update=False)
+            self._viewBox.setXRange(
+                axis_X_range[0] + step,
+                axis_X_range[1] + step,
+                padding=0.0,
+                update=False,
+            )
             self._viewBox.sigXRangeChanged.connect(self._onXRangeChanged)
-
-
-
