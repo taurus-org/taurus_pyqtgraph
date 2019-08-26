@@ -47,8 +47,8 @@ if __name__ == "__main__":
     gv.setWindowTitle("pyqtgraph example: Legend")
     gv.setBackgroundBrush(QtGui.QBrush(QtGui.QColor("black")))
 
-    l = pg.LegendItem((100, 60), offset=(70, 30))  # args are (size, offset)
-    gv.scene().addItem(l)
+    legend = pg.LegendItem(size=(100, 60), offset=(70, 30))
+    gv.scene().addItem(legend)
 
     # create 3 curves
     c1 = plt.plot(
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # add the **named** curves to the legend
     for dataitem in plt.getPlotItem().listDataItems():
         if dataitem.name():
-            l.addItem(dataitem, dataitem.name())
+            legend.addItem(dataitem, dataitem.name())
 
     plt.show()
     gv.show()
