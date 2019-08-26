@@ -131,7 +131,7 @@ Outside TEP17 scope:
 
 ### In general:
 - [ ] Document all public API
-- [ ] Make all code pep8-clean
+- [x] Make all code pep8-clean
 
 
 [Taurus]: http://taurus-scada.org
