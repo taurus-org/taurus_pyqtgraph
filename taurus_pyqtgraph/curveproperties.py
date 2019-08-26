@@ -421,7 +421,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
         :param text: (str) the new symbol style label
         """
         text = str(text)
-        if self.sSizeSB.value() < 2 and not text in ["", "No symbol"]:
+        if self.sSizeSB.value() < 2 and text not in ["", "No symbol"]:
             # a symbol size of 0 is invisible and 1 means you should use
             # cStyle=dots
             self.sSizeSB.setValue(3)
@@ -643,7 +643,7 @@ class CurvePropAdapter(object):
                 try:
                     cFillColor = Qt.QColor(lColor)
                     cFillColor.setAlphaF(0.5)  # set to semitransparent
-                except:
+                except Exception:
                     cFillColor = lColor
                 dataItem.setFillBrush(cFillColor)
             else:
