@@ -217,7 +217,6 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
             )
 
             plot_item = self.getPlotItem()
-            legend = plot_item.legend
 
             # keep a dict of existing trendsets (to use it for avoiding dups)
             currentTrendSets = dict()
