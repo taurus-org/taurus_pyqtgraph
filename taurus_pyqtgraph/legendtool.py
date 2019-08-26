@@ -36,14 +36,16 @@ class PlotLegendTool(QtGui.QWidgetAction, BaseConfigurableClass):
     Implementation note: this is implemented as a QWidgetAction+QCheckBox
     instead of a checkable QAction to avoid closing the menu when toggling it
     """
+
     def __init__(self, parent=None):
         BaseConfigurableClass.__init__(self)
         QtGui.QWidgetAction.__init__(self, parent)
         self._cb = QtGui.QCheckBox()
-        self._cb.setText('Show legend')
+        self._cb.setText("Show legend")
         self.setDefaultWidget(self._cb)
-        self.registerConfigProperty(self._cb.isChecked, self._cb.setChecked,
-                                    'checked')
+        self.registerConfigProperty(
+            self._cb.isChecked, self._cb.setChecked, "checked"
+        )
         # TODO: register config prop for legend position
         self._cb.toggled.connect(self._onToggled)
         self._legend = None

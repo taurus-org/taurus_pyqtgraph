@@ -43,13 +43,15 @@ from .datainspectortool import DataInspectorTool
 from .taurusplotdataitem import TaurusPlotDataItem
 from .y2axis import Y2ViewBox
 
-CURVE_COLORS = [Qt.QPen(Qt.Qt.red),
-                Qt.QPen(Qt.Qt.blue),
-                Qt.QPen(Qt.Qt.green),
-                Qt.QPen(Qt.Qt.magenta),
-                Qt.QPen(Qt.Qt.cyan),
-                Qt.QPen(Qt.Qt.yellow),
-                Qt.QPen(Qt.Qt.white)]
+CURVE_COLORS = [
+    Qt.QPen(Qt.Qt.red),
+    Qt.QPen(Qt.Qt.blue),
+    Qt.QPen(Qt.Qt.green),
+    Qt.QPen(Qt.Qt.magenta),
+    Qt.QPen(Qt.Qt.cyan),
+    Qt.QPen(Qt.Qt.yellow),
+    Qt.QPen(Qt.Qt.white),
+]
 
 
 class TaurusPlot(PlotWidget, BaseConfigurableClass):
@@ -68,13 +70,13 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
 
     """
 
-    def __init__(self, parent=None,  **kwargs):
+    def __init__(self, parent=None, **kwargs):
         if sys.version_info.major < 3:
             # Workaround to issue when using super with py2
             BaseConfigurableClass.__init__(self)
             PlotWidget.__init__(self, parent=parent, **kwargs)
         else:
-            super(TaurusPlot, self).__init__(parent=None,  **kwargs)
+            super(TaurusPlot, self).__init__(parent=None, **kwargs)
 
         # set up cyclic color generator
         self._curveColors = LoopList(CURVE_COLORS)
@@ -82,16 +84,15 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
 
         # add save & retrieve configuration actions
         menu = self.getPlotItem().getViewBox().menu
-        saveConfigAction = QtGui.QAction('Save configuration', menu)
+        saveConfigAction = QtGui.QAction("Save configuration", menu)
         saveConfigAction.triggered.connect(self.saveConfigFile)
         menu.addAction(saveConfigAction)
 
-        loadConfigAction = QtGui.QAction('Retrieve saved configuration', menu)
+        loadConfigAction = QtGui.QAction("Retrieve saved configuration", menu)
         loadConfigAction.triggered.connect(self.loadConfigFile)
         menu.addAction(loadConfigAction)
 
-        self.registerConfigProperty(self._getState,
-                                    self.restoreState, 'state')
+        self.registerConfigProperty(self._getState, self.restoreState, "state")
 
         # add legend tool
         legend_tool = PlotLegendTool(self)
@@ -116,9 +117,9 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         inspector_tool.attachToPlotItem(self.getPlotItem())
 
         # Register config properties
-        self.registerConfigDelegate(self._y2, 'Y2Axis')
-        self.registerConfigDelegate(legend_tool, 'legend')
-        self.registerConfigDelegate(inspector_tool, 'inspector')
+        self.registerConfigDelegate(self._y2, "Y2Axis")
+        self.registerConfigDelegate(legend_tool, "legend")
+        self.registerConfigDelegate(inspector_tool, "inspector")
 
     # --------------------------------------------------------------------
     # workaround for bug in pyqtgraph v<=0.10.0, already fixed in
@@ -128,9 +129,10 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         try:
             return PlotWidget.__getattr__(self, item)
         except NameError:
-            raise AttributeError('{} has no attribute {}'.format(
-                self.__class__.__name__, item)
+            raise AttributeError(
+                "{} has no attribute {}".format(self.__class__.__name__, item)
             )
+
     # --------------------------------------------------------------------
 
     def setModel(self, names):
@@ -159,12 +161,15 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
             curve_list = self.getPlotItem().listDataItems()
             for idx, curve in enumerate(curve_list):
                 if isinstance(curve, TaurusPlotDataItem):
-                    name = '__TaurusPlotDataItem_%d__' % idx
+                    name = "__TaurusPlotDataItem_%d__" % idx
                     tmpreg.append(name)
                     self.registerConfigDelegate(curve, name)
 
-            configdict = copy.deepcopy(BaseConfigurableClass.createConfig(
-                self, allowUnpickable=allowUnpickable))
+            configdict = copy.deepcopy(
+                BaseConfigurableClass.createConfig(
+                    self, allowUnpickable=allowUnpickable
+                )
+            )
 
         finally:
             # Ensure that temporary delegates are unregistered
@@ -181,8 +186,8 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
             # Temporarily register curves as delegates
             tmpreg = []
             curves = []
-            for name in configdict['__orderedConfigNames__']:
-                if name.startswith('__TaurusPlotDataItem_'):
+            for name in configdict["__orderedConfigNames__"]:
+                if name.startswith("__TaurusPlotDataItem_"):
                     # Instantiate empty TaurusPlotDataItem
                     curve = TaurusPlotDataItem()
                     curves.append(curve)
@@ -193,7 +198,8 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
             self._y2.clearItems()
 
             BaseConfigurableClass.applyConfig(
-                self, configdict=configdict, depth=depth)
+                self, configdict=configdict, depth=depth
+            )
 
             # keep a dict of existing curves (to use it for avoiding dups)
             currentCurves = dict()
@@ -234,12 +240,17 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         """
         state = copy.deepcopy(self.saveState())
         # remove viewRange conf
-        del state['view']['viewRange']
+        del state["view"]["viewRange"]
         return state
 
 
-def plot_main(models=(), config_file=None, x_axis_mode='n', demo=False,
-              window_name='TaurusPlot (pg)'):
+def plot_main(
+    models=(),
+    config_file=None,
+    x_axis_mode="n",
+    demo=False,
+    window_name="TaurusPlot (pg)",
+):
     """Launch a TaurusPlot"""
     import sys
     from taurus.qt.qtgui.application import TaurusApplication
@@ -254,11 +265,12 @@ def plot_main(models=(), config_file=None, x_axis_mode='n', demo=False,
 
     if demo:
         models = list(models)
-        models.extend(['eval:rand(100)', 'eval:0.5*sqrt(arange(100))'])
+        models.extend(["eval:rand(100)", "eval:0.5*sqrt(arange(100))"])
 
-    if x_axis_mode.lower() == 't':
+    if x_axis_mode.lower() == "t":
         from taurus.qt.qtgui.tpg import DateAxisItem
-        axis = DateAxisItem(orientation='bottom')
+
+        axis = DateAxisItem(orientation="bottom")
         axis.attachToPlotItem(w.getPlotItem())
 
     if config_file is not None:
@@ -276,7 +288,5 @@ def plot_main(models=(), config_file=None, x_axis_mode='n', demo=False,
     sys.exit(ret)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     plot_main()
-
-

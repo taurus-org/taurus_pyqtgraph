@@ -38,13 +38,15 @@ from taurus_pyqtgraph.forcedreadtool import ForcedReadTool
 
 import taurus
 
-CURVE_COLORS = [Qt.QPen(Qt.Qt.red),
-                Qt.QPen(Qt.Qt.blue),
-                Qt.QPen(Qt.Qt.green),
-                Qt.QPen(Qt.Qt.magenta),
-                Qt.QPen(Qt.Qt.cyan),
-                Qt.QPen(Qt.Qt.yellow),
-                Qt.QPen(Qt.Qt.white)]
+CURVE_COLORS = [
+    Qt.QPen(Qt.Qt.red),
+    Qt.QPen(Qt.Qt.blue),
+    Qt.QPen(Qt.Qt.green),
+    Qt.QPen(Qt.Qt.magenta),
+    Qt.QPen(Qt.Qt.cyan),
+    Qt.QPen(Qt.Qt.yellow),
+    Qt.QPen(Qt.Qt.white),
+]
 
 
 class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
@@ -78,7 +80,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
 
     def __init__(self, *args, **kwargs):
         PlotDataItem.__init__(self, *args, **kwargs)
-        TaurusBaseComponent.__init__(self, 'TaurusBaseComponent')
+        TaurusBaseComponent.__init__(self, "TaurusBaseComponent")
         self._UImodifiable = False
         self._maxBufferSize = 65536  # (=2**16, i.e., 64K events))
         self._xBuffer = None
@@ -93,8 +95,9 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
 
         # register config properties
         self.setModelInConfig(True)
-        self.registerConfigProperty(self._getCurvesOpts, self._setCurvesOpts,
-                                    'opts')
+        self.registerConfigProperty(
+            self._getCurvesOpts, self._setCurvesOpts, "opts"
+        )
         # TODO: store forceReadPeriod config
         # TODO: store _maxBufferSize config
 
@@ -132,13 +135,15 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     def _initBuffers(self, ntrends):
         """initializes new x and y buffers"""
 
-        self._yBuffer = ArrayBuffer(numpy.zeros(
-            (min(128, self._maxBufferSize), ntrends), dtype='d'),
-            maxSize=self._maxBufferSize)
+        self._yBuffer = ArrayBuffer(
+            numpy.zeros((min(128, self._maxBufferSize), ntrends), dtype="d"),
+            maxSize=self._maxBufferSize,
+        )
 
-        self._xBuffer = ArrayBuffer((numpy.zeros(
-            min(128, self._maxBufferSize), dtype='d')),
-            maxSize=self._maxBufferSize)
+        self._xBuffer = ArrayBuffer(
+            (numpy.zeros(min(128, self._maxBufferSize), dtype="d")),
+            maxSize=self._maxBufferSize,
+        )
 
     def _initCurves(self, ntrends):
         """ Initializes new curves """
@@ -150,14 +155,16 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         a = self._args
         kw = self._kwargs.copy()
 
-        base_name = (self.base_name()
-                or taurus.Attribute(self.getModel()).getSimpleName())
+        base_name = (
+            self.base_name()
+            or taurus.Attribute(self.getModel()).getSimpleName()
+        )
 
         for i in range(ntrends):
             subname = "%s[%i]" % (base_name, i)
-            kw['name'] = subname
+            kw["name"] = subname
             curve = PlotDataItem(*a, **kw)
-            if 'pen' not in kw:
+            if "pen" not in kw:
                 curve.setPen(self._curveColors.next().color())
             self._curves.append(curve)
         self._updateViewBox()
@@ -171,9 +178,9 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         # if we re-add them here we get duplicated legend entries
         # TODO: Find where are the curves being added to the legend
         pass
-        #if legend is None:
+        # if legend is None:
         #    return
-        #for c in self._curves:
+        # for c in self._curves:
         #    legend.addItem(c, c.name())
         # -------------------------------------------------------------------
 
@@ -215,15 +222,15 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         try:
             self._yBuffer.append(evt_value.rvalue.to(self._yUnits).magnitude)
         except Exception as e:
-            self.warning('Problem updating buffer Y (%s):%s',
-                         evt_value.rvalue, e)
+            self.warning(
+                "Problem updating buffer Y (%s):%s", evt_value.rvalue, e
+            )
             evt_value = None
 
         try:
             self._xBuffer.append(evt_value.time.totime())
         except Exception as e:
-            self.warning('Problem updating buffer X (%s):%s',
-                         evt_value, e)
+            self.warning("Problem updating buffer X (%s):%s", evt_value, e)
 
         return self._xBuffer.contents(), self._yBuffer.contents()
 
@@ -278,7 +285,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
 
         # update legend if needed
         try:
-            legend =  self.getViewWidget().getPlotItem().legend
+            legend = self.getViewWidget().getPlotItem().legend
         except Exception:
             legend = None
         if legend is not self._legend:
@@ -293,7 +300,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                     self.setForcedReadPeriod(a.period())
                     break
         except Exception as e:
-            self.debug('cannot set period from ForcedReadTool: %r', e)
+            self.debug("cannot set period from ForcedReadTool: %r", e)
 
     @property
     def forcedReadPeriod(self):
@@ -351,6 +358,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     def _getCurvesOpts(self):
         """returns a list of serialized opts (one for each curve)"""
         from taurus.qt.qtgui.tpg import serialize_opts
+
         return [serialize_opts(copy.copy(c.opts)) for c in self._curves]
 
     def _setCurvesOpts(self, all_opts):
@@ -361,31 +369,35 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         # Check consistency in the number of curves
         if len(self._curves) != len(all_opts):
             self.warning(
-                'Cannot apply curve options (mismatch in curves number)')
+                "Cannot apply curve options (mismatch in curves number)"
+            )
             return
         from taurus.qt.qtgui.tpg import deserialize_opts
+
         for c, opts in zip(self._curves, all_opts):
             c.opts = deserialize_opts(opts)
 
             # This is a workaround for the following pyqtgraph's bug:
             # https://github.com/pyqtgraph/pyqtgraph/issues/531
-            if opts['connect'] == 'all':
-                c.opts['connect'] = 'all'
-            elif opts['connect'] == 'pairs':
-                c.opts['connect'] = 'pairs'
-            elif opts['connect'] == 'finite':
-                c.opts['connect'] = 'finite'
+            if opts["connect"] == "all":
+                c.opts["connect"] = "all"
+            elif opts["connect"] == "pairs":
+                c.opts["connect"] = "pairs"
+            elif opts["connect"] == "finite":
+                c.opts["connect"] = "finite"
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     import pyqtgraph as pg
     from taurus.qt.qtgui.application import TaurusApplication
-    from taurus.qt.qtgui.tpg import (TaurusTrendSet, DateAxisItem,
-                                     XAutoPanTool, TaurusModelChooserTool,
-                                     CurvesPropertiesTool)
+    from taurus.qt.qtgui.tpg import (
+        TaurusTrendSet,
+        DateAxisItem,
+        XAutoPanTool,
+        TaurusModelChooserTool,
+        CurvesPropertiesTool,
+    )
 
     from taurus.core.taurusmanager import TaurusManager
 
@@ -395,7 +407,7 @@ if __name__ == '__main__':
     app = TaurusApplication()
 
     # a standard pyqtgraph plot_item
-    axis = DateAxisItem(orientation='bottom')
+    axis = DateAxisItem(orientation="bottom")
     w = pg.PlotWidget()
     axis.attachToPlotItem(w.getPlotItem())
 
@@ -409,8 +421,8 @@ if __name__ == '__main__':
     w.addLegend()
 
     # adding a taurus data item...
-    c2 = TaurusTrendSet(name='foo')
-    c2.setModel('eval:rand(2)')
+    c2 = TaurusTrendSet(name="foo")
+    c2.setModel("eval:rand(2)")
     # c2.setForcedReadPeriod(500)
 
     w.addItem(c2)
@@ -418,8 +430,8 @@ if __name__ == '__main__':
     # ...and remove it after a while
     def rem():
         w.removeItem(c2)
-    Qt.QTimer.singleShot(2000, rem)
 
+    Qt.QTimer.singleShot(2000, rem)
 
     # modelchooser = TaurusModelChooserTool(itemClass=TaurusTrendSet)
     # modelchooser.attachToPlotItem(w.getPlotItem())
@@ -429,6 +441,7 @@ if __name__ == '__main__':
     ret = app.exec_()
 
     import pprint
+
     # pprint.pprint(c2.createConfig())
 
     sys.exit(ret)

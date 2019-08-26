@@ -42,10 +42,10 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
         :param yModel: (str) Taurus model name for ordinate values.
                        Default=None
         """
-        xModel = kwargs.pop('xModel', None)
-        yModel = kwargs.pop('yModel', None)
+        xModel = kwargs.pop("xModel", None)
+        yModel = kwargs.pop("yModel", None)
         PlotDataItem.__init__(self, *args, **kwargs)
-        TaurusBaseComponent.__init__(self, 'TaurusBaseComponent')
+        TaurusBaseComponent.__init__(self, "TaurusBaseComponent")
         self._x = None
         self._y = None
         self.xModel = None
@@ -54,10 +54,11 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
         if yModel is not None:
             self.setModel(yModel)
 
-        self.registerConfigProperty(self.getOpts, self.setOpts, 'opts')
+        self.registerConfigProperty(self.getOpts, self.setOpts, "opts")
         self.setModelInConfig(True)
-        self.registerConfigProperty(self.getXModelName,
-                                    self.setXModel, 'XModel')
+        self.registerConfigProperty(
+            self.getXModelName, self.setXModel, "XModel"
+        )
 
     def setXModel(self, xModel):
         if self.xModel is not None:
@@ -93,10 +94,11 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
         try:
             self.setData(x=self._x, y=self._y)
         except Exception as e:
-            self.debug('Could not set data. Reason: %r', e)
+            self.debug("Could not set data. Reason: %r", e)
 
     def getOpts(self):
         from taurus.qt.qtgui.tpg import serialize_opts
+
         return serialize_opts(copy.copy(self.opts))
 
     def setOpts(self, opts):
@@ -104,22 +106,23 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
         # for adapt the serialized objects into PlotDataItem properties
 
         from taurus.qt.qtgui.tpg import deserialize_opts
+
         self.opts = deserialize_opts(opts)
 
         # This is a workaround for the following pyqtgraph's bug:
         # https://github.com/pyqtgraph/pyqtgraph/issues/531
-        if opts['connect'] == 'all':
-            self.opts['connect'] = 'all'
-        elif opts['connect'] == 'pairs':
-            self.opts['connect'] = 'pairs'
-        elif opts['connect'] == 'finite':
-            self.opts['connect'] = 'finite'
+        if opts["connect"] == "all":
+            self.opts["connect"] = "all"
+        elif opts["connect"] == "pairs":
+            self.opts["connect"] = "pairs"
+        elif opts["connect"] == "finite":
+            self.opts["connect"] = "finite"
 
     def getFullModelNames(self):
         return (self.getXModelName(), self.getFullModelName())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     import numpy
     import pyqtgraph as pg
@@ -133,21 +136,21 @@ if __name__ == '__main__':
     # a standard pyqtgraph plot_item
     w = pg.PlotWidget()
 
-    #add legend to the plot, for that we have to give a name to plot items
+    # add legend to the plot, for that we have to give a name to plot items
     w.addLegend()
 
     # adding a regular data item (non-taurus)
-    c1 = pg.PlotDataItem(name='st plot', pen='b', fillLevel=0, brush='c')
-    c1.setData(numpy.arange(300) / 300.)
+    c1 = pg.PlotDataItem(name="st plot", pen="b", fillLevel=0, brush="c")
+    c1.setData(numpy.arange(300) / 300.0)
     w.addItem(c1)
 
-    pen = pg.mkPen(color='r', style=4)
-    brush = pg.mkBrush(color='b')
+    pen = pg.mkPen(color="r", style=4)
+    brush = pg.mkBrush(color="b")
     brush.setStyle(3)
 
     # adding a taurus data item
     # c2 = TaurusPlotDataItem(name='st2 plot', pen='r', symbol='o')
-    c2 = TaurusPlotDataItem(pen=pen, name='foo')
+    c2 = TaurusPlotDataItem(pen=pen, name="foo")
     # c2 = TaurusPlotDataItem()
 
     # c2.loadConfigFile('tmp/conf.cfg')
@@ -161,10 +164,10 @@ if __name__ == '__main__':
 
     w.addItem(c2)
 
-
     # ...and remove it after a while
     def rem():
         w.removeItem(c2)
+
     Qt.QTimer.singleShot(2000, rem)
 
     modelchooser = TaurusModelChooserTool(itemClass=TaurusPlotDataItem)
@@ -173,7 +176,6 @@ if __name__ == '__main__':
     w.show()
 
     res = app.exec_()
-
 
     # config = c2.createConfig()
     # print config

@@ -54,17 +54,19 @@ class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):
     This tool is implemented as an Action, and provides a method to attach it
     to a :class:`pyqtgraph.PlotItem`
     """
+
     valueChanged = QtCore.pyqtSignal(int)
 
-    def __init__(self, parent=None, period=0, text='Forced read',
-                 autoconnect=True):
+    def __init__(
+        self, parent=None, period=0, text="Forced read", autoconnect=True
+    ):
         BaseConfigurableClass.__init__(self)
         QtGui.QWidgetAction.__init__(self, parent)
 
         # defining the widget
         self._w = QtGui.QWidget()
         self._w.setLayout(QtGui.QHBoxLayout())
-        tt = 'Period between forced readings.\nSet to 0 to disable'
+        tt = "Period between forced readings.\nSet to 0 to disable"
         self._w.setToolTip(tt)
         self._label = QtGui.QLabel(text)
         self._w.layout().addWidget(self._label)
@@ -73,16 +75,17 @@ class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):
         self._sb.setRange(0, 604800000)
         self._sb.setValue(period)
         self._sb.setSingleStep(500)
-        self._sb.setSuffix(' ms')
-        self._sb.setSpecialValueText('disabled')
+        self._sb.setSuffix(" ms")
+        self._sb.setSpecialValueText("disabled")
         self._autoconnect = autoconnect
 
         self.setDefaultWidget(self._w)
 
         # register config properties
-        self.registerConfigProperty(self.period, self.setPeriod, 'period')
-        self.registerConfigProperty(self.autoconnect, self.setAutoconnect,
-                                    'autoconnect')
+        self.registerConfigProperty(self.period, self.setPeriod, "period")
+        self.registerConfigProperty(
+            self.autoconnect, self.setAutoconnect, "autoconnect"
+        )
 
         # internal conections
         self._sb.valueChanged[int].connect(self._onValueChanged)
@@ -94,7 +97,7 @@ class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):
         self.valueChanged.emit(period)
         if self.autoconnect() and self.plot_item is not None:
             for item in self.plot_item.listDataItems():
-                if hasattr(item, 'setForcedReadPeriod'):
+                if hasattr(item, "setForcedReadPeriod"):
                     item.setForcedReadPeriod(period)
 
     def attachToPlotItem(self, plot_item):
@@ -141,8 +144,9 @@ class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):
         self._sb.setValue(value)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import taurus
+
     taurus.setLogLevel(taurus.Debug)
     import sys
     from taurus.qt.qtgui.application import TaurusApplication
@@ -154,13 +158,13 @@ if __name__ == '__main__':
 
     w = pg.PlotWidget()
 
-    axis = DateAxisItem(orientation='bottom')
+    axis = DateAxisItem(orientation="bottom")
     w = pg.PlotWidget()
     axis.attachToPlotItem(w.getPlotItem())
 
     # test adding the curve before the tool
-    ts1 = TaurusTrendSet(name='before', symbol='o')
-    ts1.setModel('eval:rand()+1')
+    ts1 = TaurusTrendSet(name="before", symbol="o")
+    ts1.setModel("eval:rand()+1")
 
     w.addItem(ts1)
 
@@ -168,8 +172,8 @@ if __name__ == '__main__':
     fr.attachToPlotItem(w.getPlotItem())
 
     # test adding the curve after the tool
-    ts2 = TaurusTrendSet(name='after', symbol='+')
-    ts2.setModel('eval:rand()')
+    ts2 = TaurusTrendSet(name="after", symbol="+")
+    ts2.setModel("eval:rand()")
 
     w.addItem(ts2)
 
@@ -178,6 +182,7 @@ if __name__ == '__main__':
     ret = app.exec_()
 
     import pprint
+
     pprint.pprint(fr.createConfig())
 
     sys.exit(ret)

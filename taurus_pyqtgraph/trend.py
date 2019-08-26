@@ -47,13 +47,15 @@ from .y2axis import Y2ViewBox
 from .autopantool import XAutoPanTool
 
 
-CURVE_COLORS = [Qt.QPen(Qt.Qt.red),
-                Qt.QPen(Qt.Qt.blue),
-                Qt.QPen(Qt.Qt.green),
-                Qt.QPen(Qt.Qt.magenta),
-                Qt.QPen(Qt.Qt.cyan),
-                Qt.QPen(Qt.Qt.yellow),
-                Qt.QPen(Qt.Qt.white)]
+CURVE_COLORS = [
+    Qt.QPen(Qt.Qt.red),
+    Qt.QPen(Qt.Qt.blue),
+    Qt.QPen(Qt.Qt.green),
+    Qt.QPen(Qt.Qt.magenta),
+    Qt.QPen(Qt.Qt.cyan),
+    Qt.QPen(Qt.Qt.yellow),
+    Qt.QPen(Qt.Qt.white),
+]
 
 
 class TaurusTrend(PlotWidget, BaseConfigurableClass):
@@ -91,16 +93,15 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         menu = plot_item.getViewBox().menu
 
         # add save & retrieve configuration actions
-        saveConfigAction = QtGui.QAction('Save configuration', menu)
+        saveConfigAction = QtGui.QAction("Save configuration", menu)
         saveConfigAction.triggered.connect(self.saveConfigFile)
         menu.addAction(saveConfigAction)
 
-        loadConfigAction = QtGui.QAction('Retrieve saved configuration', menu)
+        loadConfigAction = QtGui.QAction("Retrieve saved configuration", menu)
         loadConfigAction.triggered.connect(self.loadConfigFile)
         menu.addAction(loadConfigAction)
 
-        self.registerConfigProperty(self._getState,
-                                    self.restoreState, 'state')
+        self.registerConfigProperty(self._getState, self.restoreState, "state")
 
         # add legend tool
         legend_tool = PlotLegendTool(self)
@@ -108,7 +109,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
         # add model chooser
         self._model_chooser_tool = TaurusModelChooserTool(
-            self, itemClass=TaurusTrendSet)
+            self, itemClass=TaurusTrendSet
+        )
         self._model_chooser_tool.attachToPlotItem(plot_item, self)
 
         # add Y2 axis
@@ -116,7 +118,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         self._y2.attachToPlotItem(plot_item)
 
         # Add time X axis
-        axis = DateAxisItem(orientation='bottom')
+        axis = DateAxisItem(orientation="bottom")
         axis.attachToPlotItem(plot_item)
 
         # add plot configuration dialog
@@ -136,10 +138,10 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         autopan.attachToPlotItem(self.getPlotItem())
 
         # Register config properties
-        self.registerConfigDelegate(self._y2, 'Y2Axis')
-        self.registerConfigDelegate(legend_tool, 'legend')
-        self.registerConfigDelegate(fr_tool, 'forceread')
-        self.registerConfigDelegate(inspector_tool, 'inspector')
+        self.registerConfigDelegate(self._y2, "Y2Axis")
+        self.registerConfigDelegate(legend_tool, "legend")
+        self.registerConfigDelegate(fr_tool, "forceread")
+        self.registerConfigDelegate(inspector_tool, "inspector")
 
     # --------------------------------------------------------------------
     # workaround for bug in pyqtgraph v<=0.10.0, already fixed in
@@ -149,9 +151,10 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         try:
             return PlotWidget.__getattr__(self, item)
         except NameError:
-            raise AttributeError('{} has no attribute {}'.format(
-                self.__class__.__name__, item)
+            raise AttributeError(
+                "{} has no attribute {}".format(self.__class__.__name__, item)
             )
+
     # --------------------------------------------------------------------
 
     def setModel(self, names):
@@ -172,12 +175,15 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
             data_items = self.getPlotItem().listDataItems()
             for idx, item in enumerate(data_items):
                 if isinstance(item, TaurusTrendSet):
-                    name = '__TaurusTrendSet_%d__' % idx
+                    name = "__TaurusTrendSet_%d__" % idx
                     tmpreg.append(name)
                     self.registerConfigDelegate(item, name)
 
-            configdict = copy.deepcopy(BaseConfigurableClass.createConfig(
-                self, allowUnpickable=allowUnpickable))
+            configdict = copy.deepcopy(
+                BaseConfigurableClass.createConfig(
+                    self, allowUnpickable=allowUnpickable
+                )
+            )
 
         finally:
             # Ensure that temporary delegates are unregistered
@@ -194,8 +200,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
             # Temporarily register trendsets as delegates
             tmpreg = []
             tsets = []
-            for name in configdict['__orderedConfigNames__']:
-                if name.startswith('__TaurusTrendSet_'):
+            for name in configdict["__orderedConfigNames__"]:
+                if name.startswith("__TaurusTrendSet_"):
                     # Instantiate empty TaurusTrendSet
                     tset = TaurusTrendSet()
                     tsets.append(tset)
@@ -206,7 +212,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
             self._y2.clearItems()
 
             BaseConfigurableClass.applyConfig(
-                self, configdict=configdict, depth=depth)
+                self, configdict=configdict, depth=depth
+            )
 
             plot_item = self.getPlotItem()
             legend = plot_item.legend
@@ -251,12 +258,13 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         """
         state = copy.deepcopy(self.saveState())
         # remove viewRange conf
-        del state['view']['viewRange']
+        del state["view"]["viewRange"]
         return state
 
 
-def trend_main(models=(), config_file=None, demo=False,
-               window_name='TaurusTrend (pg)'):
+def trend_main(
+    models=(), config_file=None, demo=False, window_name="TaurusTrend (pg)"
+):
     """Launch a TaurusTrend"""
     import sys
     from taurus.qt.qtgui.application import TaurusApplication
@@ -271,7 +279,7 @@ def trend_main(models=(), config_file=None, demo=False,
 
     if demo:
         models = list(models)
-        models.extend(['eval:rand()', 'eval:1+rand(2)'])
+        models.extend(["eval:rand()", "eval:1+rand(2)"])
 
     if config_file is not None:
         w.loadConfigFile(config_file)
@@ -288,5 +296,5 @@ def trend_main(models=(), config_file=None, demo=False,
     sys.exit(ret)
 
 
-if __name__ == '__main__':
-    trend_main(models=('eval:rand()', 'sys/tg_test/1/ampli'))
+if __name__ == "__main__":
+    trend_main(models=("eval:rand()", "sys/tg_test/1/ampli"))

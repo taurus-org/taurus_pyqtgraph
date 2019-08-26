@@ -26,7 +26,7 @@
 """Top-level package for taurus_pyqtgraph."""
 
 from __future__ import absolute_import
-import taurus.external.qt as _ # avoid API1 errors due to pyqtgraph imports
+import taurus.external.qt as _  # avoid API1 errors due to pyqtgraph imports
 from .y2axis import Y2ViewBox
 from .curvespropertiestool import CurvesPropertiesTool
 from .dateaxisitem import DateAxisItem
@@ -39,15 +39,19 @@ from .taurusimageitem import TaurusImageItem
 from .taurusplotdataitem import TaurusPlotDataItem
 from .taurustrendset import TaurusTrendSet
 from .curvesmodel import TaurusItemConf, TaurusItemConfDlg
-from .taurusmodelchoosertool import (TaurusModelChooserTool,
-                                     TaurusImgModelChooserTool,
-                                     TaurusXYModelChooserTool)
-from .curveproperties import (CurveAppearanceProperties,
-                             CurvePropAdapter,
-                             CurvesAppearanceChooser,
-                             serialize_opts,
-                             deserialize_opts)
+from .taurusmodelchoosertool import (
+    TaurusModelChooserTool,
+    TaurusImgModelChooserTool,
+    TaurusXYModelChooserTool,
+)
+from .curveproperties import (
+    CurveAppearanceProperties,
+    CurvePropAdapter,
+    CurvesAppearanceChooser,
+    serialize_opts,
+    deserialize_opts,
+)
 
 
 # Do not modify the __version__ manually. To be modified by bumpversion
-__version__ = '0.3.0'
+__version__ = "0.3.0"

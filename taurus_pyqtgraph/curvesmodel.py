@@ -33,7 +33,7 @@ from __future__ import print_function
 from future.utils import string_types
 from builtins import bytes
 
-__all__ = ['TaurusCurveItemTableModel', 'TaurusItemConf', 'TaurusItemConfDlg']
+__all__ = ["TaurusCurveItemTableModel", "TaurusItemConf", "TaurusItemConfDlg"]
 
 import sys
 import copy
@@ -43,8 +43,10 @@ from taurus.external.qt import Qt
 
 import taurus
 from taurus.core import TaurusElementType
-from taurus.qt.qtcore.mimetypes import (TAURUS_MODEL_LIST_MIME_TYPE,
-                                        TAURUS_ATTR_MIME_TYPE)
+from taurus.qt.qtcore.mimetypes import (
+    TAURUS_MODEL_LIST_MIME_TYPE,
+    TAURUS_ATTR_MIME_TYPE,
+)
 from taurus.qt.qtgui.util.ui import UILoadable
 from taurus.qt.qtgui.panel import TaurusModelSelector
 
@@ -55,9 +57,8 @@ SRC_ROLE = Qt.Qt.UserRole + 1
 
 
 class Component(object):
-
     def __init__(self, src):
-        self.display = ''
+        self.display = ""
         self.icon = Qt.QIcon()
         self.ok = True
         self.processSrc(src)
@@ -68,22 +69,28 @@ class Component(object):
         attributes
         """
         if src is None:
-            self.display, self.icon, self.ok = '', Qt.QIcon(), True
+            self.display, self.icon, self.ok = "", Qt.QIcon(), True
             return
         src = str(src).strip()
         # empty
-        if src == '':
-            self.display, self.icon, self.ok = '', Qt.QIcon(), True
+        if src == "":
+            self.display, self.icon, self.ok = "", Qt.QIcon(), True
             return
         # for taurus attributes
         if taurus.isValidName(src, etypes=[TaurusElementType.Attribute]):
             self.display, self.icon, self.ok = (
-                src, Qt.QIcon('logos:taurus.png'), True)
+                src,
+                Qt.QIcon("logos:taurus.png"),
+                True,
+            )
             return
 
         # if not caught before, it is unsupported
         self.display, self.icon, self.ok = (
-            src, Qt.QIcon.fromTheme('dialog-warning'), False)
+            src,
+            Qt.QIcon.fromTheme("dialog-warning"),
+            False,
+        )
 
 
 class TaurusItemConf(object):
@@ -98,14 +105,16 @@ class TaurusItemConf(object):
 
     def __repr__(self):
         ret = "TaurusItemConf(xModel='%s', yModel='%s')" % (
-            self.xModel, self.yModel)
+            self.xModel,
+            self.yModel,
+        )
         return ret
 
 
 class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
     """ A Qt data model for describing curves"""
 
-    dataChanged = Qt.pyqtSignal('QModelIndex', 'QModelIndex')
+    dataChanged = Qt.pyqtSignal("QModelIndex", "QModelIndex")
 
     def __init__(self, taurusItems=None):
         super(TaurusCurveItemTableModel, self).__init__()
@@ -154,9 +163,9 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
                 return None
         elif role == Qt.Qt.TextColorRole:
             if column == X:
-                    Qt.QColor(self.taurusItems[row].x.ok and 'green' or 'red')
+                Qt.QColor(self.taurusItems[row].x.ok and "green" or "red")
             elif column == Y:
-                    Qt.QColor(self.taurusItems[row].y.ok and 'green' or 'red')
+                Qt.QColor(self.taurusItems[row].y.ok and "green" or "red")
             else:
                 return None
         elif role == SRC_ROLE:
@@ -209,21 +218,24 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
             return Qt.Qt.ItemIsEnabled
         column = index.column()
         if column in (X, Y):
-            return Qt.Qt.ItemFlags(Qt.Qt.ItemIsEnabled |
-                                   Qt.Qt.ItemIsEditable |
-                                   Qt.Qt.ItemIsDragEnabled |
-                                   Qt.Qt.ItemIsDropEnabled |
-                                   Qt.Qt.ItemIsSelectable
-                                   )
+            return Qt.Qt.ItemFlags(
+                Qt.Qt.ItemIsEnabled
+                | Qt.Qt.ItemIsEditable
+                | Qt.Qt.ItemIsDragEnabled
+                | Qt.Qt.ItemIsDropEnabled
+                | Qt.Qt.ItemIsSelectable
+            )
         elif column == TITLE:
-            return Qt.Qt.ItemFlags(Qt.Qt.ItemIsEnabled |
-                                   Qt.Qt.ItemIsEditable |
-                                   Qt.Qt.ItemIsDragEnabled
-                                   )
-        return Qt.Qt.ItemFlags(Qt.Qt.ItemIsEnabled |
-                               Qt.Qt.ItemIsEditable |
-                               Qt.Qt.ItemIsDragEnabled
-                               )
+            return Qt.Qt.ItemFlags(
+                Qt.Qt.ItemIsEnabled
+                | Qt.Qt.ItemIsEditable
+                | Qt.Qt.ItemIsDragEnabled
+            )
+        return Qt.Qt.ItemFlags(
+            Qt.Qt.ItemIsEnabled
+            | Qt.Qt.ItemIsEditable
+            | Qt.Qt.ItemIsDragEnabled
+        )
 
     def setData(self, index, value=None, role=Qt.Qt.EditRole):
         if index.isValid() and (0 <= index.row() < self.rowCount()):
@@ -249,9 +261,9 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
             parentindex = Qt.QModelIndex()
         self.beginInsertRows(parentindex, position, position + rows - 1)
         slice = [TaurusItemConf() for i in range(rows)]
-        self.taurusItems = (self.taurusItems[:position] + slice +
-                            self.taurusItems[position:]
-                            )
+        self.taurusItems = (
+            self.taurusItems[:position] + slice + self.taurusItems[position:]
+        )
         self.endInsertRows()
         return True
 
@@ -260,9 +272,9 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
             parentindex = Qt.QModelIndex()
         self.beginResetModel()
         self.beginRemoveRows(parentindex, position, position + rows - 1)
-        self.taurusItems = (self.taurusItems[:position] +
-                            self.taurusItems[position + rows:]
-                            )
+        self.taurusItems = (
+            self.taurusItems[:position] + self.taurusItems[position + rows :]
+        )
         self.endRemoveRows()
         self.endResetModel()
         return True
@@ -272,7 +284,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
 
     def mimeTypes(self):
         result = list(Qt.QAbstractTableModel.mimeTypes(self))
-        result += [TAURUS_ATTR_MIME_TYPE, 'text/plain']
+        result += [TAURUS_ATTR_MIME_TYPE, "text/plain"]
         return result
 
     def dropMimeData(self, data, action, row, column, parent):
@@ -294,14 +306,12 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
             d = bytes(data.data(TAURUS_MODEL_LIST_MIME_TYPE))
             models = d.decode("utf-8").split()
             if len(models) == 1:
-                self.setData(self.index(row, column),
-                             value=models[0])
+                self.setData(self.index(row, column), value=models[0])
                 return True
             else:
                 self.insertRows(row, len(models))
                 for i, m in enumerate(models):
-                    self.setData(self.index(row + i, column),
-                                 value=m)
+                    self.setData(self.index(row + i, column), value=m)
                 return True
         elif data.hasText():
             self.setData(self.index(row, column), data.text())
@@ -318,7 +328,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         # mimedata.setData()
 
 
-@UILoadable(with_ui='ui')
+@UILoadable(with_ui="ui")
 class TaurusItemConfDlg(Qt.QWidget):
     """ A configuration dialog for creating new CurveItems.
 
@@ -326,7 +336,7 @@ class TaurusItemConfDlg(Qt.QWidget):
     table for the sources and title of data
     """
 
-    dataChanged = Qt.pyqtSignal('QModelIndex', 'QModelIndex')
+    dataChanged = Qt.pyqtSignal("QModelIndex", "QModelIndex")
     applied = Qt.pyqtSignal()
 
     def __init__(self, parent=None, taurusItemsConf=None, showXcol=True):
@@ -347,20 +357,29 @@ class TaurusItemConfDlg(Qt.QWidget):
         self._toolbar = Qt.QToolBar("Selector toolbar")
         self.ui.horizontalLayout_2.addWidget(self._toolbar)
         self._toolbar.setIconSize(Qt.QSize(16, 16))
-        self._toolbar.addAction(Qt.QIcon.fromTheme("list-add"),
-                                "Add row", self._onAddAction)
+        self._toolbar.addAction(
+            Qt.QIcon.fromTheme("list-add"), "Add row", self._onAddAction
+        )
         self._removeAction = self._toolbar.addAction(
-            Qt.QIcon.fromTheme("list-remove"), "Remove selected row",
-            self._onRemoveThisAction)
+            Qt.QIcon.fromTheme("list-remove"),
+            "Remove selected row",
+            self._onRemoveThisAction,
+        )
         self._removeAllAction = self._toolbar.addAction(
-            Qt.QIcon.fromTheme("edit-clear"), "Remove all rows",
-            self._onClearAll)
-        self._moveUpAction = self._toolbar.addAction(Qt.QIcon.fromTheme("go-up"),
-                                                     "Move up the row",
-                                                     self._onMoveUpAction)
+            Qt.QIcon.fromTheme("edit-clear"),
+            "Remove all rows",
+            self._onClearAll,
+        )
+        self._moveUpAction = self._toolbar.addAction(
+            Qt.QIcon.fromTheme("go-up"),
+            "Move up the row",
+            self._onMoveUpAction,
+        )
         self._moveDownAction = self._toolbar.addAction(
-            Qt.QIcon.fromTheme("go-down"), "Move down the row",
-            self._onMoveDownAction)
+            Qt.QIcon.fromTheme("go-down"),
+            "Move down the row",
+            self._onMoveDownAction,
+        )
 
         table = self.ui.curvesTable
         table.setModel(self.model)
@@ -374,6 +393,7 @@ class TaurusItemConfDlg(Qt.QWidget):
         # assignment" if I don't import taurus again here
         # TODO: check if this workaround is really needed
         import taurus
+
         # -------------------------------------------------------------------
 
         modelSelector = TaurusModelSelector(parent=self)
@@ -384,7 +404,8 @@ class TaurusItemConfDlg(Qt.QWidget):
         self.ui.reloadBT.clicked.connect(self.onReload)
         self.ui.cancelBT.clicked.connect(self.close)
         self.ui.curvesTable.customContextMenuRequested.connect(
-            self.onTableContextMenu)
+            self.onTableContextMenu
+        )
         modelSelector.modelsAdded.connect(self.onModelsAdded)
 
     def onTableContextMenu(self, pos):
@@ -392,12 +413,19 @@ class TaurusItemConfDlg(Qt.QWidget):
         row = index.row()
         menu = Qt.QMenu(self.ui.curvesTable)
         if row >= 0:
-            removeThisAction = menu.addAction(Qt.QIcon.fromTheme(
-                'list-remove'), 'Remove this curve', self._onRemoveThisAction)
-        removeAllAction = menu.addAction(Qt.QIcon.fromTheme(
-            'edit-clear'), 'Clear all', self.model.clearAll)
-        addRowAction = menu.addAction(Qt.QIcon.fromTheme(
-            'list-add'), 'Add new row', self.model.insertRows)
+            removeThisAction = menu.addAction(
+                Qt.QIcon.fromTheme("list-remove"),
+                "Remove this curve",
+                self._onRemoveThisAction,
+            )
+        removeAllAction = menu.addAction(
+            Qt.QIcon.fromTheme("edit-clear"), "Clear all", self.model.clearAll
+        )
+        addRowAction = menu.addAction(
+            Qt.QIcon.fromTheme("list-add"),
+            "Add new row",
+            self.model.insertRows,
+        )
 
         menu.exec_(Qt.QCursor.pos())
 
@@ -473,17 +501,19 @@ class TaurusItemConfDlg(Qt.QWidget):
                 modelx, modely = m
 
             if modelx is not None:
-                self.model.setData(self.model.index(
-                    rowcount + i, X), value=modelx)
+                self.model.setData(
+                    self.model.index(rowcount + i, X), value=modelx
+                )
 
-            self.model.setData(self.model.index(
-                rowcount + i, Y), value=modely)
-            title = self.model.data(self.model.index(
-                rowcount + i, Y))  # the display data
+            self.model.setData(self.model.index(rowcount + i, Y), value=modely)
+            title = self.model.data(
+                self.model.index(rowcount + i, Y)
+            )  # the display data
 
             # print type(title), title
-            self.model.setData(self.model.index(
-                rowcount + i, TITLE), value=title)
+            self.model.setData(
+                self.model.index(rowcount + i, TITLE), value=title
+            )
 
     def getItemConfs(self):
         return self.model.dumpData()
@@ -502,10 +532,11 @@ class TaurusItemConfDlg(Qt.QWidget):
                  "update" button) and False otherwise
         """
         dlg = Qt.QDialog(parent)
-        dlg.setWindowTitle('Curves Selection')
+        dlg.setWindowTitle("Curves Selection")
         layout = Qt.QVBoxLayout()
-        w = TaurusItemConfDlg(parent=parent, taurusItemsConf=taurusItemConf,
-                              showXcol=showXCol)
+        w = TaurusItemConfDlg(
+            parent=parent, taurusItemsConf=taurusItemConf, showXcol=showXCol
+        )
         layout.addWidget(w)
         dlg.setLayout(layout)
         w.applied.connect(dlg.accept)
@@ -521,7 +552,7 @@ class TaurusItemConfDlg(Qt.QWidget):
         print("RELOAD!!! (todo)")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from taurus.qt.qtgui.application import TaurusApplication
     from taurus.qt.qtgui.tpg import TaurusItemConfDlg
 
@@ -532,5 +563,3 @@ if __name__ == '__main__':
     TaurusItemConfDlg.showDlg()
 
     sys.exit(app.exec_())
-
-

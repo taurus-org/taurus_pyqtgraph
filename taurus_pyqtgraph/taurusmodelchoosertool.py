@@ -37,8 +37,10 @@ from taurus_pyqtgraph.curvesmodel import TaurusItemConf, TaurusItemConfDlg
 import taurus
 from collections import OrderedDict
 from taurus.core.taurushelper import getValidatorFromName
-from taurus.qt.qtcore.mimetypes import (TAURUS_MODEL_LIST_MIME_TYPE,
-                                        TAURUS_ATTR_MIME_TYPE)
+from taurus.qt.qtcore.mimetypes import (
+    TAURUS_MODEL_LIST_MIME_TYPE,
+    TAURUS_ATTR_MIME_TYPE,
+)
 
 
 class TaurusModelChooserTool(Qt.QAction):
@@ -48,8 +50,9 @@ class TaurusModelChooserTool(Qt.QAction):
     It is implemented as an Action, and provides a method to attach it to a
     PlotItem.
     """
+
     def __init__(self, parent=None, itemClass=None):
-        Qt.QAction.__init__(self, 'Model selection', parent)
+        Qt.QAction.__init__(self, "Model selection", parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.legend = None
@@ -77,8 +80,9 @@ class TaurusModelChooserTool(Qt.QAction):
             if isinstance(item, self.itemClass):
                 currentModelNames.append(item.getFullModelName())
         names, ok = TaurusModelChooser.modelChooserDlg(
-                    selectables=[TaurusElementType.Attribute],
-                    listedModels=currentModelNames)
+            selectables=[TaurusElementType.Attribute],
+            listedModels=currentModelNames,
+        )
         if ok:
             self.updateModels(names)
 
@@ -145,8 +149,11 @@ class TaurusModelChooserTool(Qt.QAction):
             ymodels.append(m)
 
         elif data.hasFormat(TAURUS_MODEL_LIST_MIME_TYPE):
-            ymodels = bytes(data.data(TAURUS_MODEL_LIST_MIME_TYPE)
-                           ).decode("utf-8").split()
+            ymodels = (
+                bytes(data.data(TAURUS_MODEL_LIST_MIME_TYPE))
+                .decode("utf-8")
+                .split()
+            )
         elif data.hasText():
             ymodels.append(data.text())
 
@@ -198,7 +205,7 @@ class TaurusImgModelChooserTool(Qt.QAction):
         self._plot_item = plot_item
         view = plot_item.getViewBox()
         menu = view.menu
-        model_chooser = Qt.QAction('Model selection', menu)
+        model_chooser = Qt.QAction("Model selection", menu)
         model_chooser.triggered.connect(self._onTriggered)
         menu.addAction(model_chooser)
 
@@ -220,8 +227,10 @@ class TaurusImgModelChooserTool(Qt.QAction):
             listedModels = [modelName]
 
         res, ok = TaurusModelChooser.modelChooserDlg(
-                    selectables=[TaurusElementType.Attribute],
-                    singleModel=True, listedModels=listedModels)
+            selectables=[TaurusElementType.Attribute],
+            singleModel=True,
+            listedModels=listedModels,
+        )
         if ok:
             if res:
                 model = res[0]
@@ -244,7 +253,7 @@ class TaurusXYModelChooserTool(Qt.QAction):
 
     # TODO: This class is WIP.
     def __init__(self, parent=None, itemClass=None):
-        Qt.QAction.__init__(self, 'Model selection', parent)
+        Qt.QAction.__init__(self, "Model selection", parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.legend = None
@@ -259,8 +268,9 @@ class TaurusXYModelChooserTool(Qt.QAction):
         if parent is not None:
             parent.installEventFilter(self)
 
-    def attachToPlotItem(self, plot_item,
-                         parentWidget=None, curve_colors=None):
+    def attachToPlotItem(
+        self, plot_item, parentWidget=None, curve_colors=None
+    ):
         """
         Use this method to add this tool to a plot
 
@@ -282,7 +292,8 @@ class TaurusXYModelChooserTool(Qt.QAction):
     def _onTriggered(self):
         oldconfs = self._getTaurusPlotDataItemConfigs().values()
         newconfs, ok = TaurusItemConfDlg.showDlg(
-            parent=self.parent(), taurusItemConf=oldconfs)
+            parent=self.parent(), taurusItemConf=oldconfs
+        )
 
         if ok:
             xy_names = [(c.xModel, c.yModel) for c in newconfs]
@@ -298,10 +309,10 @@ class TaurusXYModelChooserTool(Qt.QAction):
         for curve in self.plot_item.listDataItems():
             if isinstance(curve, self.itemClass):
                 xmodel, ymodel = curve.getFullModelNames()
-                c = TaurusItemConf(YModel=ymodel,
-                                   XModel=xmodel,
-                                   name=curve.name())
-                itemconfigs[(xmodel,ymodel)] = c
+                c = TaurusItemConf(
+                    YModel=ymodel, XModel=xmodel, name=curve.name()
+                )
+                itemconfigs[(xmodel, ymodel)] = c
         return itemconfigs
 
     def _dropMimeData(self, data):
@@ -312,13 +323,16 @@ class TaurusXYModelChooserTool(Qt.QAction):
             ymodels.append(m)
 
         elif data.hasFormat(TAURUS_MODEL_LIST_MIME_TYPE):
-            ymodels = bytes(data.data(TAURUS_MODEL_LIST_MIME_TYPE)
-                           ).decode("utf-8").split()
+            ymodels = (
+                bytes(data.data(TAURUS_MODEL_LIST_MIME_TYPE))
+                .decode("utf-8")
+                .split()
+            )
         elif data.hasText():
             ymodels.append(data.text())
 
         xmodels = [None] * len(ymodels)
-        self.addModels(list(zip(xmodels,ymodels)))
+        self.addModels(list(zip(xmodels, ymodels)))
         return True
 
     def eventFilter(self, source, event):
@@ -395,6 +409,7 @@ class TaurusXYModelChooserTool(Qt.QAction):
                 yname = ymodel.getFullName()
             except Exception as e:
                 from taurus import warning
+
                 warning("Problem adding %r: %r", (xname, yname), e)
                 continue
             # do not add it again if we already added it (avoid duplications)
@@ -414,8 +429,7 @@ class TaurusXYModelChooserTool(Qt.QAction):
             # if it is a new curve, create it and add it to the main plot_item
             else:
                 item = self.itemClass(
-                    xModel=xname, yModel=yname,
-                    name=ymodel.getSimpleName()
+                    xModel=xname, yModel=yname, name=ymodel.getSimpleName()
                 )
                 if self._curveColors is not None:
                     item.setPen(self._curveColors.next().color())
@@ -435,17 +449,17 @@ def _demo_ModelChooser():
     # a standard pyqtgraph plot_item
     w = pg.PlotWidget()
 
-    #add legend to the plot, for that we have to give a name to plot items
+    # add legend to the plot, for that we have to give a name to plot items
     w.addLegend()
 
     # adding a regular data item (non-taurus)
-    c1 = pg.PlotDataItem(name='st plot', pen='b', fillLevel=0, brush='c')
-    c1.setData(numpy.arange(300) / 300.)
+    c1 = pg.PlotDataItem(name="st plot", pen="b", fillLevel=0, brush="c")
+    c1.setData(numpy.arange(300) / 300.0)
     w.addItem(c1)
 
     # adding a taurus data item
-    c2 = TaurusPlotDataItem(name='st2 plot', pen='r', symbol='o')
-    c2.setModel('eval:rand(222)')
+    c2 = TaurusPlotDataItem(name="st2 plot", pen="r", symbol="o")
+    c2.setModel("eval:rand(222)")
 
     w.addItem(c2)
 
@@ -473,12 +487,12 @@ def _demo_ModelChooserImage():
     img = TaurusImageItem()
 
     # Add taurus 2D image data
-    img.setModel('eval:rand(256,256)')
+    img.setModel("eval:rand(256,256)")
 
     w.addItem(img)
 
-    w.showAxis('left', show=False)
-    w.showAxis('bottom', show=False)
+    w.showAxis("left", show=False)
+    w.showAxis("bottom", show=False)
 
     tool = TaurusImgModelChooserTool()
     tool.attachToPlotItem(w.getPlotItem())
@@ -489,7 +503,6 @@ def _demo_ModelChooserImage():
     sys.exit(app.exec_())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _demo_ModelChooser()
     # _demo_ModelChooserImage()
-
