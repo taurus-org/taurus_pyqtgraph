@@ -35,9 +35,7 @@ from builtins import bytes
 
 __all__ = ["TaurusCurveItemTableModel", "TaurusItemConf", "TaurusItemConfDlg"]
 
-import sys
 import copy
-import pkg_resources
 
 from taurus.external.qt import Qt
 
@@ -392,7 +390,7 @@ class TaurusItemConfDlg(Qt.QWidget):
         # I get "UnboundLocalError: local variable 'taurus' referenced before
         # assignment" if I don't import taurus again here
         # TODO: check if this workaround is really needed
-        import taurus
+        import taurus  # noqa
 
         # -------------------------------------------------------------------
 
@@ -413,15 +411,15 @@ class TaurusItemConfDlg(Qt.QWidget):
         row = index.row()
         menu = Qt.QMenu(self.ui.curvesTable)
         if row >= 0:
-            removeThisAction = menu.addAction(
+            menu.addAction(
                 Qt.QIcon.fromTheme("list-remove"),
                 "Remove this curve",
                 self._onRemoveThisAction,
             )
-        removeAllAction = menu.addAction(
+        menu.addAction(
             Qt.QIcon.fromTheme("edit-clear"), "Clear all", self.model.clearAll
         )
-        addRowAction = menu.addAction(
+        menu.addAction(
             Qt.QIcon.fromTheme("list-add"),
             "Add new row",
             self.model.insertRows,
@@ -554,7 +552,6 @@ class TaurusItemConfDlg(Qt.QWidget):
 
 if __name__ == "__main__":
     from taurus.qt.qtgui.application import TaurusApplication
-    from taurus.qt.qtgui.tpg import TaurusItemConfDlg
 
     import sys
 
