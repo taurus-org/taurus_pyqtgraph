@@ -152,6 +152,7 @@ if __name__ == "__main__":
     from taurus.qt.qtgui.application import TaurusApplication
     from taurus.qt.qtgui.tpg import TaurusTrendSet, DateAxisItem
     import pyqtgraph as pg
+
     # from taurus.qt.qtgui.tpg import ForcedReadTool
 
     app = TaurusApplication()
