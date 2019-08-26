@@ -392,10 +392,10 @@ if __name__ == "__main__":
     import pyqtgraph as pg
     from taurus.qt.qtgui.application import TaurusApplication
     from taurus.qt.qtgui.tpg import (
-        TaurusTrendSet,
+        # TaurusTrendSet,
         DateAxisItem,
         XAutoPanTool,
-        TaurusModelChooserTool,
+        # TaurusModelChooserTool,
         CurvesPropertiesTool,
     )
 
@@ -440,7 +440,7 @@ if __name__ == "__main__":
 
     ret = app.exec_()
 
-    import pprint
+    # import pprint
 
     # pprint.pprint(c2.createConfig())
 

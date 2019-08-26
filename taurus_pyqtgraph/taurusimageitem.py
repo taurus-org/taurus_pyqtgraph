@@ -25,7 +25,6 @@
 __all__ = ["TaurusImageItem"]
 
 import sys
-import taurus
 from taurus.qt.qtgui.application import TaurusApplication
 from taurus.qt.qtgui.base import TaurusBaseComponent
 from pyqtgraph import ImageItem

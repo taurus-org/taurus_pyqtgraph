@@ -127,7 +127,7 @@ if __name__ == "__main__":
     import numpy
     import pyqtgraph as pg
     from taurus.qt.qtgui.application import TaurusApplication
-    from taurus.qt.qtgui.tpg import TaurusPlotDataItem
+    # from taurus.qt.qtgui.tpg import TaurusPlotDataItem
     from taurus.external.qt import Qt
     from taurus.qt.qtgui.tpg import TaurusModelChooserTool
 

@@ -36,7 +36,6 @@ from taurus_pyqtgraph.taurusplotdataitem import TaurusPlotDataItem
 from taurus_pyqtgraph.curvesmodel import TaurusItemConf, TaurusItemConfDlg
 import taurus
 from collections import OrderedDict
-from taurus.core.taurushelper import getValidatorFromName
 from taurus.qt.qtcore.mimetypes import (
     TAURUS_MODEL_LIST_MIME_TYPE,
     TAURUS_ATTR_MIME_TYPE,

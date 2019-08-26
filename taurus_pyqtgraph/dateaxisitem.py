@@ -33,7 +33,7 @@ __all__ = ["DateAxisItem"]
 # There is a conflict problem with PyQt versions. Pyqtgraph imports his own
 # library of PyQt, and Taurus too. So we have to import Qt from own version
 # first as a workaround for forcing our own (as a workaround)
-from taurus.external.qt import Qt
+from taurus.external.qt import Qt  # noqa
 
 # -------------------------------------------------------------------------
 
