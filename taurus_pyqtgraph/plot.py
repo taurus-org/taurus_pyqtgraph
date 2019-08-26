@@ -63,7 +63,8 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
     TaurusPlot incorporates the following tools/features:
 
         - Secondary Y axis (right axis)
-        - A plot configuration dialog, and save/restore configuration facilities
+        - A plot configuration dialog, and save/restore configuration
+          facilities
         - A menu option for adding/removing models
         - A menu option for showing/hiding the legend
         - Automatic color change of curves for newly added models

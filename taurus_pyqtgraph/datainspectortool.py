@@ -72,8 +72,8 @@ class DataInspectorLine(InfiniteLine):
 
     def _inspect(self):
         """
-        Slot to re inspector line movemethe mouse move event, and peform the action
-        on the plot.
+        Slot to re inspector line movemethe mouse move event, and perform
+        the action on the plot.
 
         :param evt: mouse event
         """

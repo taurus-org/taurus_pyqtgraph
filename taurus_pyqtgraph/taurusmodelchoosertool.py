@@ -109,7 +109,7 @@ class TaurusModelChooserTool(Qt.QAction):
         # remove existing curves from plot (but not discarding the object)
         # so that they can be re-added later in the correct z-order
         for k, v in currentModelItems.items():
-            # v.getViewBox().removeItem(v)  # TODO : maybe this is needed forY2
+            # v.getViewBox().removeItem(v)  # TODO: maybe needed for Y2
             self.plot_item.removeItem(v)
             # -------------------------------------------------
             # Workaround for bug in pyqtgraph 0.10.0
@@ -125,7 +125,7 @@ class TaurusModelChooserTool(Qt.QAction):
             if modelName in currentModelNames:
                 item = currentModelItems[modelName]
                 self.plot_item.addItem(item)
-                # item.getViewBox().addItem(item)  # TODO : maybe this is needed forY2
+                # item.getViewBox().addItem(item)  # TODO: maybe needed for Y2
             else:
                 # TODO support labels
                 item = self.itemClass(name=model.getSimpleName())

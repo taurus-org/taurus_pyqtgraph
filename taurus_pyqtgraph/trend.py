@@ -69,7 +69,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
         - Secondary Y axis (right axis)
         - Time X axis
-        - A plot configuration dialog, and save/restore configuration facilities
+        - A plot configuration dialog, and save/restore configuration
+          facilities
         - A menu option for adding/removing taurus  models
         - A menu option for showing/hiding the legend
         - Automatic color change of curves for newly added models
