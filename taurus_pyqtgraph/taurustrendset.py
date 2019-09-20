@@ -332,7 +332,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
             self.insertEventFilter(self.__ONLY_OWN_EVENTS)
             self._timer.start(period)
 
-    def _forceRead(self, cache=True):
+    def _forceRead(self, cache=False):
         """Forces a read of the associated attribute.
 
         :param cache: (bool) If True, the reading will be done with cache=True
