@@ -27,7 +27,6 @@ from __future__ import absolute_import
 __all__ = ["TaurusTrend"]
 
 from future.utils import string_types
-import sys
 import copy
 
 from taurus.external.qt import QtGui, Qt
