@@ -79,8 +79,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     def __init__(self, parent=None, **kwargs):
 
-        if sys.version_info.major < 3:
-            # Workaround to issue when using super with py2
+        if Qt.QT_VERSION < 0x050000:
+            # Workaround for issue when using super with pyqt<5
             BaseConfigurableClass.__init__(self)
             PlotWidget.__init__(self, parent=parent, **kwargs)
         else:
