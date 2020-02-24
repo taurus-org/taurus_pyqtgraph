@@ -41,6 +41,9 @@ class TaurusImageItem(ImageItem, TaurusBaseComponent):
         TaurusBaseComponent.__init__(self, "TaurusImageItem")
 
     def handleEvent(self, evt_src, evt_type, evt_val):
+        if evt_val is None or getattr(evt_val, 'rvalue', None) is None:
+            self.debug('Ignoring empty value event from %s' % repr(evt_src))
+            return
         try:
             data = evt_val.rvalue
             self.setImage(data)
