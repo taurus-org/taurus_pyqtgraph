@@ -386,6 +386,27 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
             elif opts["connect"] == "finite":
                 c.opts["connect"] = "finite"
 
+    def setBufferSize(self, buffer_size):
+        """sets the maximum number of points to store per trend curve
+
+        :param buffer_size: (int) max number of points to store per trend curve
+        """
+        self._maxBufferSize = buffer_size
+        try:
+            if self._xBuffer is not None:
+                self._xBuffer.setMaxSize(buffer_size)
+            if self._yBuffer is not None:
+                self._yBuffer.setMaxSize(buffer_size)
+        except ValueError:
+            self.info('buffer downsizing  requested.'
+                      + 'Current contents will be discarded')
+            self._xBuffer = None
+            self._yBuffer = None
+
+    def bufferSize(self):
+        """returns the maximum number of points to be stored by the trends"""
+        return self._maxBufferSize
+
 
 if __name__ == "__main__":
     import sys
