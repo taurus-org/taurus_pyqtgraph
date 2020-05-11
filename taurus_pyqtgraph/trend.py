@@ -79,6 +79,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     def __init__(self, parent=None, **kwargs):
 
+        buffer_size = kwargs.pop('buffer_size', 65536)
+
         if Qt.QT_VERSION < 0x050000:
             # Workaround for issue when using super with pyqt<5
             BaseConfigurableClass.__init__(self)
@@ -135,7 +137,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         fr_tool.attachToPlotItem(self.getPlotItem())
 
         # add force read tool
-        buffer_tool = BufferSizeTool(self)
+        buffer_tool = BufferSizeTool(self, buffer_size=buffer_size)
         buffer_tool.attachToPlotItem(self.getPlotItem())
 
         # Add the auto-pan ("oscilloscope mode") tool
