@@ -39,7 +39,7 @@ from .curvespropertiestool import CurvesPropertiesTool
 from .dateaxisitem import DateAxisItem
 from .legendtool import PlotLegendTool
 from .forcedreadtool import ForcedReadTool
-from .maxbuffertool import MaxBufferTool
+from .buffersizetool import BufferSizeTool
 from .datainspectortool import DataInspectorTool
 from .taurusmodelchoosertool import TaurusModelChooserTool
 from .taurustrendset import TaurusTrendSet
@@ -135,7 +135,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         fr_tool.attachToPlotItem(self.getPlotItem())
 
         # add force read tool
-        buffer_tool = MaxBufferTool(self)
+        buffer_tool = BufferSizeTool(self)
         buffer_tool.attachToPlotItem(self.getPlotItem())
 
         # Add the auto-pan ("oscilloscope mode") tool

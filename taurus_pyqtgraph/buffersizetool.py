@@ -22,13 +22,13 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-__all__ = ["MaxBufferTool"]
+__all__ = ["BufferSizeTool"]
 
 from taurus.external.qt import QtGui, QtCore
 from taurus.qt.qtcore.configuration.configuration import BaseConfigurableClass
 
 
-class MaxBufferTool(QtGui.QWidgetAction, BaseConfigurableClass):
+class BufferSizeTool(QtGui.QWidgetAction, BaseConfigurableClass):
     """
     This tool provides a menu option to control the "Maximum buffer" of
     Plot data items that implement a `setBufferSize` method
@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
     w.addItem(ts1)
 
-    fr = MaxBufferTool(w, buffer_size=16)
+    fr = BufferSizeTool(w, buffer_size=16)
     fr.attachToPlotItem(w.getPlotItem())
 
     # test adding the curve after the tool
