@@ -91,7 +91,16 @@ def plot_cmd(models, config_file, x_axis_mode, demo, window_name):
     default="TaurusPlot (pg)",
     help="Name of the window",
 )
-def trend_cmd(models, config_file, demo, window_name):
+@click.option(
+    '-b', '--buffer', 'buffer_size',
+    type=int,
+    default=65536,
+    show_default=True,
+    help=("Maximum number of points to be plotted per trend "
+          + "(when reached, the oldest values will be "
+          + "discarded)"),
+)
+def trend_cmd(models, config_file, demo, window_name, buffer_size):
     """Shows a trend for the given models"""
     from .trend import trend_main
 
@@ -100,6 +109,7 @@ def trend_cmd(models, config_file, demo, window_name):
         config_file=config_file,
         demo=demo,
         window_name=window_name,
+        buffer_size=buffer_size
     )
 
 

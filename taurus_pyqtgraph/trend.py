@@ -270,7 +270,11 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
 
 def trend_main(
-    models=(), config_file=None, demo=False, window_name="TaurusTrend (pg)"
+    models=(),
+    config_file=None,
+    demo=False,
+    window_name="TaurusTrend (pg)",
+    buffer_size=65536
 ):
     """Launch a TaurusTrend"""
     import sys
@@ -278,7 +282,7 @@ def trend_main(
 
     app = TaurusApplication(cmd_line_parser=None, app_name="taurustrend(pg)")
 
-    w = TaurusTrend()
+    w = TaurusTrend(buffer_size=buffer_size)
 
     w.setWindowTitle(window_name)
 
