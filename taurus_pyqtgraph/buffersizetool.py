@@ -62,7 +62,7 @@ class BufferSizeTool(QtGui.QWidgetAction, BaseConfigurableClass):
         # defining the widget
         self._w = QtGui.QWidget()
         self._w.setLayout(QtGui.QHBoxLayout())
-        self._w.setToolTip("Maximum number number of points for each trend")
+        self._w.setToolTip("Maximum number of points for each trend")
         self._label = QtGui.QLabel(text)
         self._w.layout().addWidget(self._label)
         self._sb = QtGui.QSpinBox()
