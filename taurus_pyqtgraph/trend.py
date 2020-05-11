@@ -39,6 +39,7 @@ from .curvespropertiestool import CurvesPropertiesTool
 from .dateaxisitem import DateAxisItem
 from .legendtool import PlotLegendTool
 from .forcedreadtool import ForcedReadTool
+from .maxbuffertool import MaxBufferTool
 from .datainspectortool import DataInspectorTool
 from .taurusmodelchoosertool import TaurusModelChooserTool
 from .taurustrendset import TaurusTrendSet
@@ -133,6 +134,10 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         fr_tool = ForcedReadTool(self)
         fr_tool.attachToPlotItem(self.getPlotItem())
 
+        # add force read tool
+        buffer_tool = MaxBufferTool(self)
+        buffer_tool.attachToPlotItem(self.getPlotItem())
+
         # Add the auto-pan ("oscilloscope mode") tool
         autopan = XAutoPanTool()
         autopan.attachToPlotItem(self.getPlotItem())
@@ -141,6 +146,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         self.registerConfigDelegate(self._y2, "Y2Axis")
         self.registerConfigDelegate(legend_tool, "legend")
         self.registerConfigDelegate(fr_tool, "forceread")
+        self.registerConfigDelegate(buffer_tool, "buffer")
         self.registerConfigDelegate(inspector_tool, "inspector")
 
     # --------------------------------------------------------------------
