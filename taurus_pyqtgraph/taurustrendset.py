@@ -402,7 +402,6 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                       + 'Current contents will be discarded')
             self.clearBuffer()
 
-
     def bufferSize(self):
         """returns the maximum number of points to be stored by the trends"""
         return self._maxBufferSize
