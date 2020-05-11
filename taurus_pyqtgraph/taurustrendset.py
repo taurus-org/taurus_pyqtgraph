@@ -400,12 +400,19 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         except ValueError:
             self.info('buffer downsizing  requested.'
                       + 'Current contents will be discarded')
-            self._xBuffer = None
-            self._yBuffer = None
+            self.clearBuffer()
+
 
     def bufferSize(self):
         """returns the maximum number of points to be stored by the trends"""
         return self._maxBufferSize
+
+    def clearBuffer(self):
+        """Reset the buffered data"""
+        for curve in self._curves:
+            curve.setData(x=[], y=[])
+        self._xBuffer = None
+        self._yBuffer = None
 
 
 if __name__ == "__main__":
