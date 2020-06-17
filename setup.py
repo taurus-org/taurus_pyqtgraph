@@ -54,6 +54,7 @@ test_requirements = ["pytest"]
 entry_points = {
     "taurus.qt.qtgui": ["tpg = taurus_pyqtgraph"],
     "taurus.cli.subcommands": ["tpg = taurus_pyqtgraph.cli:tpg"],
+    "taurus.alt.plot": ["tpg = taurus_pyqtgraph:TaurusPlot"],
 }
 
 classifiers = [
