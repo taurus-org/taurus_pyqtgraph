@@ -130,8 +130,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         inspector_tool.attachToPlotItem(self.getPlotItem())
 
         # add force read tool
-        fr_tool = ForcedReadTool(self)
-        fr_tool.attachToPlotItem(self.getPlotItem())
+        self._fr_tool = ForcedReadTool(self)
+        self._fr_tool.attachToPlotItem(self.getPlotItem())
 
         # Add the auto-pan ("oscilloscope mode") tool
         autopan = XAutoPanTool()
@@ -140,7 +140,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         # Register config properties
         self.registerConfigDelegate(self._y2, "Y2Axis")
         self.registerConfigDelegate(legend_tool, "legend")
-        self.registerConfigDelegate(fr_tool, "forceread")
+        self.registerConfigDelegate(self._fr_tool, "forceread")
         self.registerConfigDelegate(inspector_tool, "inspector")
 
     # --------------------------------------------------------------------
@@ -259,6 +259,23 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         # remove viewRange conf
         del state["view"]["viewRange"]
         return state
+
+    def setXAxisMode(self, x_axis_mode):
+        """Required generic TaurusTrend API """
+        if x_axis_mode != "t":
+            raise NotImplementedError(  # TODO
+                'X mode "{}" not yet supported'.format(x_axis_mode)
+            )
+
+    def setForcedReadingPeriod(self, period):
+        """Required generic TaurusTrend API """
+        self._fr_tool.setPeriod(period)
+
+    def setMaxDataBufferSize(self, buffer_size):
+        """Required generic TaurusTrend API """
+        raise NotImplementedError(  # TODO
+            "Setting the max buffer size is not yet supported by tpg trend"
+        )
 
 
 def trend_main(
