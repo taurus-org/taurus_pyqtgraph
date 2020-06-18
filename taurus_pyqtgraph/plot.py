@@ -243,6 +243,19 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         del state["view"]["viewRange"]
         return state
 
+    def setXAxisMode(self, x_axis_mode):
+        """Required generic TaurusPlot API """
+        from taurus_pyqtgraph import DateAxisItem
+        if x_axis_mode == "t":
+            axis = DateAxisItem(orientation="bottom")
+            axis.attachToPlotItem(self.getPlotItem())
+        elif x_axis_mode == "n":
+            axis = self.getPlotItem().axes["bottom"]["item"]
+            if isinstance(axis, DateAxisItem):
+                axis.detachFromPlotItem()
+        else:
+            raise ValueError("Unsupported x axis mode {}".format(x_axis_mode))
+
 
 def plot_main(
     models=(),
@@ -267,11 +280,7 @@ def plot_main(
         models = list(models)
         models.extend(["eval:rand(100)", "eval:0.5*sqrt(arange(100))"])
 
-    if x_axis_mode.lower() == "t":
-        from taurus.qt.qtgui.tpg import DateAxisItem
-
-        axis = DateAxisItem(orientation="bottom")
-        axis.attachToPlotItem(w.getPlotItem())
+    w.setXAxisMode(x_axis_mode.lower())
 
     if config_file is not None:
         w.loadConfigFile(config_file)
