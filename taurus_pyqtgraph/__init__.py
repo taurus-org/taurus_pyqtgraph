@@ -54,4 +54,4 @@ from .curveproperties import (
 
 
 # Do not modify the __version__ manually. To be modified by bumpversion
-__version__ = "0.3.5"
+__version__ = "0.3.6-alpha"
