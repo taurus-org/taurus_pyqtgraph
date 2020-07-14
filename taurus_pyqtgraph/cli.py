@@ -23,87 +23,32 @@
 
 import pkg_resources
 import click
+import sys
 
 _tpg_version = pkg_resources.require("taurus_pyqtgraph")[0].version
 _taurus_version = pkg_resources.require("taurus")[0].version
 _version = "{0} (with taurus {1})".format(_tpg_version, _taurus_version)
 
 
-@click.group("tpg")
-@click.version_option(version=_version, prog_name="tpg")
+@click.group('tpg')
 def tpg():
-    """Taurus-pyqtgraph related commands"""
-    pass
+    """[DEPRECATED] use "taurus plot" or "taurus trend" instead"""
+    print('"taurus tpg" subcommand is deprecated. '
+          + 'Use "taurus plot" or "taurus trend" instead\n')
+    sys.exit(1)
 
 
-@tpg.command("plot")
-@click.argument("models", nargs=-1)
-@click.option(
-    "--config",
-    "config_file",
-    type=click.File(),
-    help="configuration file for initialization",
-)
-@click.option(
-    "-x",
-    "--x-axis-mode",
-    "x_axis_mode",
-    type=click.Choice(["t", "n"]),
-    default="n",
-    show_default=True,
-    help=(
-        'X axis mode. "t" implies using a Date axis'
-        + '"n" uses the regular axis'
-    ),
-)
-@click.option("--demo", is_flag=True, help="show a demo of the widget")
-@click.option(
-    "--window-name",
-    "window_name",
-    default="TaurusPlot (pg)",
-    help="Name of the window",
-)
-def plot_cmd(models, config_file, x_axis_mode, demo, window_name):
-    """Shows a plot for the given models"""
-    from .plot import plot_main
-
-    return plot_main(
-        models=models,
-        config_file=config_file,
-        x_axis_mode=x_axis_mode,
-        demo=demo,
-        window_name=window_name,
-    )
+@tpg.command()
+def plot():
+    """[DEPRECATED] use "taurus plot" instead"""
+    sys.exit(1)
 
 
-@tpg.command("trend")
-@click.argument("models", nargs=-1)
-@click.option(
-    "--config",
-    "config_file",
-    type=click.File(),
-    help="configuration file for initialization",
-)
-@click.option("--demo", is_flag=True, help="show a demo of the widget")
-@click.option(
-    "--window-name",
-    "window_name",
-    default="TaurusPlot (pg)",
-    help="Name of the window",
-)
-def trend_cmd(models, config_file, demo, window_name):
-    """Shows a trend for the given models"""
-    from .trend import trend_main
-
-    return trend_main(
-        models=models,
-        config_file=config_file,
-        demo=demo,
-        window_name=window_name,
-    )
+@tpg.command()
+def trend():
+    """[DEPRECATED] use "taurus trend" instead"""
+    sys.exit(1)
 
 
 if __name__ == "__main__":
-    import sys
-
     sys.exit(tpg())  # pragma: no cover
