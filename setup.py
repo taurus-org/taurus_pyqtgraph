@@ -47,10 +47,6 @@ keywords = ["Taurus", "pyqtgraph", "plugin", "widgets"]
 
 install_requires = ["pyqtgraph", "click", "taurus>=4.5.2", "lxml", "ply"]
 
-setup_requirements = ["pytest-runner"]
-
-test_requirements = ["pytest"]
-
 entry_points = {
     "taurus.qt.qtgui": ["tpg = taurus_pyqtgraph"],
     "taurus.cli.subcommands": ["tpg = taurus_pyqtgraph.cli:tpg"],
@@ -105,7 +101,6 @@ setup(
     include_package_data=True,
     entry_points=entry_points,
     test_suite="tests",
-    tests_require=test_requirements,
+    python_requires='>=2.7',
     install_requires=install_requires,
-    setup_requires=setup_requirements,
 )
