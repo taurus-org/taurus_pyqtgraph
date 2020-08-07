@@ -3,7 +3,7 @@ description: 'Build conda pkg and Publish (forked from Fatih C Akyon)'
 author: 'Carlos Pascual'
 branding:
   icon: 'package'
-  color: 'purple'
+  color: 'green'
 inputs:
   subdir:
     description: 'Sub-directory with conda recipe'
