@@ -1,7 +1,9 @@
 {% set data = load_setup_py_data(setup_file="../setup.py",
   from_recipe_dir=True) %}
 
-{% set GIT_HASHTAG =  os.popen("git log --pretty=format:'%h' -n 1").read().strip()%}
+{% set GIT_HASHTAG =  environ.get('GIT_SHA',
+    os.popen("git log --pretty=format:'%h' -n 1").read().strip()
+    )[:7] %}
 package:
   name: {{data.get('name').lower().replace(' ', '_')}}
   version: {{ data.get('version').replace('-alpha', 'a0') }}

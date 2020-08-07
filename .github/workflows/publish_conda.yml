@@ -11,6 +11,9 @@ on:
 
 jobs:
   publish:
+    env:
+      BUILD_NUMBER: $GITHUB_RUN_NUMBER
+      GIT_SHA: $GITHUB_SHA
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
