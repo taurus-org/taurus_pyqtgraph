@@ -13,7 +13,11 @@ For the latest release in PyPI:
 
 `pip install taurus_pyqtgraph`
 
-For developing, use a python3 virtual env (or conda, or similar) and:
+Alternatively, you can install with conda:
+
+`conda install -c taurus-org taurus_pyqtgraph`
+
+For development, use a python3 virtual env (or conda, or similar) and:
 
 ```
 git clone https://github.com/taurus-org/taurus_pyqtgraph.git
@@ -23,7 +27,8 @@ pip install -e .
 ```
 
 After successful installation, the module will be accessible as `taurus.qt.qtgui.tpg` 
-and the `taurus tpg` CLI will be available
+and `taurus_tpg`, and `tpg` will be registered as an alternative implementation for 
+plots and trends in the `taurus` CLI.
 
 ## Features implementation checklist
 
