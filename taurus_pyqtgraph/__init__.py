@@ -51,7 +51,7 @@ from .curveproperties import (
     serialize_opts,
     deserialize_opts,
 )
-
+from .datainspectortool import DataInspectorLine, DataInspectorTool
 
 # Do not modify the __version__ manually. To be modified by bumpversion
 __version__ = "0.3.8-alpha"
