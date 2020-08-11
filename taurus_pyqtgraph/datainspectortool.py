@@ -29,7 +29,7 @@ import numpy
 from taurus.external.qt import Qt
 from taurus.qt.qtcore.configuration import BaseConfigurableClass
 from taurus_pyqtgraph import DateAxisItem
-from pyqtgraph import SignalProxy, InfiniteLine, TextItem, ScatterPlotItem
+from pyqtgraph import SignalProxy, InfiniteLine, TextItem, PlotDataItem
 
 
 class DataInspectorLine(InfiniteLine):
@@ -38,27 +38,36 @@ class DataInspectorLine(InfiniteLine):
     containing the coordinates of the points of existing curves it touches.
     It provides a method to attach it to a PlotItem.
 
-    .. todo:: for now it only works on the main viewbox.
     """
 
-    # TODO: support more than 1 viewbox (e.g. y2axis).
     # TODO: modify anchor of labels so that they are plotted on the left if
     #       they do not fit in the view
 
     def __init__(
         self,
         date_format="%Y-%m-%d %H:%M:%S",
-        y_format="%0.4f",
+        x_format="0.4f",
+        y_format="0.4f",
         trigger_point_size=10,
     ):
+        """
+
+        :param date_format: format string (as in strftime) for displaying dates
+        :param x_format: format specifier for displaying the x values
+        :param y_format: format specifier for displaying the y values
+        :param trigger_point_size: width (in pixels) of the inspected area
+                                   (points will be picked only if they are
+                                   within this size)
+        """
         super(DataInspectorLine, self).__init__(angle=90, movable=True)
         self._labels = []
         self._highlights = []
         self._plot_item = None
 
-        self.y_format = y_format
+        self._date_format = "{:" + date_format + "}"
+        self._x_format = "{:" + x_format + "}"
+        self._y_format = "{:" + y_format + "}"
         self.trigger_point_size = trigger_point_size
-        self.date_format = date_format
         self._label_style = "background-color: #35393C;"
         self.sigPositionChanged.connect(self._inspect)
 
@@ -101,40 +110,52 @@ class DataInspectorLine(InfiniteLine):
             if adiff[idx] < tolerance:
                 points.append((c.xData[idx], c.yData[idx]))
 
-        self._createLabels(points, viewbox)
+        if curves:
+            logMode = curves[0].opts["logMode"]
+        else:
+            logMode = None
+        self._createLabels(points, viewbox, logMode)
 
-    def _createLabels(self, points, viewbox):
+    def _createLabels(self, points, viewbox, logMode):
         for x, y in points:
-            # create label at x,y
-            _x = self._getXValue(x)
-            _y = self._getYValue(y)
+            # fill the text
+            xtext = self._getXText(x)
+            ytext = self._getYText(y)
             text_item = TextItem()
-            text_item.setPos(x, y)
             text_item.setHtml(
                 (
                     "<div style='{}'> "
                     + "<span><b>x=</b>{} "
                     + "<span><b>y=</b>{}</span> "
                     + "</div>"
-                ).format(self._label_style, _x, _y)
+                ).format(self._label_style, xtext, ytext)
             )
+            # add text_item in the right position (take into account log mode)
+            if logMode[0]:
+                x = numpy.log10(x)
+            if logMode[1]:
+                y = numpy.log10(y)
+            text_item.setPos(x, y)
             self._labels.append(text_item)
             viewbox.addItem(text_item, ignoreBounds=True)
         # Add "highlight" marker at each point
-        highlight = ScatterPlotItem(
-            pos=points,
+        highlight = PlotDataItem(
+            numpy.array(points),
+            pen=None,
             symbol="s",
-            brush="35393C88",
+            symbolBrush="35393C88",
             pxMode=True,
-            size=self.trigger_point_size,
+            symbolSize=self.trigger_point_size,
         )
+        # set log mode
+        highlight.setLogMode(*logMode)
         # hack to make the CurvesPropertiesTool ignore the highlight points
         highlight._UImodifiable = False
         # Add it to the vbox and keep a reference
         viewbox.addItem(highlight, ignoreBounds=True)
         self._highlights.append(highlight)
 
-    def _getXValue(self, x):
+    def _getXText(self, x):
         """
         Helper method converting x value to time if necessary
 
@@ -143,21 +164,12 @@ class DataInspectorLine(InfiniteLine):
         """
         x_axis = self._plot_item.getAxis("bottom")
         if isinstance(x_axis, DateAxisItem):
-            return self._timestampToDateTime(x)
+            return self._date_format.format(datetime.utcfromtimestamp(x))
         else:
-            return x
+            return self._x_format.format(x)
 
-    def _getYValue(self, y):
-        return str(self.y_format % y)
-
-    def _timestampToDateTime(self, timestamp):
-        """
-        Method used to caste the timestamp from the curve to date
-        in proper format (%Y-%m-%d %H:%M:%S)
-
-        :param timestamp: selected timestamp from curve
-        """
-        return datetime.utcfromtimestamp(timestamp).strftime(self.date_format)
+    def _getYText(self, y):
+        return self._y_format.format(y)
 
     def _removeLabels(self):
         # remove existing texts labels and highlights
