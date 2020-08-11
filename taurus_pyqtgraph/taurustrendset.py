@@ -263,7 +263,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         # model = evt_src if evt_src is not None else self.getModelObj()
 
         # TODO: support boolean values from evt_value.rvalue
-         if (evt_value is None
+        if (evt_value is None
             or not hasattr(evt_value, 'rvalue')
             or evt_value.rvalue is None):
             self.info("Invalid value. Ignoring.")
