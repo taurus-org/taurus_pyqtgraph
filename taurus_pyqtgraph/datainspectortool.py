@@ -53,6 +53,7 @@ class DataInspectorLine(InfiniteLine):
     ):
         super(DataInspectorLine, self).__init__(angle=90, movable=True)
         self._labels = []
+        self._highlights = []
         self._plot_item = None
 
         self.y_format = y_format
@@ -60,44 +61,49 @@ class DataInspectorLine(InfiniteLine):
         self.date_format = date_format
         self._label_style = "background-color: #35393C;"
         self.sigPositionChanged.connect(self._inspect)
-        self._highlights = ScatterPlotItem(
-            pos=(),
-            symbol="s",
-            brush="35393C88",
-            pxMode=True,
-            size=trigger_point_size,
-        )
-        # hack to make the CurvesPropertiesTool ignore the highlight points
-        self._highlights._UImodifiable = False
 
     def _inspect(self):
         """
-        Slot to re inspector line movemethe mouse move event, and perform
-        the action on the plot.
-
-        :param evt: mouse event
+        check if the line position matches (in widget coordinates) the position
+        of a point of a given curve. If so, add a highlight point and a label
+        in the corresponding viewbox.
         """
-        xpos = self.pos().x()
-        x_px_size, _ = self.getViewBox().viewPixelSize()
-
+        # remove labels (text and highlight points)
         self._removeLabels()
-        points = []
-        # iterate over the existing curves
+        # group curves to be inspected, by their viewbox
+        vb_curves = {}
         for c in self._plot_item.curves:
-            if c is self._highlights:
-                continue
-            if c.xData is not None:
-                # find the index of the closest point of this curve
-                adiff = numpy.abs(c.xData - xpos)
-                idx = numpy.argmin(adiff)
-                # only add a label if the line touches the symbol
-                tolerance = 0.5 * max(1, c.opts["symbolSize"]) * x_px_size
-                if adiff[idx] < tolerance:
-                    points.append((c.xData[idx], c.yData[idx]))
+            if getattr(c, 'xData', None) is not None:
+                vb = c.getViewBox()
+                if vb not in vb_curves:
+                    vb_curves[vb] = []
+                vb_curves[vb].append(c)
 
-        self._createLabels(points)
+        # inspect the curves of each viewbox
+        for vb, curves in vb_curves.items():
+            self._inspect_curves_in_viewbox(curves, vb)
 
-    def _createLabels(self, points):
+    def _inspect_curves_in_viewbox(self, curves, viewbox):
+
+        # map position of the line to the viewbox coordinates
+        xpos = viewbox.mapFromItemToView(self, self.pos()).x()
+        # find out the screen pixel size in the viewbox coordinates
+        x_px_size, _ = viewbox.viewPixelSize()
+
+        points = []  # picked points, grouped by their viewbox
+        # iterate over the curves
+        for c in curves:
+            # find the index of the closest point of this curve
+            adiff = numpy.abs(c.xData - xpos)
+            idx = numpy.argmin(adiff)
+            # only add a label if the closest point is within tolerance
+            tolerance = 0.5 * self.trigger_point_size * x_px_size
+            if adiff[idx] < tolerance:
+                points.append((c.xData[idx], c.yData[idx]))
+
+        self._createLabels(points, viewbox)
+
+    def _createLabels(self, points, viewbox):
         for x, y in points:
             # create label at x,y
             _x = self._getXValue(x)
@@ -113,9 +119,20 @@ class DataInspectorLine(InfiniteLine):
                 ).format(self._label_style, _x, _y)
             )
             self._labels.append(text_item)
-            self._plot_item.addItem(text_item, ignoreBounds=True)
+            viewbox.addItem(text_item, ignoreBounds=True)
         # Add "highlight" marker at each point
-        self._highlights.setData(pos=points)
+        highlight = ScatterPlotItem(
+            pos=points,
+            symbol="s",
+            brush="35393C88",
+            pxMode=True,
+            size=self.trigger_point_size,
+        )
+        # hack to make the CurvesPropertiesTool ignore the highlight points
+        highlight._UImodifiable = False
+        # Add it to the vbox and keep a reference
+        viewbox.addItem(highlight, ignoreBounds=True)
+        self._highlights.append(highlight)
 
     def _getXValue(self, x):
         """
@@ -143,12 +160,11 @@ class DataInspectorLine(InfiniteLine):
         return datetime.utcfromtimestamp(timestamp).strftime(self.date_format)
 
     def _removeLabels(self):
-        # remove existing texts
-        for item in self._labels:
-            self.getViewBox().removeItem(item)
+        # remove existing texts labels and highlights
+        for item in self._labels + self._highlights:
+            item.getViewBox().removeItem(item)
         self._labels = []
-        # remove existing highlights
-        self._highlights.setData(pos=())
+        self._highlights = []
 
     def attachToPlotItem(self, plot_item):
         """
@@ -158,14 +174,12 @@ class DataInspectorLine(InfiniteLine):
         """
         self._plot_item = plot_item
         self._plot_item.addItem(self, ignoreBounds=True)
-        self._plot_item.addItem(self._highlights, ignoreBounds=True)
 
     def dettach(self):
         """
         Method use to detach the class:`DataInspectorLine` from the plot
         """
         self._removeLabels()
-        self._plot_item.removeItem(self._highlights)
         self._plot_item.removeItem(self)
         self._plot_item = None
 
