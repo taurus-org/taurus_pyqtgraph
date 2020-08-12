@@ -101,6 +101,6 @@ setup(
     include_package_data=True,
     entry_points=entry_points,
     test_suite="tests",
-    python_requires='>=2.7',
+    python_requires=">=2.7",
     install_requires=install_requires,
 )

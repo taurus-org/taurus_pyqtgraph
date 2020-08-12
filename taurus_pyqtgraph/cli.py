@@ -30,11 +30,13 @@ _taurus_version = pkg_resources.require("taurus")[0].version
 _version = "{0} (with taurus {1})".format(_tpg_version, _taurus_version)
 
 
-@click.group('tpg')
+@click.group("tpg")
 def tpg():
     """[DEPRECATED] use "taurus plot" or "taurus trend" instead"""
-    print('"taurus tpg" subcommand is deprecated. '
-          + 'Use "taurus plot" or "taurus trend" instead\n')
+    print(
+        '"taurus tpg" subcommand is deprecated. '
+        + 'Use "taurus plot" or "taurus trend" instead\n'
+    )
     sys.exit(1)
 
 

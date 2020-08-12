@@ -246,6 +246,7 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
     def setXAxisMode(self, x_axis_mode):
         """Required generic TaurusPlot API """
         from taurus_pyqtgraph import DateAxisItem
+
         if x_axis_mode == "t":
             axis = DateAxisItem(orientation="bottom")
             axis.attachToPlotItem(self.getPlotItem())
