@@ -82,7 +82,7 @@ class DataInspectorLine(InfiniteLine):
         # group curves to be inspected, by their viewbox
         vb_curves = {}
         for c in self._plot_item.curves:
-            if getattr(c, 'xData', None) is not None:
+            if getattr(c, "xData", None) is not None:
                 vb = c.getViewBox()
                 if vb not in vb_curves:
                     vb_curves[vb] = []
