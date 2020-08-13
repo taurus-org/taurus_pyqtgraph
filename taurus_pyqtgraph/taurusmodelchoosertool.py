@@ -373,7 +373,7 @@ class TaurusXYModelChooserTool(Qt.QAction):
         """
         mainViewBox = self.plot_item.getViewBox()
         # Remove existing taurus curves from the plot (but keep the item object
-        # and a reference to their viewbox so that they can be readded
+        # and a reference to their viewbox so that they can be read
         # later on if needed.
         currentModelItems = OrderedDict()
         _currentCurves = list(self.plot_item.listDataItems())

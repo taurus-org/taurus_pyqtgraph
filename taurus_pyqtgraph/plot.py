@@ -136,15 +136,14 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
     # --------------------------------------------------------------------
 
     def setModel(self, names):
-        """Reimplemented to delegate to the """
-
+        """Reimplemented to delegate to the model chooser"""
         # support passing a string in names
         if isinstance(names, string_types):
             names = [names]
         self._model_chooser_tool.updateModels(names)
 
     def addModels(self, names):
-        """Reimplemented to delegate to the """
+        """Reimplemented to delegate to the  model chooser"""
         # support passing a string in names
         if isinstance(names, string_types):
             names = [names]
