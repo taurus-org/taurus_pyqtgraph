@@ -25,7 +25,7 @@
 __all__ = ["PlotLegendTool"]
 
 from taurus.external.qt import QtGui
-from taurus.qt.qtcore.configuration.configuration import BaseConfigurableClass
+from taurus.qt.qtcore.configuration import BaseConfigurableClass
 
 
 class PlotLegendTool(QtGui.QWidgetAction, BaseConfigurableClass):
