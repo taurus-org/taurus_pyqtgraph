@@ -55,11 +55,10 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         BaseConfigurableClass.__init__(self)
         ViewBox.__init__(self, *args, **kwargs)
 
-        self.registerConfigProperty(self.getCurves, self.setCurves, "Y2Curves")
+        self.registerConfigProperty(self._getCurvesNames, self._addCurvesByName, "Y2Curves")
         self.registerConfigProperty(self._getState, self.setState, "viewState")
         self._isAttached = False
         self.plotItem = None
-        self._curvesModelNames = []
 
     def attachToPlotItem(self, plot_item):
         """Use this method to add this axis to a plot
@@ -100,9 +99,6 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
             self.plotItem.scene().removeItem(self)
             self.plotItem.hideAxis("right")
 
-        if hasattr(item, "getFullModelNames"):
-            self._curvesModelNames.remove(item.getFullModelNames())
-
     def addItem(self, item, ignoreBounds=False):
         """Reimplemented from :class:`pyqtgraph.ViewBox`"""
         ViewBox.addItem(self, item, ignoreBounds=ignoreBounds)
@@ -122,25 +118,31 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
                 self.plotItem.getAxis("right").logMode,
             )
 
-        if hasattr(item, "getFullModelNames") and (
-            len(self.addedItems) > 0
-            and item.getFullModelNames() not in self._curvesModelNames
-        ):
-            self._curvesModelNames.append(item.getFullModelNames())
-
-    def getCurves(self):
-        """Returns the curve model names of curves associated to the Y2 axis.
+    def _getCurvesNames(self):
+        """Returns the curve names associated to the Y2 axis.
 
         :return: (list) List of tuples of model names (xModelName, yModelName)
                  from each curve in this view
         """
-        return self._curvesModelNames
+        if self.plotItem is None:
+            return []
+        ret = []
+        for c in self.plotItem.listDataItems():
+            if c.getViewBox() == self and hasattr(c, "getFullModelNames"):
+                ret.append(c.getFullModelNames())
+        return ret
 
-    def setCurves(self, curves):
-        """Sets the curve names associated to the Y2 axis (but does not
-        create/remove any curve.
-        """
-        self._curvesModelNames = curves
+    def _addCurvesByName(self, names):
+        curves = {}
+        for c in self.plotItem.listDataItems():
+            if hasattr(c, "getFullModelNames"):
+                curves[c.getFullModelNames()] = c
+        for n in names:
+            c = curves[n]
+            vb = c.getViewBox()
+            if vb != self:
+                vb.removeItem(c)
+                self.addItem(c)
 
     def _getState(self):
         """Same as ViewBox.getState but removing viewRange conf to force
