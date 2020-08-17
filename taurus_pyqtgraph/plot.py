@@ -135,6 +135,16 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
 
     # --------------------------------------------------------------------
 
+    def __getitem__(self, idx):
+        """
+        Provides a list-like interface: items can be accessed using slice
+        notation
+        """
+        return self.getPlotItem().listDataItems()[idx]
+
+    def __len__(self):
+        return len(self.getPlotItem().listDataItems())
+
     def setModel(self, names):
         """Reimplemented to delegate to the model chooser"""
         # support passing a string in names
