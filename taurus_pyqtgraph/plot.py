@@ -39,7 +39,6 @@ from .curvespropertiestool import CurvesPropertiesTool
 from .taurusmodelchoosertool import TaurusXYModelChooserTool
 from .legendtool import PlotLegendTool
 from .datainspectortool import DataInspectorTool
-from .taurusplotdataitem import TaurusPlotDataItem
 from .y2axis import Y2ViewBox
 
 CURVE_COLORS = [
@@ -117,6 +116,7 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         inspector_tool.attachToPlotItem(self.getPlotItem())
 
         # Register config properties
+        self.registerConfigDelegate(self._model_chooser_tool, "XYmodelchooser")
         self.registerConfigDelegate(self._y2, "Y2Axis")
         self.registerConfigDelegate(legend_tool, "legend")
         self.registerConfigDelegate(inspector_tool, "inspector")
@@ -148,90 +148,6 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         if isinstance(names, string_types):
             names = [names]
         self._model_chooser_tool.addModels(names)
-
-    def createConfig(self, allowUnpickable=False):
-        """
-        Reimplemented from BaseConfigurableClass to manage the config
-        properties of the curves attached to this plot
-        """
-        try:
-            # Temporarily register curves as delegates
-            tmpreg = []
-            curve_list = self.getPlotItem().listDataItems()
-            for idx, curve in enumerate(curve_list):
-                if isinstance(curve, TaurusPlotDataItem):
-                    name = "__TaurusPlotDataItem_%d__" % idx
-                    tmpreg.append(name)
-                    self.registerConfigDelegate(curve, name)
-
-            configdict = copy.deepcopy(
-                BaseConfigurableClass.createConfig(
-                    self, allowUnpickable=allowUnpickable
-                )
-            )
-
-        finally:
-            # Ensure that temporary delegates are unregistered
-            for n in tmpreg:
-                self.unregisterConfigurableItem(n, raiseOnError=False)
-        return configdict
-
-    def applyConfig(self, configdict, depth=None):
-        """
-        Reimplemented from BaseConfigurableClass to manage the config
-        properties of the curves attached to this plot
-        """
-        try:
-            # Temporarily register curves as delegates
-            tmpreg = []
-            curves = []
-            for name in configdict["__orderedConfigNames__"]:
-                if name.startswith("__TaurusPlotDataItem_"):
-                    # Instantiate empty TaurusPlotDataItem
-                    curve = TaurusPlotDataItem()
-                    curves.append(curve)
-                    self.registerConfigDelegate(curve, name)
-                    tmpreg.append(name)
-
-            # remove the curves from the second axis (Y2) for avoid dups
-            self._y2.clearItems()
-
-            BaseConfigurableClass.applyConfig(
-                self, configdict=configdict, depth=depth
-            )
-
-            # keep a dict of existing curves (to use it for avoiding dups)
-            currentCurves = dict()
-            for curve in self.getPlotItem().listDataItems():
-                if isinstance(curve, TaurusPlotDataItem):
-                    currentCurves[curve.getFullModelNames()] = curve
-
-            # remove curves that exists in currentCurves, also remove from
-            # the legend (avoid duplicates)
-            for curve in curves:
-                c = currentCurves.get(curve.getFullModelNames(), None)
-                if c is not None:
-                    self.getPlotItem().legend.removeItem(c.name())
-                    self.getPlotItem().removeItem(c)
-
-            # Add to plot **after** their configuration has been applied
-            for curve in curves:
-                # First we add all the curves in self. This way the plotItem
-                # can keeps a list of dataItems (plotItem.listDataItems())
-                self.addItem(curve)
-
-                # Add curves to Y2 axis, when the curve configurations
-                # have been applied.
-                # Ideally, the Y2ViewBox class must handle the action of adding
-                # curves to itself, but we want add the curves when they are
-                # restored with all their properties.
-                if curve.getFullModelNames() in self._y2.getCurves():
-                    self.getPlotItem().getViewBox().removeItem(curve)
-                    self._y2.addItem(curve)
-        finally:
-            # Ensure that temporary delegates are unregistered
-            for n in tmpreg:
-                self.unregisterConfigurableItem(n, raiseOnError=False)
 
     def _getState(self):
         """Same as PlotWidget.saveState but removing viewRange conf to force

@@ -30,6 +30,7 @@ from future.utils import string_types
 
 from taurus.external.qt import Qt
 from taurus.core import TaurusElementType
+from taurus.qt.qtcore.configuration import BaseConfigurableClass
 from taurus.qt.qtgui.panel import TaurusModelChooser
 from taurus_pyqtgraph.taurusimageitem import TaurusImageItem
 from taurus_pyqtgraph.taurusplotdataitem import TaurusPlotDataItem
@@ -238,7 +239,7 @@ class TaurusImgModelChooserTool(Qt.QAction):
             imageItem.setModel(model)
 
 
-class TaurusXYModelChooserTool(Qt.QAction):
+class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
     """
     (Work-in-Progress)
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
@@ -252,6 +253,7 @@ class TaurusXYModelChooserTool(Qt.QAction):
 
     # TODO: This class is WIP.
     def __init__(self, parent=None, itemClass=None):
+        BaseConfigurableClass.__init__(self)
         Qt.QAction.__init__(self, "Model selection", parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
@@ -260,6 +262,12 @@ class TaurusXYModelChooserTool(Qt.QAction):
         if itemClass is None:
             itemClass = TaurusPlotDataItem
         self.itemClass = itemClass
+
+        self.registerConfigProperty(
+            self.getModelNames,
+            self.updateModels,
+            "Models"
+        )
 
     def setParent(self, parent):
         """Reimplement setParent to add an event filter"""
