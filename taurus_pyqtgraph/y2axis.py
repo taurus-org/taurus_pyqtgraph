@@ -52,13 +52,13 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
     """
 
     def __init__(self, *args, **kwargs):
+        self._isAttached = False
+        self.plotItem = None
         BaseConfigurableClass.__init__(self)
         ViewBox.__init__(self, *args, **kwargs)
 
         self.registerConfigProperty(self._getCurvesNames, self._addCurvesByName, "Y2Curves")
         self.registerConfigProperty(self._getState, self.setState, "viewState")
-        self._isAttached = False
-        self.plotItem = None
 
     def attachToPlotItem(self, plot_item):
         """Use this method to add this axis to a plot
@@ -92,6 +92,9 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
     def removeItem(self, item):
         """Reimplemented from :class:`pyqtgraph.ViewBox`"""
         ViewBox.removeItem(self, item)
+        if self.plotItem is not None:
+            if item in self.plotItem.listDataItems():
+                self.plotItem.removeItem(item)
 
         # when last curve is removed from self (axis Y2), we must remove the
         # axis from scene and hide the axis.
@@ -101,6 +104,13 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
 
     def addItem(self, item, ignoreBounds=False):
         """Reimplemented from :class:`pyqtgraph.ViewBox`"""
+
+        # first add it to plotItem and then move it from main viewbox to y2
+        if self.plotItem is not None:
+            if item not in self.plotItem.listDataItems():
+                self.plotItem.addItem(item)
+            if item in self.plotItem.getViewBox().addedItems:
+                self.plotItem.getViewBox().removeItem(item)
         ViewBox.addItem(self, item, ignoreBounds=ignoreBounds)
 
         if len(self.addedItems) == 1:

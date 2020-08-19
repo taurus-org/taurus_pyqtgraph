@@ -380,9 +380,9 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
         Update the current plot item list with the given configuration items
         """
         mainViewBox = self.plot_item.getViewBox()
-        # Remove existing taurus curves from the plot (but keep the item object
-        # and a reference to their viewbox so that they can be read
-        # later on if needed.
+        # Remove existing taurus curves from the plotItem and the viewboxes
+        # (but keep the item object and a reference to their viewbox so that
+        # they can be reused later on if needed).
         currentModelItems = OrderedDict()
         _currentCurves = list(self.plot_item.listDataItems())
         for curve in _currentCurves:
@@ -393,8 +393,8 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
                 currentModelItems[(xname, yname)] = curve, viewbox
                 # remove the curve
                 self.plot_item.removeItem(curve)
-                # if viewbox is not mainViewBox:  # TODO: do we need this?
-                #     viewbox.removeItem(curve)
+                if viewbox is not mainViewBox:
+                    viewbox.removeItem(curve)
                 if self.legend is not None:
                     self.legend.removeItem(curve.name())
 
