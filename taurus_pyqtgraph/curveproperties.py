@@ -169,6 +169,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.cStyleCB.insertItems(0, list(NamedCurveStyles.values()))
         self.sColorCB.addItem("")
         self.lColorCB.addItem("")
+        self.cAreaDSB.setRange(float("-inf"), float("inf"))
         if not showButtons:
             self.applyBT.hide()
             self.resetBT.hide()
