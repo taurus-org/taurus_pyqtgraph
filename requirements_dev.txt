@@ -11,3 +11,5 @@ twine==1.12.1
 pytest==3.8.2
 pytest-runner==4.2
 pytest-qt==3.3
+pytest-xvfb==2.0
+
