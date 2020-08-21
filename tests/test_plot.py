@@ -393,8 +393,6 @@ def test_curveproperties(qtbot):
 
 
 def test_curveproperties_config(qtbot):
-    from taurus_pyqtgraph.curveproperties import get_properties_from_curves
-
     w1 = tpg.TaurusPlot()
     qtbot.addWidget(w1)
 
@@ -448,7 +446,7 @@ def test_curveproperties_config(qtbot):
     # test createConfig
     cfg = w1.createConfig()
     propcfg = _get_sub_config(cfg, "CurvePropertiesTool")
-    curvescfg = _get_sub_config(propcfg, "CurveProperties")
+    _ = _get_sub_config(propcfg, "CurveProperties")
 
     # # Debugging
     # from pprint import pprint

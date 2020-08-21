@@ -132,8 +132,8 @@ NamedColors = [
 class CurvesAppearanceChooser(Qt.QWidget):
     """
     A widget for choosing plot appearance for one or more curves.
-    The current curves properties are passed using the setCurvesProps() method using
-    a dictionary with the following structure::
+    The current curves properties are passed using the setCurvesProps()
+    method using a dictionary with the following structure::
 
         curvePropDict={name1:prop1, name2:prop2,...}
 
@@ -571,7 +571,7 @@ def get_properties_from_curves(curves):
 
         opts = item.opts
         pen = pyqtgraph.mkPen(opts["pen"])
-        symbol_pen = pyqtgraph.mkPen(opts["symbolPen"])
+        # symbol_pen = pyqtgraph.mkPen(opts["symbolPen"])
         symbol_brush = pyqtgraph.mkBrush(opts["symbolBrush"])
         title = opts.get("name")
         sStyle = opts["symbol"]
