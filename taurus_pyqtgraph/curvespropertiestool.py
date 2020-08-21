@@ -55,7 +55,6 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
             "CurveProperties",
         )
 
-
     def attachToPlotItem(self, plot_item, y2=None):
         """
         Use this method to add this tool to a plot
