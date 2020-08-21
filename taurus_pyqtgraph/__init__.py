@@ -46,7 +46,6 @@ from .taurusmodelchoosertool import (
 )
 from .curveproperties import (
     CurveAppearanceProperties,
-    CurvePropAdapter,
     CurvesAppearanceChooser,
     serialize_opts,
     deserialize_opts,

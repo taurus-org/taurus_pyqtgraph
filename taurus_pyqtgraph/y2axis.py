@@ -54,8 +54,9 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
     def __init__(self, *args, **kwargs):
         self._isAttached = False
         self.plotItem = None
+        name = kwargs.pop("name", "Y2 ViewBox")
         BaseConfigurableClass.__init__(self)
-        ViewBox.__init__(self, *args, **kwargs)
+        ViewBox.__init__(self, *args, name=name, **kwargs)
 
         self.registerConfigProperty(self._getCurvesNames, self._addCurvesByName, "Y2Curves")
         self.registerConfigProperty(self._getState, self.setState, "viewState")
@@ -119,7 +120,8 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
             self.plotItem.showAxis("right")
             self.plotItem.scene().addItem(self)
             self.plotItem.getAxis("right").linkToView(self)
-            self.setXLink(self.plotItem)
+            # self.setXLink(self.plotItem.getViewBox())
+            self.plotItem.getViewBox().setXLink(self)
 
         # set the item log mode to match this view:
         if hasattr(item, "setLogMode"):

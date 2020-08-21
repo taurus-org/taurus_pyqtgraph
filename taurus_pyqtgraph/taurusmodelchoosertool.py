@@ -133,6 +133,7 @@ class TaurusModelChooserTool(Qt.QAction):
                 item.setModel(modelName)
                 self.plot_item.addItem(item)
 
+
         # self.plot_item.enableAutoRange()  # TODO: Why? remove?
 
     def setParent(self, parent):
@@ -264,9 +265,9 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
         self.itemClass = itemClass
 
         self.registerConfigProperty(
-            self.getModelNames,
-            self.updateModels,
-            "Models"
+            self._getCurveInfo,
+            self._restoreCurvesFromInfo,
+            "CurveInfo"
         )
 
     def setParent(self, parent):
@@ -364,7 +365,19 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
         defined by `self.itemClass` present in the plot item to which
         this tool is attached
         """
-        return list(self._getTaurusPlotDataItemConfigs().keys())
+        return [t[:2] for t in self._getCurveInfo()]
+
+    def _getCurveInfo(self):
+        """
+        Get a list of (xmodelname, ymodelname, curvename) tuples for
+        the data items of type defined by `self.itemClass` present in the
+        PlotItem to which this tool is attached
+        """
+        cfgs = self._getTaurusPlotDataItemConfigs().values()
+        return [(c.xModel, c.yModel, c.curveLabel) for c in cfgs]
+
+    def _restoreCurvesFromInfo(self, info_tuples):
+        self.updateModels(info_tuples)
 
     def addModels(self, xy_names):
         """Add new items with the given x and y model pairs. Those given model
@@ -402,11 +415,16 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
         # creating those that did not exist) in the desired z-order
         _already_added = []
         for xy_name in xy_names:
-            # each member of xy_names can be yname or a (xname, yname) tuple
+            # each member of xy_names can be yname or a (xname, yname[, cname])
+            # tuple
             if isinstance(xy_name, string_types):
-                xname, yname = None, xy_name
+                xname, yname, cname = None, xy_name, None
             else:
-                xname, yname = xy_name
+                try:
+                    xname, yname, cname = xy_name
+                except ValueError:
+                    xname, yname = xy_name
+                    cname = None
             # make sure that fullnames are used
             try:
                 if xname is not None:
@@ -435,9 +453,9 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
                     viewbox.addItem(item)
             # if it is a new curve, create it and add it to the main plot_item
             else:
-                item = self.itemClass(
-                    xModel=xname, yModel=yname, name=ymodel.getSimpleName()
-                )
+                if cname is None:
+                    cname = ymodel.getSimpleName()
+                item = self.itemClass(xModel=xname, yModel=yname, name=cname)
                 if self._curveColors is not None:
                     item.setPen(self._curveColors.next().color())
                 self.plot_item.addItem(item)

@@ -108,16 +108,21 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         self._y2.attachToPlotItem(self.getPlotItem())
 
         # add plot configuration dialog
-        cprop_tool = CurvesPropertiesTool(self)
-        cprop_tool.attachToPlotItem(self.getPlotItem(), y2=self._y2)
+        self._cprop_tool = CurvesPropertiesTool(self)
+        self._cprop_tool.attachToPlotItem(self.getPlotItem(), y2=self._y2)
 
         # add a data inspector
         inspector_tool = DataInspectorTool(self)
         inspector_tool.attachToPlotItem(self.getPlotItem())
 
+        # enable Autorange
+        self.getPlotItem().getViewBox().enableAutoRange(True)
+        self._y2.enableAutoRange(True)
+
         # Register config properties
         self.registerConfigDelegate(self._model_chooser_tool, "XYmodelchooser")
         self.registerConfigDelegate(self._y2, "Y2Axis")
+        self.registerConfigDelegate(self._cprop_tool, "CurvePropertiesTool")
         self.registerConfigDelegate(legend_tool, "legend")
         self.registerConfigDelegate(inspector_tool, "inspector")
 

@@ -1,6 +1,7 @@
 import numpy
 import taurus_pyqtgraph as tpg
 import pyqtgraph as pg
+from taurus.external.qt import Qt
 
 
 def _get_sub_config(cfg, item):
@@ -179,7 +180,6 @@ def test_plot_model_setting_with_y2(qtbot):
     assert w[:] == []
     assert w._model_chooser_tool.getModelNames() == []
 
-
     # Uncomment for visual checks
     # w.show()
     # def is_closed():
@@ -193,7 +193,7 @@ def test_xymodelchooser_config(qtbot):
 
     models1 = [
         "eval:1*rand(22)",
-        ("eval:linspace(-10,20,10)","eval:2*rand(10)"),
+        ("eval:linspace(-10,20,10)", "eval:2*rand(10)"),
     ]
 
     w1.setModel(models1)
@@ -201,11 +201,13 @@ def test_xymodelchooser_config(qtbot):
     # test createConfig
     cfg = w1.createConfig()
     xymccfg1 = _get_sub_config(cfg, "XYmodelchooser")
-    modelscfg1 = _get_sub_config(xymccfg1, "Models")
-    assert modelscfg1[0] == (None, "eval://localhost/@DefaultEvaluator/1*rand(22)" )
+    modelscfg1 = _get_sub_config(xymccfg1, "CurveInfo")
+    assert modelscfg1[0] == (
+        None, "eval://localhost/@DefaultEvaluator/1*rand(22)", "1*rand(22)" )
     assert modelscfg1[1] == (
         'eval://localhost/@DefaultEvaluator/linspace(-10,20,10)',
-        'eval://localhost/@DefaultEvaluator/2*rand(10)'
+        'eval://localhost/@DefaultEvaluator/2*rand(10)',
+        '2*rand(10)'
     )
 
     # test applyConfig
@@ -223,7 +225,7 @@ def test_xymodelchooser_config(qtbot):
     w2.applyConfig(cfg)
     assert len(w2) == 2
     assert len(w2._model_chooser_tool.getModelNames()) == 2
-    assert w2._model_chooser_tool.getModelNames() == modelscfg1
+    assert w2._model_chooser_tool._getCurveInfo() == modelscfg1
 
     # Uncomment for visual checks
     # w2.show()
@@ -297,9 +299,211 @@ def test_y2_config(qtbot):
     assert w2_vb2._getCurvesNames() == w1_vb2._getCurvesNames()
     assert w2_vb2._getCurvesNames() == [w1[1].getFullModelNames()]
 
-    # Uncomment for visual checks
+
+
+    # # Uncomment for visual checks
+    # w1.show()
     # w2.show()
+    # def is_closed():
+    #     return not (w1.isVisible() or w2.isVisible())
+    # qtbot.wait_until(is_closed, timeout=999999)
+    # print()
+    # for vb in w1_vb1, w2_vb1, w1_vb2, w2_vb2:
+    #     print(vb)
+
+
+def test_curveproperties(qtbot):
+
+    w = tpg.TaurusPlot()
+    qtbot.addWidget(w)
+
+    # add a regular data item (non-taurus) to y1
+    c0 = pg.PlotDataItem(name="pg item1", pen="b", fillLevel=0, brush="c")
+    c0.setData(numpy.linspace(0, 20, 10))
+    w.addItem(c0)
+
+    # add a regular data item (non-taurus) to y2
+    c1 = pg.PlotDataItem(name="pg item2", pen='y', symbol='d', symbolBrush='r')
+    c1.setData(20-numpy.linspace(0, 20, 10))
+    w._y2.addItem(c1)
+
+    # add a taurus data item to y1
+    c2 = tpg.TaurusPlotDataItem(name="taurus item1", pen="r", symbol="o")
+    c2.setModel('eval:Quantity(rand(16),"m")')
+    w.addItem(c2)
+
+    # add a taurus data item to y2
+    c3 = tpg.TaurusPlotDataItem(name="taurus item2", pen="y", symbol="s")
+    c3.setModel('eval:Quantity(rand(20),"km")')
+    w._y2.addItem(c3)
+
+    # Add 2 more items using setModel
+    models1 = [
+        "eval:1*rand(22)",
+        ("eval:linspace(-10,20,10)", "eval:2*rand(10)"),
+    ]
+    w.addModels(models1)
+    c4 = w[4]
+    c5 = w[5]
+
+    c4.setPen("g")
+
+    c5.setPen(None)
+    c5.setSymbol("t")
+    c5.setSymbolSize(7)
+
+    # move c5 to y2
+    w._y2.addItem(c5)
+
+    assert len(w) == 6
+    assert w[:] == [c0, c1, c2, c3, c4, c5]
+    assert len(w._cprop_tool.getModifiableItems()) == 6
+    for c in [c0, c1, c2, c3, c4, c5]:
+        assert c.name() in w._cprop_tool.getModifiableItems().keys()
+        assert c in w._cprop_tool.getModifiableItems().values()
+    assert w.getViewBox().addedItems == [c0, c2, c4]
+    assert w._y2.addedItems == [c1, c3, c5]
+
+    prop = w._cprop_tool._getCurveAppearanceProperties()
+
+    # check lColor
+    assert pg.mkColor(prop[c0.name()].lColor) == pg.mkColor('b')
+    assert pg.mkColor(prop[c1.name()].lColor) == pg.mkColor('y')
+    assert pg.mkColor(prop[c2.name()].lColor) == pg.mkColor('r')
+    assert pg.mkColor(prop[c3.name()].lColor) == pg.mkColor('y')
+    assert pg.mkColor(prop[c4.name()].lColor) == pg.mkColor('g')
+    # assert pg.mkColor(prop[c5.name()].lColor) == pg.mkColor('b')
+
+    # check lStyle
+    for c in c0, c1, c2, c3, c4:
+        assert prop[c.name()].lStyle == Qt.Qt.SolidLine
+    assert prop[c5.name()].lStyle == Qt.Qt.NoPen
+
+    # check y2
+    for c in c0, c2, c4:
+        assert prop[c.name()].y2 is False
+    for c in c1, c3, c5:
+        assert prop[c.name()].y2 is True
+
+    # # Uncomment for visual checks
+    # w.show()
     # def is_closed():
     #     return not w.isVisible()
     # qtbot.wait_until(is_closed, timeout=999999)
 
+
+
+def test_curveproperties_config(qtbot):
+    from taurus_pyqtgraph.curveproperties import get_properties_from_curves
+    w1 = tpg.TaurusPlot()
+    qtbot.addWidget(w1)
+
+    # add a regular data item (non-taurus) to y1
+    c0 = pg.PlotDataItem(name="pg item1", pen="m", fillLevel=0, brush="c")
+    c0.setData(numpy.linspace(0, 20, 10)/20.)
+    w1.addItem(c0)
+
+    # add a regular data item (non-taurus) to y2
+    c1 = pg.PlotDataItem(name="pg item2", pen='y', symbol='d', symbolBrush='r')
+    c1.setData(1 - numpy.linspace(0, 20, 10)/20.)
+    w1._y2.addItem(c1)
+
+    # add a taurus data item to y1
+    c2 = tpg.TaurusPlotDataItem(name="taurus item1", pen="r", symbol="o")
+    c2.setModel('eval:Quantity(rand(16),"m")')
+    w1.addItem(c2)
+
+    # add a taurus data item to y2
+    c3 = tpg.TaurusPlotDataItem(name="taurus item2", pen="y", symbol="s")
+    c3.setModel('eval:Quantity(rand(20),"km")')
+    w1._y2.addItem(c3)
+
+    # Add 2 more items using setModel
+    models1 = [
+        "eval:1*rand(22)",
+        ("eval:linspace(-10,20,10)", "eval:2*rand(10)"),
+    ]
+    w1.addModels(models1)
+    c4 = w1[4]
+    c5 = w1[5]
+
+    c4.setPen("g")
+
+    c5.setPen(None)
+    c5.setSymbol("t")
+    c5.setSymbolSize(7)
+    c5.setSymbolBrush('r')
+
+    # move c5 to y2
+    w1._y2.addItem(c5)
+
+    assert len(w1) == 6
+    assert w1[:] == [c0, c1, c2, c3, c4, c5]
+    w1_mod_items = w1._cprop_tool.getModifiableItems()
+    for c in [c0, c1, c2, c3, c4, c5]:
+        assert c0 in w1_mod_items.values()
+    assert w1.getViewBox().addedItems == [c0, c2, c4]
+    assert w1._y2.addedItems == [c1, c3, c5]
+
+    # test createConfig
+    cfg = w1.createConfig()
+    propcfg = _get_sub_config(cfg, "CurvePropertiesTool")
+    curvescfg = _get_sub_config(propcfg, "CurveProperties")
+
+
+    # # Debugging
+    # from pprint import pprint
+    # # pprint(cfg)
+    # print("-" * 80)
+    # pprint(curvescfg)
+
+    # test applyConfig
+    w2 = tpg.TaurusPlot()
+    qtbot.addWidget(w2)
+    # assert len(w2._model_chooser_tool.getModelNames()) == 0
+    assert len(w2._cprop_tool._getCurveAppearanceProperties()) == 0
+
+    w2.applyConfig(cfg)
+    # assert len(w2._model_chooser_tool.getModelNames()) == 2
+    # assert w2._model_chooser_tool.getModelNames() == modelscfg1
+
+    w1_props = w1._cprop_tool._getCurveAppearanceProperties()
+    w2_props = w2._cprop_tool._getCurveAppearanceProperties()
+
+    assert len(w1_props) == 6
+    assert len(w2_props) == 4
+    for k, p_aft in w2_props.items():
+        assert k in w1_props
+        p_ini = w1_props[k]
+        assert not p_ini.conflictsWith(p_aft, strict=True)
+
+    # test applyConfig
+    w3 = tpg.TaurusPlot()
+    qtbot.addWidget(w3)
+
+    # Manually add regular data items matching the names used in w1
+    # but do not match the properties, which should be updated by applyConfig
+    c0_w3 = pg.PlotDataItem(name="pg item1", y=numpy.linspace(0, 20, 10)/20.)
+    w3.addItem(c0_w3)
+    c1_w3 = pg.PlotDataItem(name="pg item2", y=numpy.zeros(15))
+    w3._y2.addItem(c1_w3)
+
+    assert len(w3._cprop_tool._getCurveAppearanceProperties()) == 2
+
+    w3.applyConfig(cfg)
+
+    w3_props = w3._cprop_tool._getCurveAppearanceProperties()
+
+    assert len(w3_props) == 6
+    for k, p_aft in w3_props.items():
+        assert k in w1_props
+        p_ini = w1_props[k]
+        assert not p_ini.conflictsWith(p_aft, strict=True)
+
+    # # Uncomment for visual checks
+    # w1.show()
+    # w2.show()
+    # w3.show()
+    # def is_closed():
+    #     return not (w1.isVisible() or w2.isVisible() or w3.isVisible() )
+    # qtbot.wait_until(is_closed, timeout=999999)
