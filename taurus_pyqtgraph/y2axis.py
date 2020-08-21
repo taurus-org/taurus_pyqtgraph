@@ -58,7 +58,9 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         BaseConfigurableClass.__init__(self)
         ViewBox.__init__(self, *args, name=name, **kwargs)
 
-        self.registerConfigProperty(self._getCurvesNames, self._addCurvesByName, "Y2Curves")
+        self.registerConfigProperty(
+            self._getCurvesNames, self._addCurvesByName, "Y2Curves"
+        )
         self.registerConfigProperty(self._getState, self.setState, "viewState")
 
     def attachToPlotItem(self, plot_item):

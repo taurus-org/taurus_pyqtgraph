@@ -12,11 +12,11 @@ p_all_conflict = CurveAppearanceProperties()
 p1 = CurveAppearanceProperties(
     sStyle="t",
     sSize=2,
-    sColor='r',
+    sColor="r",
     sFill=False,
     lStyle=Qt.Qt.DashLine,
     lWidth=3,
-    lColor='b',
+    lColor="b",
     cStyle="Lines",
     y2=True,
     cFill=False,
@@ -27,11 +27,11 @@ p1 = CurveAppearanceProperties(
 p2 = CurveAppearanceProperties(
     sStyle=None,
     sSize=-1,
-    sColor='b',
+    sColor="b",
     sFill=True,
     lStyle=Qt.Qt.SolidLine,
     lWidth=5,
-    lColor='y',
+    lColor="y",
     cStyle="Steps",
     y2=False,
     cFill=True,
@@ -45,8 +45,7 @@ p3.lStyle = CONFLICT
 
 p4 = copy.deepcopy(p1)
 p4.sSize = 3
-p4.lColor='g'
-
+p4.lColor = "g"
 
 
 def test_curveproperties_conflictsWith(qtbot):
@@ -100,6 +99,3 @@ def test_curveproperties_merge(qtbot):
     merged = p1.merge([p1, p_all_conflict], conflict=p1.inConflict_update_a)
     for a in merged.propertyList:
         assert getattr(merged, a) == getattr(p1, a), "mismatch: %s" % a
-
-
-

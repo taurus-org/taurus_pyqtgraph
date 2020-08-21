@@ -5,9 +5,9 @@ from taurus.external.qt import Qt
 
 
 def _get_sub_config(cfg, item):
-    assert item in cfg['__itemConfigurations__']
-    assert item in cfg['__orderedConfigNames__']
-    return cfg['__itemConfigurations__'][item]
+    assert item in cfg["__itemConfigurations__"]
+    assert item in cfg["__orderedConfigNames__"]
+    return cfg["__itemConfigurations__"][item]
 
 
 def test_plot_model_setting(qtbot):
@@ -20,7 +20,7 @@ def test_plot_model_setting(qtbot):
 
     models1 = [
         "eval:1*rand(22)",
-        ("eval:linspace(-10,20,10)","eval:2*rand(10)"),
+        ("eval:linspace(-10,20,10)", "eval:2*rand(10)"),
     ]
 
     w.setModel(models1)
@@ -77,7 +77,6 @@ def test_plot_model_setting(qtbot):
     assert w[:] == []
     assert w._model_chooser_tool.getModelNames() == []
 
-
     # Uncomment for visual checks
     # w.show()
     # def is_closed():
@@ -97,10 +96,9 @@ def test_plot_model_setting_with_y2(qtbot):
     assert vb1.addedItems == []
     assert vb2.addedItems == []
 
-
     models1 = [
         "eval:1*rand(22)",
-        ("eval:linspace(-10,20,10)","eval:2*rand(10)"),
+        ("eval:linspace(-10,20,10)", "eval:2*rand(10)"),
     ]
 
     w.setModel(models1)
@@ -186,6 +184,7 @@ def test_plot_model_setting_with_y2(qtbot):
     #     return not w.isVisible()
     # qtbot.wait_until(is_closed, timeout=999999)
 
+
 def test_xymodelchooser_config(qtbot):
 
     w1 = tpg.TaurusPlot()
@@ -203,11 +202,14 @@ def test_xymodelchooser_config(qtbot):
     xymccfg1 = _get_sub_config(cfg, "XYmodelchooser")
     modelscfg1 = _get_sub_config(xymccfg1, "CurveInfo")
     assert modelscfg1[0] == (
-        None, "eval://localhost/@DefaultEvaluator/1*rand(22)", "1*rand(22)" )
+        None,
+        "eval://localhost/@DefaultEvaluator/1*rand(22)",
+        "1*rand(22)",
+    )
     assert modelscfg1[1] == (
-        'eval://localhost/@DefaultEvaluator/linspace(-10,20,10)',
-        'eval://localhost/@DefaultEvaluator/2*rand(10)',
-        '2*rand(10)'
+        "eval://localhost/@DefaultEvaluator/linspace(-10,20,10)",
+        "eval://localhost/@DefaultEvaluator/2*rand(10)",
+        "2*rand(10)",
     )
 
     # test applyConfig
@@ -299,8 +301,6 @@ def test_y2_config(qtbot):
     assert w2_vb2._getCurvesNames() == w1_vb2._getCurvesNames()
     assert w2_vb2._getCurvesNames() == [w1[1].getFullModelNames()]
 
-
-
     # # Uncomment for visual checks
     # w1.show()
     # w2.show()
@@ -323,8 +323,8 @@ def test_curveproperties(qtbot):
     w.addItem(c0)
 
     # add a regular data item (non-taurus) to y2
-    c1 = pg.PlotDataItem(name="pg item2", pen='y', symbol='d', symbolBrush='r')
-    c1.setData(20-numpy.linspace(0, 20, 10))
+    c1 = pg.PlotDataItem(name="pg item2", pen="y", symbol="d", symbolBrush="r")
+    c1.setData(20 - numpy.linspace(0, 20, 10))
     w._y2.addItem(c1)
 
     # add a taurus data item to y1
@@ -367,11 +367,11 @@ def test_curveproperties(qtbot):
     prop = w._cprop_tool._getCurveAppearanceProperties()
 
     # check lColor
-    assert pg.mkColor(prop[c0.name()].lColor) == pg.mkColor('b')
-    assert pg.mkColor(prop[c1.name()].lColor) == pg.mkColor('y')
-    assert pg.mkColor(prop[c2.name()].lColor) == pg.mkColor('r')
-    assert pg.mkColor(prop[c3.name()].lColor) == pg.mkColor('y')
-    assert pg.mkColor(prop[c4.name()].lColor) == pg.mkColor('g')
+    assert pg.mkColor(prop[c0.name()].lColor) == pg.mkColor("b")
+    assert pg.mkColor(prop[c1.name()].lColor) == pg.mkColor("y")
+    assert pg.mkColor(prop[c2.name()].lColor) == pg.mkColor("r")
+    assert pg.mkColor(prop[c3.name()].lColor) == pg.mkColor("y")
+    assert pg.mkColor(prop[c4.name()].lColor) == pg.mkColor("g")
     # assert pg.mkColor(prop[c5.name()].lColor) == pg.mkColor('b')
 
     # check lStyle
@@ -392,20 +392,20 @@ def test_curveproperties(qtbot):
     # qtbot.wait_until(is_closed, timeout=999999)
 
 
-
 def test_curveproperties_config(qtbot):
     from taurus_pyqtgraph.curveproperties import get_properties_from_curves
+
     w1 = tpg.TaurusPlot()
     qtbot.addWidget(w1)
 
     # add a regular data item (non-taurus) to y1
     c0 = pg.PlotDataItem(name="pg item1", pen="m", fillLevel=0, brush="c")
-    c0.setData(numpy.linspace(0, 20, 10)/20.)
+    c0.setData(numpy.linspace(0, 20, 10) / 20.0)
     w1.addItem(c0)
 
     # add a regular data item (non-taurus) to y2
-    c1 = pg.PlotDataItem(name="pg item2", pen='y', symbol='d', symbolBrush='r')
-    c1.setData(1 - numpy.linspace(0, 20, 10)/20.)
+    c1 = pg.PlotDataItem(name="pg item2", pen="y", symbol="d", symbolBrush="r")
+    c1.setData(1 - numpy.linspace(0, 20, 10) / 20.0)
     w1._y2.addItem(c1)
 
     # add a taurus data item to y1
@@ -432,7 +432,7 @@ def test_curveproperties_config(qtbot):
     c5.setPen(None)
     c5.setSymbol("t")
     c5.setSymbolSize(7)
-    c5.setSymbolBrush('r')
+    c5.setSymbolBrush("r")
 
     # move c5 to y2
     w1._y2.addItem(c5)
@@ -449,7 +449,6 @@ def test_curveproperties_config(qtbot):
     cfg = w1.createConfig()
     propcfg = _get_sub_config(cfg, "CurvePropertiesTool")
     curvescfg = _get_sub_config(propcfg, "CurveProperties")
-
 
     # # Debugging
     # from pprint import pprint
@@ -483,7 +482,9 @@ def test_curveproperties_config(qtbot):
 
     # Manually add regular data items matching the names used in w1
     # but do not match the properties, which should be updated by applyConfig
-    c0_w3 = pg.PlotDataItem(name="pg item1", y=numpy.linspace(0, 20, 10)/20.)
+    c0_w3 = pg.PlotDataItem(
+        name="pg item1", y=numpy.linspace(0, 20, 10) / 20.0
+    )
     w3.addItem(c0_w3)
     c1_w3 = pg.PlotDataItem(name="pg item2", y=numpy.zeros(15))
     w3._y2.addItem(c1_w3)

@@ -53,7 +53,7 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
         self.registerConfigProperty(
             self._getCurveAppearanceProperties,
             self._setCurveAppearanceProperties,
-            "CurveProperties"
+            "CurveProperties",
         )
 
     # def createConfig(self, allowUnpickable=False):
@@ -254,7 +254,7 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
             curvesDict=curves,
             showButtons=True,
             plotItem=self.plot_item,
-            Y2Axis=self.Y2Axis
+            Y2Axis=self.Y2Axis,
         )
         layout.addWidget(w)
         dlg.setLayout(layout)

@@ -540,7 +540,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
                 self.curvePropDict,
                 self._curvesDict,
                 plotItem=self.plotItem,
-                y2Axis=self.Y2Axis
+                y2Axis=self.Y2Axis,
             )
         return prop, names
 
@@ -611,6 +611,7 @@ def get_properties_from_curves(curves):
         )
         curves_prop[key] = curve_appearance_properties
     return curves_prop
+
 
 def set_properties_on_curves(properties, curves, plotItem=None, y2Axis=None):
     """

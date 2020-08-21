@@ -133,7 +133,6 @@ class TaurusModelChooserTool(Qt.QAction):
                 item.setModel(modelName)
                 self.plot_item.addItem(item)
 
-
         # self.plot_item.enableAutoRange()  # TODO: Why? remove?
 
     def setParent(self, parent):
@@ -265,9 +264,7 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
         self.itemClass = itemClass
 
         self.registerConfigProperty(
-            self._getCurveInfo,
-            self._restoreCurvesFromInfo,
-            "CurveInfo"
+            self._getCurveInfo, self._restoreCurvesFromInfo, "CurveInfo"
         )
 
     def setParent(self, parent):
