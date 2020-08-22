@@ -84,11 +84,11 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         # add save & retrieve configuration actions
         menu = self.getPlotItem().getViewBox().menu
         saveConfigAction = QtGui.QAction("Save configuration", menu)
-        saveConfigAction.triggered.connect(self.saveConfigFile)
+        saveConfigAction.triggered.connect(self._onSaveConfigAction)
         menu.addAction(saveConfigAction)
 
         loadConfigAction = QtGui.QAction("Retrieve saved configuration", menu)
-        loadConfigAction.triggered.connect(self.loadConfigFile)
+        loadConfigAction.triggered.connect(self._onRetrieveConfigAction)
         menu.addAction(loadConfigAction)
 
         self.registerConfigProperty(self._getState, self.restoreState, "state")
@@ -187,6 +187,13 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         else:
             raise ValueError("Unsupported x axis mode {}".format(x_axis_mode))
 
+    def _onSaveConfigAction(self):
+        """wrapper to avoid issues with overloaded signals"""
+        return self.saveConfigFile()
+
+    def _onRetrieveConfigAction(self):
+        """wrapper to avoid issues with overloaded signals"""
+        return self.loadConfigFile()
 
 def plot_main(
     models=(),
