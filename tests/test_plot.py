@@ -506,3 +506,116 @@ def test_curveproperties_config(qtbot):
     # def is_closed():
     #     return not (w1.isVisible() or w2.isVisible() or w3.isVisible() )
     # qtbot.wait_until(is_closed, timeout=999999)
+
+
+def test_curveproperties_configfile(qtbot, tmp_path):
+    w1 = tpg.TaurusPlot()
+    qtbot.addWidget(w1)
+
+    # add a regular data item (non-taurus) to y1
+    c0 = pg.PlotDataItem(name="pg item1", pen="m", fillLevel=0, brush="c")
+    c0.setData(numpy.linspace(0, 20, 10) / 20.0)
+    w1.addItem(c0)
+
+    # add a regular data item (non-taurus) to y2
+    c1 = pg.PlotDataItem(name="pg item2", pen="y", symbol="d", symbolBrush="r")
+    c1.setData(1 - numpy.linspace(0, 20, 10) / 20.0)
+    w1._y2.addItem(c1)
+
+    # add a taurus data item to y1
+    c2 = tpg.TaurusPlotDataItem(name="taurus item1", pen="r", symbol="o")
+    c2.setModel('eval:Quantity(rand(16),"m")')
+    w1.addItem(c2)
+
+    # add a taurus data item to y2
+    c3 = tpg.TaurusPlotDataItem(name="taurus item2", pen="y", symbol="s")
+    c3.setModel('eval:Quantity(rand(20),"km")')
+    w1._y2.addItem(c3)
+
+    # Add 2 more items using setModel
+    models1 = [
+        "eval:1*rand(22)",
+        ("eval:linspace(-10,20,10)", "eval:2*rand(10)"),
+    ]
+    w1.addModels(models1)
+    c4 = w1[4]
+    c5 = w1[5]
+
+    c4.setPen("g")
+
+    c5.setPen(None)
+    c5.setSymbol("t")
+    c5.setSymbolSize(7)
+    c5.setSymbolBrush("r")
+
+    # move c5 to y2
+    w1._y2.addItem(c5)
+
+    assert len(w1) == 6
+    assert w1[:] == [c0, c1, c2, c3, c4, c5]
+    w1_mod_items = w1._cprop_tool.getModifiableItems()
+    for c in [c0, c1, c2, c3, c4, c5]:
+        assert c0 in w1_mod_items.values()
+    assert w1.getViewBox().addedItems == [c0, c2, c4]
+    assert w1._y2.addedItems == [c1, c3, c5]
+
+    # test saveConfigFile
+    f = tmp_path / "plot.pck"
+    w1.saveConfigFile(ofile=str(f))
+    assert f.exists()
+    assert len(list(tmp_path.iterdir())) == 1
+
+    # test loadConfigFile
+    w2 = tpg.TaurusPlot()
+    qtbot.addWidget(w2)
+
+    w2.loadConfigFile(ifile=str(f))
+
+    w1_props = w1._cprop_tool._getCurveAppearanceProperties()
+    w2_props = w2._cprop_tool._getCurveAppearanceProperties()
+
+    assert len(w1_props) == 6
+    assert len(w2_props) == 4
+    for k, p_aft in w2_props.items():
+        assert k in w1_props
+        p_ini = w1_props[k]
+        assert not p_ini.conflictsWith(p_aft, strict=True)
+
+    # # Uncomment for visual checks
+    # w1.show()
+    # w2.show()
+    # def is_closed():
+    #     return not (w1.isVisible() w2.isVisible() )
+    # qtbot.wait_until(is_closed, timeout=999999)
+
+
+# def test_save_config_action(qtbot, tmp_path):
+#     w1 = tpg.TaurusPlot()
+#     qtbot.addWidget(w1)
+#
+#     w2 = tpg.TaurusPlot()
+#     qtbot.addWidget(w2)
+#
+#     menu = w1.getPlotItem().getViewBox().menu
+#     save_action = None
+#     for a in menu.actions():
+#         # print(a.text())
+#         if a.text() == "Save configuration":
+#             save_action = a
+#             break
+#     assert save_action is not None
+#     save_action.trigger()
+#     # TODO: handle the modal dialog
+#     menu = w2.getPlotItem().getViewBox().menu
+#     load_action = None
+#     for a in menu.actions():
+#         # print(a.text())
+#         if a.text() == "Retrieve saved configuration":
+#             load_action = a
+#             break
+#     assert load_action is not None
+#     load_action.trigger()
+#     # TODO: handle the modal dialog
+
+
+
