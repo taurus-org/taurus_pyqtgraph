@@ -195,6 +195,7 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         """wrapper to avoid issues with overloaded signals"""
         return self.loadConfigFile()
 
+
 def plot_main(
     models=(),
     config_file=None,

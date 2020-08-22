@@ -616,6 +616,3 @@ def test_curveproperties_configfile(qtbot, tmp_path):
 #     assert load_action is not None
 #     load_action.trigger()
 #     # TODO: handle the modal dialog
-
-
-
