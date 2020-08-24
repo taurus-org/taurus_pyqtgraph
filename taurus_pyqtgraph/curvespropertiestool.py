@@ -54,6 +54,22 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
             self._setCurveAppearanceProperties,
             "CurveProperties",
         )
+        self.registerConfigProperty(
+            self._getBackgroundColor,
+            self._setBackgroundColor,
+            "PlotBackground",
+        )
+
+    def _getBackgroundColor(self):
+        try:
+            return self.plot_item.scene().parent().backgroundBrush().color()
+        except:
+            import taurus
+            taurus.debug("Cannot get plot background. Revert to 'default'")
+            return 'default'
+
+    def _setBackgroundColor(self, color):
+        self.plot_item.scene().parent().setBackground(color)
 
     def attachToPlotItem(self, plot_item, y2=None):
         """

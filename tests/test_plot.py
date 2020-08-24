@@ -511,6 +511,7 @@ def test_curveproperties_config(qtbot):
 def test_curveproperties_configfile(qtbot, tmp_path):
     w1 = tpg.TaurusPlot()
     qtbot.addWidget(w1)
+    w1.setBackground('y')
 
     # add a regular data item (non-taurus) to y1
     c0 = pg.PlotDataItem(name="pg item1", pen="m", fillLevel=0, brush="c")

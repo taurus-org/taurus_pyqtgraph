@@ -179,9 +179,9 @@ class CurvesAppearanceChooser(Qt.QWidget):
             self.lColorCB.addItem(icon, "", Qt.QColor(color))
         self.__itemsDict = CaselessDict()
         self.setCurvesProps(curvePropDict)
-        # set the icon for the background button (stupid designer limitations
-        # forces to do it programatically)
-        self.bckgndBT.setIcon(Qt.QIcon(":color-fill.svg"))
+
+        if self.plotItem is None:
+            self.bckgndBT.setVisible(False)
 
         # connections.
         self.curvesLW.itemSelectionChanged.connect(
@@ -206,13 +206,10 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.assignToY1BT.toggled[bool].connect(self.__onY1Toggled)
         self.assignToY2BT.toggled[bool].connect(self.__onY2Toggled)
 
-        # self.bckgndBT.clicked.connect(self.changeBackgroundColor)
+        self.bckgndBT.clicked.connect(self.changeBackgroundColor)
 
-        # Disabled buttons until future implementations
-        # (set background color and set curve labels)
+        # Disabled button until future implementations
         self.changeTitlesBT.setEnabled(False)
-        self.bckgndBT.setEnabled(False)
-        self.bckgndBT.setVisible(False)
 
         # disable the group box with the options for swap curves between Y axes
         if Y2Axis is None or plotItem is None:
@@ -230,18 +227,14 @@ class CurvesAppearanceChooser(Qt.QWidget):
             self.assignToY1BT.setChecked(False)
 
     def changeBackgroundColor(self):
-        """Launches a dialog for choosing the parent's canvas background color
+        """Launches a dialog for choosing the plot widget background color
         """
-        raise NotImplementedError  # requires access to plotItem and to Y2Axis
-        # backgroundColor = self.plotItem.getViewBox().state["background"]
-        # if backgroundColor is None:
-        #     backgroundColor = Qt.QColor("black")
-        # color = Qt.QColorDialog.getColor(backgroundColor, self)
-        # if Qt.QColor.isValid(color):
-        #     if color.value() == 0:
-        #         color = None
-        #     self.plotItem.getViewBox().setBackgroundColor(color)
-        #     self.Y2Axis.setBackgroundColor(color)
+        color = Qt.QColorDialog.getColor(
+            initial=self.plotItem.scene().parent().backgroundBrush().color(),
+            parent=self,
+        )
+        if Qt.QColor.isValid(color):
+            self.plotItem.scene().parent().setBackground(color)
 
     def setCurvesProps(self, curvePropDict):
         """Populates the list of curves from the properties dictionary. It uses
