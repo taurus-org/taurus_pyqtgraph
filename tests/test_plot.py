@@ -585,7 +585,7 @@ def test_curveproperties_configfile(qtbot, tmp_path):
     # w1.show()
     # w2.show()
     # def is_closed():
-    #     return not (w1.isVisible() w2.isVisible() )
+    #     return not (w1.isVisible() or w2.isVisible())
     # qtbot.wait_until(is_closed, timeout=999999)
 
 
