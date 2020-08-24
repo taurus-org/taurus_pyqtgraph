@@ -159,6 +159,22 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     # --------------------------------------------------------------------
 
+    def __getitem__(self, idx):
+        """
+        Provides a list-like interface: items can be accessed using slice
+        notation
+        """
+        return self._getTrendSets()[idx]
+
+    def __len__(self):
+        return len(self._getTrendSets())
+
+    def _getTrendSets(self):
+        return [
+            e for e in self.getPlotItem().listDataItems()
+            if isinstance(e, TaurusTrendSet)
+        ]
+
     def setModel(self, names):
         """Set a list of models"""
         # support passing a string  in names instead of a sequence
