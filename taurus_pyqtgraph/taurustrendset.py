@@ -64,7 +64,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     When an event is received, all curves belonging to a TaurusTrendSet
     are updated.
 
-    TaurusTrendSet can be considered used as a container of (sorted) curves.
+    TaurusTrendSet can be considered as a container of (sorted) curves.
     As such, the curves contained by it can be accessed by index::
 
         ts = TaurusTrendSet('eval:rand(3)')
@@ -79,6 +79,8 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     """
 
     def __init__(self, *args, **kwargs):
+        _ = kwargs.pop("xModel", None)
+        yModel = kwargs.pop("yModel", None)
         PlotDataItem.__init__(self, *args, **kwargs)
         TaurusBaseComponent.__init__(self, "TaurusBaseComponent")
         self._UImodifiable = False
@@ -100,6 +102,8 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         )
         # TODO: store forceReadPeriod config
         # TODO: store _maxBufferSize config
+        if yModel is not None:
+            self.setModel(yModel)
 
     def name(self):
         """Reimplemented from PlotDataItem to avoid having the ts itself added
@@ -389,6 +393,9 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                 c.opts["connect"] = "pairs"
             elif opts["connect"] == "finite":
                 c.opts["connect"] = "finite"
+
+    def getFullModelNames(self):
+        return (None, self.getFullModelName())
 
 
 if __name__ == "__main__":

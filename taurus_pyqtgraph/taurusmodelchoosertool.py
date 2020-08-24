@@ -252,7 +252,7 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
     """
 
     # TODO: This class is WIP.
-    def __init__(self, parent=None, itemClass=None):
+    def __init__(self, parent=None, itemClass=None, showX=True):
         BaseConfigurableClass.__init__(self)
         Qt.QAction.__init__(self, "Model selection", parent)
         self.triggered.connect(self._onTriggered)
@@ -262,6 +262,7 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
         if itemClass is None:
             itemClass = TaurusPlotDataItem
         self.itemClass = itemClass
+        self._showX = showX
 
         self.registerConfigProperty(
             self._getCurveInfo, self._restoreCurvesFromInfo, "CurveInfo"
@@ -297,7 +298,9 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
     def _onTriggered(self):
         oldconfs = self._getTaurusPlotDataItemConfigs().values()
         newconfs, ok = TaurusItemConfDlg.showDlg(
-            parent=self.parent(), taurusItemConf=oldconfs
+            parent=self.parent(),
+            taurusItemConf=oldconfs,
+            showXCol=self._showX,
         )
 
         if ok:

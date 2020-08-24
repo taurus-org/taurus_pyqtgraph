@@ -40,7 +40,7 @@ from .dateaxisitem import DateAxisItem
 from .legendtool import PlotLegendTool
 from .forcedreadtool import ForcedReadTool
 from .datainspectortool import DataInspectorTool
-from .taurusmodelchoosertool import TaurusModelChooserTool
+from .taurusmodelchoosertool import TaurusXYModelChooserTool
 from .taurustrendset import TaurusTrendSet
 from .y2axis import Y2ViewBox
 from .autopantool import XAutoPanTool
@@ -108,10 +108,12 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         legend_tool.attachToPlotItem(plot_item)
 
         # add model chooser
-        self._model_chooser_tool = TaurusModelChooserTool(
-            self, itemClass=TaurusTrendSet
+        self._model_chooser_tool = TaurusXYModelChooserTool(
+            self, itemClass=TaurusTrendSet, showX=False
         )
-        self._model_chooser_tool.attachToPlotItem(plot_item, self)
+        self._model_chooser_tool.attachToPlotItem(
+            self.getPlotItem(), self, self._curveColors
+        )
 
         # add Y2 axis
         self._y2 = Y2ViewBox()
@@ -164,92 +166,99 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
             names = [names]
         self._model_chooser_tool.updateModels(names or [])
 
-    def createConfig(self, allowUnpickable=False):
-        """
-        Reimplemented from BaseConfigurableClass to manage the config
-        properties of the trendsets attached to this plot
-        """
-        try:
-            # Temporarily register trendsets as delegates
-            tmpreg = []
-            data_items = self.getPlotItem().listDataItems()
-            for idx, item in enumerate(data_items):
-                if isinstance(item, TaurusTrendSet):
-                    name = "__TaurusTrendSet_%d__" % idx
-                    tmpreg.append(name)
-                    self.registerConfigDelegate(item, name)
-
-            configdict = copy.deepcopy(
-                BaseConfigurableClass.createConfig(
-                    self, allowUnpickable=allowUnpickable
-                )
-            )
-
-        finally:
-            # Ensure that temporary delegates are unregistered
-            for n in tmpreg:
-                self.unregisterConfigurableItem(n, raiseOnError=False)
-        return configdict
-
-    def applyConfig(self, configdict, depth=None):
-        """
-        Reimplemented from BaseConfigurableClass to manage the config
-        properties of the trendsets attached to this plot
-        """
-        try:
-            # Temporarily register trendsets as delegates
-            tmpreg = []
-            tsets = []
-            for name in configdict["__orderedConfigNames__"]:
-                if name.startswith("__TaurusTrendSet_"):
-                    # Instantiate empty TaurusTrendSet
-                    tset = TaurusTrendSet()
-                    tsets.append(tset)
-                    self.registerConfigDelegate(tset, name)
-                    tmpreg.append(name)
-
-            # remove the trendsets from the second axis (Y2) to avoid dups
-            self._y2.clearItems()
-
-            BaseConfigurableClass.applyConfig(
-                self, configdict=configdict, depth=depth
-            )
-
-            plot_item = self.getPlotItem()
-
-            # keep a dict of existing trendsets (to use it for avoiding dups)
-            currentTrendSets = dict()
-            curveNames = []
-            for tset in plot_item.listDataItems():
-                if isinstance(tset, TaurusTrendSet):
-                    currentTrendSets[tset.getFullModelName()] = tset
-                    curveNames.extend([c.name for c in tset])
-
-            # remove trendsets that exists in currentTrendSets from plot
-            # (to avoid duplicates). Also remove curves from the legend
-            for tset in tsets:
-                ts = currentTrendSets.get(tset.getFullModelName(), None)
-                if ts is not None:
-                    plot_item.removeItem(ts)
-
-            # Add to plot **after** their configuration has been applied
-            for tset in tsets:
-                # First we add all the trendsets to self. This way the plotItem
-                # can keep a list of dataItems (PlotItem.listDataItems())
-                self.addItem(tset)
-
-                # Add trendsets to Y2 axis, when the trendset configurations
-                # have been applied.
-                # Ideally, the Y2ViewBox class must handle the action of adding
-                # trendsets to itself, but we want add the trendsets when they
-                # are restored with all their properties.
-                if tset.getFullModelName() in self._y2.getCurves():
-                    plot_item.getViewBox().removeItem(tset)
-                    self._y2.addItem(tset)
-        finally:
-            # Ensure that temporary delegates are unregistered
-            for n in tmpreg:
-                self.unregisterConfigurableItem(n, raiseOnError=False)
+    def addModels(self, names):
+        """Reimplemented to delegate to the  model chooser"""
+        # support passing a string in names
+        if isinstance(names, string_types):
+            names = [names]
+        self._model_chooser_tool.addModels(names)
+    #
+    # def createConfig(self, allowUnpickable=False):
+    #     """
+    #     Reimplemented from BaseConfigurableClass to manage the config
+    #     properties of the trendsets attached to this plot
+    #     """
+    #     try:
+    #         # Temporarily register trendsets as delegates
+    #         tmpreg = []
+    #         data_items = self.getPlotItem().listDataItems()
+    #         for idx, item in enumerate(data_items):
+    #             if isinstance(item, TaurusTrendSet):
+    #                 name = "__TaurusTrendSet_%d__" % idx
+    #                 tmpreg.append(name)
+    #                 self.registerConfigDelegate(item, name)
+    #
+    #         configdict = copy.deepcopy(
+    #             BaseConfigurableClass.createConfig(
+    #                 self, allowUnpickable=allowUnpickable
+    #             )
+    #         )
+    #
+    #     finally:
+    #         # Ensure that temporary delegates are unregistered
+    #         for n in tmpreg:
+    #             self.unregisterConfigurableItem(n, raiseOnError=False)
+    #     return configdict
+    #
+    # def applyConfig(self, configdict, depth=None):
+    #     """
+    #     Reimplemented from BaseConfigurableClass to manage the config
+    #     properties of the trendsets attached to this plot
+    #     """
+    #     try:
+    #         # Temporarily register trendsets as delegates
+    #         tmpreg = []
+    #         tsets = []
+    #         for name in configdict["__orderedConfigNames__"]:
+    #             if name.startswith("__TaurusTrendSet_"):
+    #                 # Instantiate empty TaurusTrendSet
+    #                 tset = TaurusTrendSet()
+    #                 tsets.append(tset)
+    #                 self.registerConfigDelegate(tset, name)
+    #                 tmpreg.append(name)
+    #
+    #         # remove the trendsets from the second axis (Y2) to avoid dups
+    #         self._y2.clearItems()
+    #
+    #         BaseConfigurableClass.applyConfig(
+    #             self, configdict=configdict, depth=depth
+    #         )
+    #
+    #         plot_item = self.getPlotItem()
+    #
+    #         # keep a dict of existing trendsets (to use it for avoiding dups)
+    #         currentTrendSets = dict()
+    #         curveNames = []
+    #         for tset in plot_item.listDataItems():
+    #             if isinstance(tset, TaurusTrendSet):
+    #                 currentTrendSets[tset.getFullModelName()] = tset
+    #                 curveNames.extend([c.name for c in tset])
+    #
+    #         # remove trendsets that exists in currentTrendSets from plot
+    #         # (to avoid duplicates). Also remove curves from the legend
+    #         for tset in tsets:
+    #             ts = currentTrendSets.get(tset.getFullModelName(), None)
+    #             if ts is not None:
+    #                 plot_item.removeItem(ts)
+    #
+    #         # Add to plot **after** their configuration has been applied
+    #         for tset in tsets:
+    #             # First we add all the trendsets to self. This way the plotItem
+    #             # can keep a list of dataItems (PlotItem.listDataItems())
+    #             self.addItem(tset)
+    #
+    #             # Add trendsets to Y2 axis, when the trendset configurations
+    #             # have been applied.
+    #             # Ideally, the Y2ViewBox class must handle the action of adding
+    #             # trendsets to itself, but we want add the trendsets when they
+    #             # are restored with all their properties.
+    #             if tset.getFullModelName() in self._y2.getCurves():
+    #                 plot_item.getViewBox().removeItem(tset)
+    #                 self._y2.addItem(tset)
+    #     finally:
+    #         # Ensure that temporary delegates are unregistered
+    #         for n in tmpreg:
+    #             self.unregisterConfigurableItem(n, raiseOnError=False)
 
     def _getState(self):
         """Same as PlotWidget.saveState but removing viewRange conf to force
