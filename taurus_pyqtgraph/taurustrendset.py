@@ -49,6 +49,10 @@ CURVE_COLORS = [
 ]
 
 
+class TrendCurve(PlotDataItem):
+    def __repr__(self):
+        return "<TrendCurve {}>".format(self.name())
+
 class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     """
     A PlotDataItem for displaying trend curve(s) associated to a
@@ -104,6 +108,9 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         # TODO: store _maxBufferSize config
         if yModel is not None:
             self.setModel(yModel)
+
+    def __repr__(self):
+        return "<TrendSet ({}) {}>".format(len(self), self.base_name())
 
     def name(self):
         """Reimplemented from PlotDataItem to avoid having the ts itself added
@@ -167,7 +174,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         for i in range(ntrends):
             subname = "%s[%i]" % (base_name, i)
             kw["name"] = subname
-            curve = PlotDataItem(*a, **kw)
+            curve = TrendCurve(*a, **kw)
             if "pen" not in kw:
                 curve.setPen(self._curveColors.next().color())
             self._curves.append(curve)
