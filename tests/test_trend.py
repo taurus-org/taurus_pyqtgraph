@@ -1,8 +1,5 @@
 import numpy
 
-import taurus
-
-taurus.changeDefaultPollingPeriod(333)
 import taurus_pyqtgraph as tpg
 import pyqtgraph as pg
 from collections import Counter
