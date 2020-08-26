@@ -208,11 +208,11 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
 
     def _updateViewBox(self):
         """Add/remove the "extra" curves from the viewbox if needed"""
-        if self._curves:
-            viewBox = self.getViewBox()
-            self.forgetViewBox()
+        viewBox = self.getViewBox()
+        # if self._curves:
+        #     self.forgetViewBox()
         for curve in self._curves:
-            curve.forgetViewBox()
+            # curve.forgetViewBox()
             curve_viewBox = curve.getViewBox()
 
             if curve_viewBox is not None:
