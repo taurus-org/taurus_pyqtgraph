@@ -316,8 +316,6 @@ def trend_main(
 
     w.setWindowTitle(window_name)
 
-    # config_file = 'tmp/TaurusTrend.pck'
-
     if demo:
         models = list(models)
         models.extend(["eval:rand()", "eval:1+rand(2)"])
