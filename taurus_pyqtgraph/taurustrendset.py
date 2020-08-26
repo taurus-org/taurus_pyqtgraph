@@ -160,6 +160,11 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         """ Initializes new curves """
 
         # self._removeFromLegend(self._legend)
+
+        # remove previously existing curves from views
+        for c in self._curves:
+            c.getViewBox().removeItem(c)
+
         self._curves = []
         self._curveColors.setCurrentIndex(-1)
 
