@@ -393,23 +393,23 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
         Update the current plot item list with the given configuration items
         """
         mainViewBox = self.plot_item.getViewBox()
-        # Remove existing taurus curves from the plotItem and the viewboxes
+        # Remove existing taurus items from the plotItem and the viewboxes
         # (but keep the item object and a reference to their viewbox so that
         # they can be reused later on if needed).
         currentModelItems = OrderedDict()
-        _currentCurves = list(self.plot_item.listDataItems())
-        for curve in _currentCurves:
-            if isinstance(curve, self.itemClass):
-                xname, yname = curve.getFullModelNames()
-                viewbox = curve.getViewBox()
+        _currentItems = list(self.plot_item.listDataItems())
+        for item in _currentItems:
+            if isinstance(item, self.itemClass):
+                xname, yname = item.getFullModelNames()
+                viewbox = item.getViewBox()
                 # store curve and current viewbox for later use
-                currentModelItems[(xname, yname)] = curve, viewbox
+                currentModelItems[(xname, yname)] = item, viewbox
                 # remove the curve
-                self.plot_item.removeItem(curve)
-                if viewbox is not mainViewBox:
-                    viewbox.removeItem(curve)
+                self.plot_item.removeItem(item)
+                if viewbox is not None and viewbox is not mainViewBox:
+                    viewbox.removeItem(item)
                 if self.legend is not None:
-                    self.legend.removeItem(curve.name())
+                    self.legend.removeItem(item.name())
 
         # Add only the curves defined in xy_names (reusing existing ones and
         # creating those that did not exist) in the desired z-order
