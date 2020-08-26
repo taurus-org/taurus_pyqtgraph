@@ -140,10 +140,11 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         autopan.attachToPlotItem(self.getPlotItem())
 
         # Register config properties
-        self.registerConfigDelegate(self._y2, "Y2Axis")
-        self.registerConfigDelegate(legend_tool, "legend")
-        self.registerConfigDelegate(self._fr_tool, "forceread")
-        self.registerConfigDelegate(inspector_tool, "inspector")
+        self.registerConfigDelegate(self._model_chooser_tool, "XYmodelchooser")
+        # self.registerConfigDelegate(self._y2, "Y2Axis")
+        # self.registerConfigDelegate(legend_tool, "legend")
+        # self.registerConfigDelegate(self._fr_tool, "forceread")
+        # self.registerConfigDelegate(inspector_tool, "inspector")
 
     # --------------------------------------------------------------------
     # workaround for bug in pyqtgraph v<=0.10.0, already fixed in
