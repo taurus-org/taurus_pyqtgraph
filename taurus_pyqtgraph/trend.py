@@ -172,7 +172,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     def _getTrendSets(self):
         return [
-            e for e in self.getPlotItem().listDataItems()
+            e
+            for e in self.getPlotItem().listDataItems()
             if isinstance(e, TaurusTrendSet)
         ]
 
@@ -189,6 +190,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         if isinstance(names, string_types):
             names = [names]
         self._model_chooser_tool.addModels(names)
+
     #
     # def createConfig(self, allowUnpickable=False):
     #     """

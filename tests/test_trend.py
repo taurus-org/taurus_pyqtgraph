@@ -1,6 +1,7 @@
 import numpy
 
 import taurus
+
 taurus.changeDefaultPollingPeriod(333)
 import taurus_pyqtgraph as tpg
 import pyqtgraph as pg
@@ -20,16 +21,19 @@ def show_and_wait(qtbot, *widgets, timeout=60000, raising=False):
     """
     for w in widgets:
         w.show()
+
     def are_closed():
         for w in widgets:
             if w.isVisible():
                 return False
         return True
+
     try:
         qtbot.wait_until(are_closed, timeout=timeout)
     except AssertionError:
         if raising:
             raise
+
 
 # def test_trend_teardown(qtbot):
 #     """
@@ -110,7 +114,7 @@ def test_trend_model_setting(qtbot):
     assert Counter(vb1.addedItems) == Counter(w[:] + ts1[1:] + ts2[1:])
     assert vb2.addedItems == [ts0[0], ts1[0], ts2[0]]
 
-    #check that there are no duplications beccause of moving
+    # check that there are no duplications beccause of moving
     assert len(w) == 3
     assert len(ts0) == 1
     assert len(ts1) == 2
@@ -158,7 +162,8 @@ def test_trend_model_setting(qtbot):
     assert len(ts3) == 2
     assert w[:] == [ts0, ts1, ts2, ts3]
     assert Counter(vb1.addedItems) == Counter(
-        w[:3] + ts1[1:] + ts2[1:] + ts3[1:])
+        w[:3] + ts1[1:] + ts2[1:] + ts3[1:]
+    )
     assert Counter(vb2.addedItems) == Counter(
         [ts0[0], ts1[0], ts2[0], ts3[0], c0, ts3]
     )

@@ -53,6 +53,7 @@ class TrendCurve(PlotDataItem):
     def __repr__(self):
         return "<TrendCurve {}>".format(self.name())
 
+
 class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     """
     A PlotDataItem for displaying trend curve(s) associated to a
