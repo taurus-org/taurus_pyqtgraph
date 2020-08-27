@@ -317,9 +317,11 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
         for curve in self.plot_item.listDataItems():
             if isinstance(curve, self.itemClass):
                 xmodel, ymodel = curve.getFullModelNames()
-                c = TaurusItemConf(
-                    YModel=ymodel, XModel=xmodel, name=curve.name()
-                )
+                name = curve.name()
+                # ugly hack for TaurusTrendset, which forces .name() ->None
+                if name is None and hasattr(curve, "base_name"):
+                    name = curve.base_name()
+                c = TaurusItemConf(YModel=ymodel, XModel=xmodel, name=name)
                 itemconfigs[(xmodel, ymodel)] = c
         return itemconfigs
 
