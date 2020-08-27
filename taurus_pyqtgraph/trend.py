@@ -132,8 +132,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         axis.attachToPlotItem(plot_item)
 
         # add plot configuration dialog
-        cprop_tool = CurvesPropertiesTool(self)
-        cprop_tool.attachToPlotItem(plot_item, y2=self._y2)
+        self._cprop_tool = CurvesPropertiesTool(self)
+        self._cprop_tool.attachToPlotItem(plot_item, y2=self._y2)
 
         # add data inspector widget
         inspector_tool = DataInspectorTool(self)
@@ -150,9 +150,10 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         # Register config properties
         self.registerConfigDelegate(self._model_chooser_tool, "XYmodelchooser")
         # self.registerConfigDelegate(self._y2, "Y2Axis")
-        # self.registerConfigDelegate(legend_tool, "legend")
-        # self.registerConfigDelegate(self._fr_tool, "forceread")
-        # self.registerConfigDelegate(inspector_tool, "inspector")
+        self.registerConfigDelegate(self._cprop_tool, "CurvePropertiesTool")
+        self.registerConfigDelegate(legend_tool, "legend")
+        self.registerConfigDelegate(self._fr_tool, "forceread")
+        self.registerConfigDelegate(inspector_tool, "inspector")
 
     # --------------------------------------------------------------------
     # workaround for bug in pyqtgraph v<=0.10.0, already fixed in
