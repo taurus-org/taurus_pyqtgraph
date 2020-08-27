@@ -111,7 +111,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
             self.setModel(yModel)
 
     def __repr__(self):
-        return "<TrendSet ({}) {}>".format(len(self), self.base_name())
+        return "<TrendSet {} ({} items)>".format(self.base_name(), len(self))
 
     def name(self):
         """Reimplemented from PlotDataItem to avoid having the ts itself added
