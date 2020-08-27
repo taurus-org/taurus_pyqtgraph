@@ -32,6 +32,7 @@ import copy
 from taurus.external.qt import QtGui, Qt
 from taurus.core.util.containers import LoopList
 from taurus.qt.qtcore.configuration import BaseConfigurableClass
+from taurus.core.util.log import Logger
 
 from pyqtgraph import PlotWidget
 
@@ -84,6 +85,13 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
             PlotWidget.__init__(self, parent=parent, **kwargs)
         else:
             super(TaurusTrend, self).__init__(parent=parent, **kwargs)
+
+        # Compose with a Logger
+        self._logger = Logger(name=self.__class__.__name__)
+        self.debug = self._logger.debug
+        self.info = self._logger.info
+        self.warning = self._logger.warning
+        self.error = self._logger.error
 
         # set up cyclic color generator
         self._curveColors = LoopList(CURVE_COLORS)
