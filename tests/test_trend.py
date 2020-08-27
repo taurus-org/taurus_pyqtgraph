@@ -539,3 +539,19 @@ def test_curveproperties_configfile(qtbot, tmp_path):
     # avoid teardown issues
     w1.setModel(None)
     w2.setModel(None)
+
+
+@pytest.mark.xfail(  # TODO: fix this duplication and remove the xfail mark
+    reason="known bug: multiple trend.setModel() calls cause item duplication"
+)
+def test_multiple_setModel(qtbot):
+    w = tpg.TaurusTrend()
+    qtbot.addWidget(w)
+    for i in range(5):
+        w.setModel(["eval:1"])
+        assert Counter(w.getPlotItem().listDataItems()) == Counter(
+            [w[0], w[0][0]]
+        ), "Found duplicates after {} calls to setModel".format(i + 1)
+
+    # workaround for teardown issue
+    w.setModel(None)
