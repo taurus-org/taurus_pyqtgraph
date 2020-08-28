@@ -226,7 +226,6 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                 if plotItem is not None:
                     plotItem.addItem(curve)
 
-
     def _updateBuffers(self, evt_value):
         """Update the x and y buffers with the new data. If the new data is
         not compatible with the existing buffers, the buffers are reset

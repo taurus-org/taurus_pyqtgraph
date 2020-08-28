@@ -194,9 +194,9 @@ def test_multiple_setModel(qtbot):
     qtbot.addWidget(w)
     for i in range(5):
         w.setModel(["eval:rand(2)"])
-        assert w.getPlotItem().listDataItems() == [w[0]], (
-            "Found duplicates after {} calls to setModel".format(i + 1)
-        )
+        assert w.getPlotItem().listDataItems() == [
+            w[0]
+        ], "Found duplicates after {} calls to setModel".format(i + 1)
 
 
 def test_xymodelchooser_config(qtbot):
