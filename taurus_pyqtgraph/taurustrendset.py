@@ -163,8 +163,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         # self._removeFromLegend(self._legend)
 
         # remove previously existing curves from views
-        for c in self._curves:
-            c.getViewBox().removeItem(c)
+        self._updateViewBox(None)
 
         self._curves = []
         self._curveColors.setCurrentIndex(-1)
@@ -184,7 +183,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
             if "pen" not in kw:
                 curve.setPen(self._curveColors.next().color())
             self._curves.append(curve)
-        self._updateViewBox()
+        self._updateViewBox(self.getViewBox())
 
     def _addToLegend(self, legend):
         # ------------------------------------------------------------------
@@ -207,19 +206,26 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         for c in self._curves:
             legend.removeItem(c.name())
 
-    def _updateViewBox(self):
+    def _updateViewBox(self, viewBox):
         """Add/remove the "extra" curves from the viewbox if needed"""
-        viewBox = self.getViewBox()
-        # if self._curves:
-        #     self.forgetViewBox()
         for curve in self._curves:
-            # curve.forgetViewBox()
             curve_viewBox = curve.getViewBox()
-
             if curve_viewBox is not None:
+                plotItem = None
+                viewWidget = curve_viewBox.getViewWidget()
+                if viewWidget is not None:
+                    plotItem = viewWidget.getPlotItem()
                 curve_viewBox.removeItem(curve)
+                if plotItem is not None:
+                    plotItem.removeItem(curve)
             if viewBox is not None:
-                viewBox.addItem(curve)
+                plotItem = None
+                viewWidget = viewBox.getViewWidget()
+                if viewWidget is not None:
+                    plotItem = viewWidget.getPlotItem()
+                if plotItem is not None:
+                    plotItem.addItem(curve)
+
 
     def _updateBuffers(self, evt_value):
         """Update the x and y buffers with the new data. If the new data is
@@ -302,7 +308,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         """
         PlotDataItem.parentChanged(self)
 
-        self._updateViewBox()
+        self._updateViewBox(self.getViewBox())
 
         # update legend if needed
         try:
