@@ -4,7 +4,6 @@ import taurus_pyqtgraph as tpg
 import pyqtgraph as pg
 from collections import Counter
 import time
-import pytest
 
 
 def _get_sub_config(cfg, item):
@@ -68,11 +67,13 @@ def test_trend_model_setting(qtbot):
     ]
 
     w.setModel(models)
-    ts0 = w[0]
-    ts1 = w[1]
-    ts2 = w[2]
+    sets = w.getTrendSets()
+    ts0 = sets[0]
+    ts1 = sets[1]
+    ts2 = sets[2]
 
-    assert len(w) == 3
+    assert len(w.getTrendSets()) == 3
+    assert len(w) == 6
     assert len(ts0) == 1
     assert len(ts1) == 2
     assert len(ts2) == 3
@@ -91,11 +92,11 @@ def test_trend_model_setting(qtbot):
     assert ts2[2].name() == "3+rand(3)[2]"
 
     assert w._model_chooser_tool.getModelNames() == [
-        ts.getFullModelNames() for ts in w[:]
+        ts.getFullModelNames() for ts in w.getTrendSets()
     ]
 
     # check items of viewboxes (for vb1, ignore the sorting)
-    assert Counter(vb1.addedItems) == Counter(w[:] + ts0[:] + ts1[:] + ts2[:])
+    assert Counter(vb1.addedItems) == Counter(sets + ts0[:] + ts1[:] + ts2[:])
     assert vb2.addedItems == []
 
     # move the whole ts1 to Y2
@@ -105,15 +106,16 @@ def test_trend_model_setting(qtbot):
     # assert Counter(vb1.addedItems) == Counter([ts1] + ts1[:])
 
     # move first curve of each trendset to Y2
-    for ts in w:
+    for ts in sets:
         c = ts[0]
         vb1.removeItem(c)
         vb2.addItem(c)
-    assert Counter(vb1.addedItems) == Counter(w[:] + ts1[1:] + ts2[1:])
+    assert Counter(vb1.addedItems) == Counter(sets + ts1[1:] + ts2[1:])
     assert vb2.addedItems == [ts0[0], ts1[0], ts2[0]]
 
-    # check that there are no duplications beccause of moving
-    assert len(w) == 3
+    # check that there are no duplications because of moving
+    assert len(w.getTrendSets()) == 3
+    assert len(w) == 6
     assert len(ts0) == 1
     assert len(ts1) == 2
     assert len(ts2) == 3
@@ -126,24 +128,31 @@ def test_trend_model_setting(qtbot):
     vb2.addItem(c0)
 
     # check that the regular item is not counted as a trendset item...
-    assert w[:] == [ts0, ts1, ts2]
+    assert w.getTrendSets() == [ts0, ts1, ts2]
     assert w._model_chooser_tool.getModelNames() == [
-        ts.getFullModelNames() for ts in w[:]
+        ts.getFullModelNames() for ts in w.getTrendSets()
     ]
     # ... but still, it is added to y2
-    assert Counter(vb1.addedItems) == Counter(w[:] + ts1[1:] + ts2[1:])
+    assert Counter(vb1.addedItems) == Counter(sets + ts1[1:] + ts2[1:])
     assert vb2.addedItems == [ts0[0], ts1[0], ts2[0], c0]
 
-    # manually add a trendset to y2
+    # manually add a trendset to y1 and move its first curve to y2
     ts3 = tpg.TaurusTrendSet(name="TS-3", symbol="o")
     ts3.setModel('eval:Quantity(rand(2)-1,"m")')
-    vb2.addItem(ts3)
+    w.addItem(ts3)
+    vb1.removeItem(ts3[0])
+    vb2.addItem(ts3[0])
 
     assert len(ts3) == 2
-    assert w[:] == [ts0, ts1, ts2, ts3]
-    assert Counter(vb1.addedItems) == Counter(w[:3] + ts1[1:] + ts2[1:])
+    sets = w.getTrendSets()
+    assert sets == [ts0, ts1, ts2, ts3]
+    assert len(w) == 8
+    assert w[:] == ts0[:] + ts1[:] + ts2[:] + ts3[:]
+    assert Counter(vb1.addedItems) == Counter(
+        sets + ts1[1:] + ts2[1:] + ts3[1:]
+    )
     assert Counter(vb2.addedItems) == Counter(
-        [ts0[0], ts1[0], ts2[0], c0, ts3] + ts3[:]
+        [ts0[0], ts1[0], ts2[0], c0, ts3[0]]
     )
     assert w._model_chooser_tool.getModelNames() == [
         ts0.getFullModelNames(),
@@ -152,32 +161,19 @@ def test_trend_model_setting(qtbot):
         ts3.getFullModelNames(),
     ]
 
-    # move the second curve of ts3 to y1 and check that all is as expected
-    c = ts3[1]
-    vb2.removeItem(c)
-    vb1.addItem(c)
-
-    assert len(ts3) == 2
-    assert w[:] == [ts0, ts1, ts2, ts3]
-    assert Counter(vb1.addedItems) == Counter(
-        w[:3] + ts1[1:] + ts2[1:] + ts3[1:]
-    )
-    assert Counter(vb2.addedItems) == Counter(
-        [ts0[0], ts1[0], ts2[0], ts3[0], c0, ts3]
-    )
-
     # manually add a trendset to y1
     ts4 = tpg.TaurusTrendSet(name="TS-4", symbol="s")
     ts4.setModel('eval:Quantity(rand()-2,"m")')
     w.addItem(ts4)
 
     assert len(ts4) == 1
-    assert w[:] == [ts0, ts1, ts2, ts3, ts4]
+    sets = w.getTrendSets()
+    assert sets == [ts0, ts1, ts2, ts3, ts4]
     assert Counter(vb1.addedItems) == Counter(
-        [ts0, ts1, ts2, ts4] + ts1[1:] + ts2[1:] + ts3[1:] + ts4[:]
+        sets + ts1[1:] + ts2[1:] + ts3[1:] + ts4[:]
     )
     assert Counter(vb2.addedItems) == Counter(
-        [ts0[0], ts1[0], ts2[0], c0, ts3, ts3[0]]
+        [ts0[0], ts1[0], ts2[0], c0, ts3[0]]
     )
     assert w._model_chooser_tool.getModelNames() == [
         ts0.getFullModelNames(),
@@ -197,13 +193,21 @@ def test_trend_model_setting(qtbot):
     ts4_0 = ts4[0]
 
     w.addModels([models[1]])
+    sets = w.getTrendSets()
 
-    assert w[:] == [ts0, ts1, ts2, ts3, ts4]
-    assert w[0][:] == [ts0_0]
-    assert w[1][:] == [ts1_0, ts1_1]
-    assert w[2][:] == [ts2_0, ts2_1, ts2_2]
-    assert w[3][:] == [ts3_0, ts3_1]
-    assert w[4][:] == [ts4_0]
+    assert sets == [ts0, ts1, ts2, ts3, ts4]
+    assert len(w) == 9
+    assert w[:] == [
+        ts0_0,
+        ts1_0,
+        ts1_1,
+        ts2_0,
+        ts2_1,
+        ts2_2,
+        ts3_0,
+        ts3_1,
+        ts4_0,
+    ]
 
     # -----------------------------------------------------------------------
     # nothing is recreated or duplicated, but all the trendsets are reset
@@ -216,11 +220,11 @@ def test_trend_model_setting(qtbot):
     # assert Counter(vb2.addedItems) == Counter(
     #     [ts0[0], ts1[0], ts2[0], c0, ts3, ts3[0]]
     # )
-    # -----------------------------------------------------------------------
     assert Counter(vb1.addedItems) == Counter(
-        [ts0, ts1, ts2, ts4] + ts0[:] + ts1[:] + ts2[:] + ts4[:]
+        sets + ts0[:] + ts1[:] + ts2[:] + ts3[:] + ts4[:]
     )
-    assert Counter(vb2.addedItems) == Counter([c0, ts3] + ts3[:])
+    assert vb2.addedItems == [c0]
+    # -----------------------------------------------------------------------
     assert w._model_chooser_tool.getModelNames() == [
         ts0.getFullModelNames(),
         ts1.getFullModelNames(),
@@ -232,13 +236,15 @@ def test_trend_model_setting(qtbot):
     # set (not adding!) 1 model which is already on y1
     # only the non-taurus curve and the just set trendset remain.
     w.setModel([models[1]])
-    assert w[:] == [ts1]  # ts1 **is** still the same object!
+    assert w.getTrendSets() == [ts1]  # ts1 **is** still the same object!
+    assert w[:] == [ts1[0], ts1[1]]
     assert Counter(vb1.addedItems) == Counter([ts1] + ts1[:])
     assert vb2.addedItems == [c0]
     assert w._model_chooser_tool.getModelNames() == [ts1.getFullModelNames()]
 
     # set empty model (not adding!, the non taurus curve is kept)
     w.setModel([])
+    assert w.getTrendSets() == []
     assert w[:] == []
     assert vb1.addedItems == []
     assert vb2.addedItems == [c0]
@@ -286,101 +292,24 @@ def test_modelchooser_config(qtbot):
     # test applyConfig
     w2 = tpg.TaurusTrend()
     qtbot.addWidget(w2)
+    assert w2.getTrendSets() == []
     assert len(w2) == 0
     assert len(w2._model_chooser_tool.getModelNames()) == 0
 
     # add a model to w2
     w2.setModel("eval:3*rand()")
+    assert len(w2.getTrendSets()) == 1
     assert len(w2) == 1
     assert len(w2._model_chooser_tool.getModelNames()) == 1
 
     # apply config (the previously added tauruscurve of w2 should be removed)
     w2.applyConfig(cfg)
-    assert len(w2) == 2
-    assert [isinstance(ts, tpg.TaurusTrendSet) for ts in w2] == [True, True]
+    assert len(w2.getTrendSets()) == 2
+    assert len(w2) == 3
+    assert [type(ts) for ts in w2.getTrendSets()] == [tpg.TaurusTrendSet] * 2
+    assert [type(c) for c in w2] == [tpg.TrendCurve] * 3
     assert len(w2._model_chooser_tool.getModelNames()) == 2
     assert w2._model_chooser_tool._getCurveInfo() == modelscfg1
-
-    # show_and_wait(qtbot, w1, w2)  # uncomment for visually checking
-
-    # avoid teardown issues
-    w1.setModel(None)
-    w2.setModel(None)
-
-
-@pytest.mark.xfail(reason="y2axis fails to save/restore in trends")
-def test_y2_config(qtbot):
-
-    # create a plot with 2 trendsets of 2 curves each
-    w1 = tpg.TaurusTrend()
-    qtbot.addWidget(w1)
-
-    models1 = [
-        "eval:1*rand(2)",
-        (None, "eval:2*rand(2)", "foo"),
-    ]
-
-    w1.setModel(models1)
-
-    w1_vb1 = w1.getViewBox()
-    w1_vb2 = w1._y2
-
-    assert len(w1) == 2
-    ts0, ts1 = w1[:]
-    assert [isinstance(ts, tpg.TaurusTrendSet) for ts in w1] == [True, True]
-
-    # check that the 2 trendsets and all their curves are on Y1
-    for ts in w1:
-        assert ts.getViewBox() == w1_vb1
-        assert [c.getViewBox() for c in ts] == [w1_vb1, w1_vb1]
-    assert Counter(w1_vb1.addedItems) == Counter(w1[:] + ts0[:] + ts1[:])
-    assert w1_vb2.addedItems == []
-
-    # move the second curve of of each trendset to Y2
-    for ts in w1:
-        c = ts[1]
-        w1_vb1.removeItem(c)
-        w1_vb2.addItem(c)
-
-    # check that the move was ok and there are no duplicates
-    for ts in w1:
-        assert ts.getViewBox() == w1_vb1
-        assert [c.getViewBox() for c in ts] == [w1_vb1, w1_vb2]
-    assert Counter(w1_vb1.addedItems) == Counter(w1[:] + [ts0[0], ts1[0]])
-    assert Counter(w1_vb2.addedItems) == Counter([ts0[1], ts1[1]])
-
-    # test createConfig
-    plot_cfg = w1.createConfig()
-    y2_cfg = _get_sub_config(plot_cfg, "Y2Axis")
-    curvescfg1 = _get_sub_config(y2_cfg, "Y2Curves")
-    assert curvescfg1 == [ts[1].getFullModelNames() for ts in w1]
-
-    # # Debugging
-    # from pprint import pprint
-    # pprint(plot_cfg)
-    # pprint(curvescfg1)
-
-    # create a second, empty plot
-    w2 = tpg.TaurusTrend()
-    qtbot.addWidget(w2)
-
-    w2_vb1 = w2.getViewBox()
-    w2_vb2 = w2._y2
-
-    assert len(w2) == 0
-
-    # check applyConfig on the new plot
-    w2.applyConfig(plot_cfg)
-    assert len(w2) == 2
-    assert [isinstance(ts, tpg.TaurusTrendSet) for ts in w2] == [True, True]
-
-    for ts in w2:
-        assert ts.getViewBox() == w2_vb1
-        assert [c.getViewBox() for c in ts] == [w2_vb1, w2_vb1]
-
-    # TODO: The following asserts are known to fail
-    assert Counter(w2_vb1.addedItems) == Counter(w2[:] + [ts[0] for ts in w2])
-    assert Counter(w2_vb2.addedItems) == Counter([ts[1] for ts in w2])
 
     # show_and_wait(qtbot, w1, w2)  # uncomment for visually checking
 
@@ -417,11 +346,14 @@ def test_curveproperties_configfile(qtbot, tmp_path):
     w1.addItem(ts0)
     c2 = ts0[0]
 
-    # add a TrendSet to y2
+    # add a TrendSet to y1 and move its curve to Y2
     ts1 = tpg.TaurusTrendSet(name="TS1", symbol="s")
     ts1.setModel('eval:Quantity(3+rand(),"km")')
-    w1vb2.addItem(ts1)
+    w1.addItem(ts1)
     c3 = ts1[0]
+    w1vb1.removeItem(c3)
+    w1vb2.addItem(c3)
+    assert c3 in w1vb2.addedItems
 
     # Save a config file at this point
     f1 = tmp_path / "trend1.pck"
@@ -436,9 +368,19 @@ def test_curveproperties_configfile(qtbot, tmp_path):
     ]
     w1.addModels(models1)
 
-    ts2 = w1[2]
+    # ------------------------------------------------------------------
+    # After calling addModels, TrendCurves that were manually moved to
+    #  Y2 are reset to Y1 (where their trendset is).
+    # TODO: the following 2 lines should not be needed
+    assert c3 in w1vb1.addedItems  # this is what it is, not what it should be
+    w1vb2.addItem(c3)  # manually move c3 to Y2 again...
+    assert c3 not in w1vb1.addedItems
+    assert c3 in w1vb2.addedItems
+    # ------------------------------------------------------------------
+
+    ts2 = w1.getTrendSets()[2]
     c4, c5 = ts2[:]
-    ts3 = w1[3]
+    ts3 = w1.getTrendSets()[3]
     c6, c7 = ts3[:]
 
     c4.setPen("g")
@@ -459,16 +401,19 @@ def test_curveproperties_configfile(qtbot, tmp_path):
     w1vb2.addItem(c5)
     w1vb2.addItem(c7)
 
-    assert len(w1) == 4
-    assert w1[:] == [ts0, ts1, ts2, ts3]
+    sets = w1.getTrendSets()
+    assert len(sets) == 4
+    assert sets == [ts0, ts1, ts2, ts3]
+    assert len(w1) == 6
+    assert w1[:] == [c2, c3, c4, c5, c6, c7]
 
     assert Counter(w1._cprop_tool.getModifiableItems().values()) == Counter(
         [c0, c1, c2, c3, c4, c5, c6, c7]
     )
     assert Counter(w1vb1.addedItems) == Counter(
-        [ts0, ts2, ts3, c0, c2, c4, c6]
+        [ts0, ts1, ts2, ts3, c0, c2, c4, c6]
     )
-    assert Counter(w1vb2.addedItems) == Counter([ts1, c1, c3, c5, c7])
+    assert Counter(w1vb2.addedItems) == Counter([c1, c3, c5, c7])
 
     # Save a config file with everything in w1
     f2 = tmp_path / "trend2.pck"
@@ -503,32 +448,18 @@ def test_curveproperties_configfile(qtbot, tmp_path):
     w2.loadConfigFile(ifile=str(f1))
 
     # check that there are not leftovers from previous config
-    assert len(w2)  # only the curves from ts0 and ts1
-    assert [ts.base_name() for ts in w2] == ["TS0", "TS1"]
+    sets = w2.getTrendSets()
+    assert len(w2) == 2  # only the curves from ts0 and ts1
+    assert len(sets) == 2  # only ts0 and ts1
+    assert [ts.base_name() for ts in sets] == ["TS0", "TS1"]
+    assert [ts.name() for ts in w2] == ["TS0[0]", "TS1[0]"]
 
-    # --------------------------------------------------------------------
-    # The following 2 (commented) asserts assume that the viewbox of the
-    # TaurusTrendSet is properly restored, but that is not the case
-    # (only the TrendCurves viewbox is currently properly restored):
-    #     assert Counter(vb1.addedItems) == Counter([w2[0], w2[0][0]])
-    #     assert Counter(vb2.addedItems) == Counter([w2[1], w2[1][0]])
-    # use the following two asserts instead for now
-    assert Counter(w2vb1.addedItems) == Counter([w2[0], w2[1], w2[0][0]])
-    assert Counter(w2vb2.addedItems) == Counter([w2[1][0]])
-    # TODO: implement proper save/restore of trendset viewbox
-    # From the user perspective, it does not seem to have a big impact,
-    # but I suspect that there will eventually be troubles because of this
-    # inconsistency
-    # --------------------------------------------------------------------
+    # note that c3 is correctly in Y2 (because the config properly restores it)
+    assert Counter(w2vb1.addedItems) == Counter(sets + [w2[0]])
+    assert Counter(w2vb2.addedItems) == Counter([w2[1]])
 
     w2_props = w2._cprop_tool._getCurveAppearanceProperties()
-    # --------------------------------------------------------------------
-    # The following assert is failing (TS2[0] and TS3[0] are still being
-    # picked by _cprop_tool._getCurveAppearanceProperties())
-    # TODO: investigate
-    # For the moment, just (comment it out)
-    # assert len(w2_props) == 2  # only the curves from ts0 and ts1 !
-    # --------------------------------------------------------------------
+    assert len(w2_props) == 2  # only the curves from ts0 and ts1 !
     for k, p_aft in w2_props.items():
         assert k in w1_props
         p_ini = w1_props[k]
