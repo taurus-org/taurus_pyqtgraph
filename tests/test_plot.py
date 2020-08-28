@@ -185,6 +185,20 @@ def test_plot_model_setting_with_y2(qtbot):
     # qtbot.wait_until(is_closed, timeout=999999)
 
 
+def test_multiple_setModel(qtbot):
+    """
+    Check that repeated calls to setModel do not duplicate the items
+    in the plot
+    """
+    w = tpg.TaurusPlot()
+    qtbot.addWidget(w)
+    for i in range(5):
+        w.setModel(["eval:rand(2)"])
+        assert w.getPlotItem().listDataItems() == [w[0]], (
+            "Found duplicates after {} calls to setModel".format(i + 1)
+        )
+
+
 def test_xymodelchooser_config(qtbot):
 
     w1 = tpg.TaurusPlot()
