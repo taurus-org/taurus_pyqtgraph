@@ -174,12 +174,19 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         Provides a list-like interface: items can be accessed using slice
         notation
         """
-        return self._getTrendSets()[idx]
+        return self._getCurves()[idx]
 
     def __len__(self):
-        return len(self._getTrendSets())
+        return len(self._getCurves())
 
-    def _getTrendSets(self):
+    def _getCurves(self):
+        """returns a flat list with all items from all trend sets"""
+        ret = []
+        for ts in self.getTrendSets():
+            ret += ts[:]
+        return ret
+
+    def getTrendSets(self):
         return [
             e
             for e in self.getPlotItem().listDataItems()
