@@ -108,7 +108,7 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
     def getModifiableItems(self):
         data_items = self.plot_item.listDataItems()
         # checks in all ViewBoxes from plot_item,
-        # looking for a data_items (Curves).
+        # looking for data_items (Curves).
 
         for item in self.plot_item.scene().items():
             if isinstance(item, pyqtgraph.ViewBox):
