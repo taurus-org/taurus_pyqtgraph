@@ -37,7 +37,7 @@ from .legendtool import PlotLegendTool
 from .forcedreadtool import ForcedReadTool
 from .taurusimageitem import TaurusImageItem
 from .taurusplotdataitem import TaurusPlotDataItem
-from .taurustrendset import TaurusTrendSet
+from .taurustrendset import TaurusTrendSet, TrendCurve
 from .curvesmodel import TaurusItemConf, TaurusItemConfDlg
 from .taurusmodelchoosertool import (
     TaurusModelChooserTool,

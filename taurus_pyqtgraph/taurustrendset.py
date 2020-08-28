@@ -22,7 +22,7 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-__all__ = ["TaurusTrendSet"]
+__all__ = ["TaurusTrendSet", "TrendCurve"]
 
 """This provides the pyqtgraph implementation of :class:`TaurusTrendSet`"""
 
