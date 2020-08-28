@@ -88,6 +88,12 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
 
         self.plotItem.addItem = MethodType(_PlotItem_addItem, self.plotItem)
 
+        # add Y2 to main scene(), show the axis and link X axis to self.
+        # self.plotItem.showAxis("right", show=bool(self.addedItems))
+        self.plotItem.scene().addItem(self)
+        self.plotItem.getAxis("right").linkToView(self)
+        self.plotItem.getViewBox().setXLink(self)
+
     def _updateViews(self, viewBox):
         self.setGeometry(viewBox.sceneBoundingRect())
         self.linkedViewChanged(viewBox, self.XAxis)
@@ -116,21 +122,15 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
                 self.plotItem.getViewBox().removeItem(item)
         ViewBox.addItem(self, item, ignoreBounds=ignoreBounds)
 
-        if len(self.addedItems) == 1:
-            # when the first curve is added to self (axis Y2), we must
-            # add Y2 to main scene(), show the axis and link X axis to self.
-            self.plotItem.showAxis("right")
-            self.plotItem.scene().addItem(self)
-            self.plotItem.getAxis("right").linkToView(self)
-            # self.setXLink(self.plotItem.getViewBox())
-            self.plotItem.getViewBox().setXLink(self)
+        if self.plotItem is not None:
+            self.plotItem.showAxis("right", show=bool(self.addedItems))
 
-        # set the item log mode to match this view:
-        if hasattr(item, "setLogMode"):
-            item.setLogMode(
-                self.plotItem.getAxis("bottom").logMode,
-                self.plotItem.getAxis("right").logMode,
-            )
+            # set the item log mode to match this view:
+            if hasattr(item, "setLogMode"):
+                item.setLogMode(
+                    self.plotItem.getAxis("bottom").logMode,
+                    self.plotItem.getAxis("right").logMode,
+                )
 
     def _getCurvesNames(self):
         """Returns the curve names associated to the Y2 axis.
