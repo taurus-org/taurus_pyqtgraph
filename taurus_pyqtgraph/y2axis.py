@@ -23,12 +23,47 @@
 ##
 #############################################################################
 
-__all__ = ["Y2ViewBox"]
+__all__ = ["Y2ViewBox", "set_y_axis_for_curve"]
 
 
 from pyqtgraph import ViewBox, PlotItem
 
 from taurus.qt.qtcore.configuration.configuration import BaseConfigurableClass
+
+
+def set_y_axis_for_curve(y2, dataItem, plotItem, y2Axis):
+    """
+    Sets properties provided in the `properties` dict to curves provided in
+    the `curves` dict. The association of a given curve with a property is
+    done by matching the keys in the respective dictionaries
+    :param y2: `True` indicates that the `dataItem` should be associated to y2,
+               `False` indicates that it should be associated to the main
+               viewbox, and `None` indicates that no change should be done.
+    :param plotItem: The :class:`PlotItem` containing the dataItem.
+    :param y2Axis: The :class:`Y2ViewBox` instance
+    """
+    # Set the Y1 / Y2 axis if required
+    old_view = dataItem.getViewBox()  # current view for the curve
+    if y2 is None:  # axis is not to be changed
+        new_view = old_view
+    elif y2:  # Y axis must be Y2
+        new_view = y2Axis  # y2 axis view
+    else:  # Y axis must be Y1
+        new_view = plotItem.getViewBox()  # main view
+
+    if new_view is not old_view:
+        if old_view is not None:
+            old_view.removeItem(dataItem)
+        if not y2:
+            # adapt the log mode to the main view logMode
+            # (this is already done automatically when adding to y2)
+            dataItem.setLogMode(
+                plotItem.getAxis("bottom").logMode,
+                plotItem.getAxis("left").logMode,
+            )
+        new_view.addItem(dataItem)
+        old_view.autoRange()
+        new_view.autoRange()
 
 
 def _PlotItem_addItem(self, item, *args, **kwargs):

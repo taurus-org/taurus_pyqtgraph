@@ -27,7 +27,7 @@
 
 from __future__ import absolute_import
 import taurus.external.qt as _  # avoid API1 errors due to pyqtgraph imports
-from .y2axis import Y2ViewBox
+from .y2axis import Y2ViewBox, set_y_axis_for_curve
 from .curvespropertiestool import CurvesPropertiesTool
 from .dateaxisitem import DateAxisItem
 from .autopantool import XAutoPanTool
