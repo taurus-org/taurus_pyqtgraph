@@ -137,14 +137,7 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         """Reimplemented from :class:`pyqtgraph.ViewBox`"""
         ViewBox.removeItem(self, item)
         if self.plotItem is not None:
-            if item in self.plotItem.listDataItems():
-                self.plotItem.removeItem(item)
-
-        # when last curve is removed from self (axis Y2), we must remove the
-        # axis from scene and hide the axis.
-        if len(self.addedItems) < 1:
-            self.plotItem.scene().removeItem(self)
-            self.plotItem.hideAxis("right")
+            self.plotItem.showAxis("right", show=bool(self.addedItems))
 
     def addItem(self, item, ignoreBounds=False):
         """Reimplemented from :class:`pyqtgraph.ViewBox`"""

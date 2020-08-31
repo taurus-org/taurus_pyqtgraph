@@ -173,6 +173,7 @@ def test_plot_model_setting_with_y2(qtbot):
 
     # remove non-taurus curve
     c2.getViewBox().removeItem(c2)
+    w.getPlotItem().removeItem(c2)
     assert vb1.addedItems == []
     assert vb2.addedItems == []
     assert w[:] == []
