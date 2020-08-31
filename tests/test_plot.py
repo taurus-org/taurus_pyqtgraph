@@ -3,11 +3,7 @@ import taurus_pyqtgraph as tpg
 import pyqtgraph as pg
 from taurus.external.qt import Qt
 
-
-def _get_sub_config(cfg, item):
-    assert item in cfg["__itemConfigurations__"]
-    assert item in cfg["__orderedConfigNames__"]
-    return cfg["__itemConfigurations__"][item]
+from .util import show_and_wait, get_sub_config  # noqa
 
 
 def test_plot_model_setting(qtbot):
@@ -78,10 +74,7 @@ def test_plot_model_setting(qtbot):
     assert w._model_chooser_tool.getModelNames() == []
 
     # Uncomment for visual checks
-    # w.show()
-    # def is_closed():
-    #     return not w.isVisible()
-    # qtbot.wait_until(is_closed, timeout=999999)
+    # show_and_wait(qtbot, w, timeout=3600000)
 
 
 def test_plot_model_setting_with_y2(qtbot):
@@ -180,10 +173,7 @@ def test_plot_model_setting_with_y2(qtbot):
     assert w._model_chooser_tool.getModelNames() == []
 
     # Uncomment for visual checks
-    # w.show()
-    # def is_closed():
-    #     return not w.isVisible()
-    # qtbot.wait_until(is_closed, timeout=999999)
+    # show_and_wait(qtbot, w, timeout=3600000)
 
 
 def test_multiple_setModel(qtbot):
@@ -214,8 +204,8 @@ def test_xymodelchooser_config(qtbot):
 
     # test createConfig
     cfg = w1.createConfig()
-    xymccfg1 = _get_sub_config(cfg, "XYmodelchooser")
-    modelscfg1 = _get_sub_config(xymccfg1, "CurveInfo")
+    xymccfg1 = get_sub_config(cfg, "XYmodelchooser")
+    modelscfg1 = get_sub_config(xymccfg1, "CurveInfo")
     assert modelscfg1[0] == (
         None,
         "eval://localhost/@DefaultEvaluator/1*rand(22)",
@@ -245,10 +235,7 @@ def test_xymodelchooser_config(qtbot):
     assert w2._model_chooser_tool._getCurveInfo() == modelscfg1
 
     # Uncomment for visual checks
-    # w2.show()
-    # def is_closed():
-    #     return not w.isVisible()
-    # qtbot.wait_until(is_closed, timeout=999999)
+    # show_and_wait(qtbot, w1, w2, timeout=3600000)
 
 
 def test_y2_config(qtbot):
@@ -286,8 +273,8 @@ def test_y2_config(qtbot):
 
     # test createConfig
     plot_cfg = w1.createConfig()
-    y2_cfg = _get_sub_config(plot_cfg, "Y2Axis")
-    curvescfg1 = _get_sub_config(y2_cfg, "Y2Curves")
+    y2_cfg = get_sub_config(plot_cfg, "Y2Axis")
+    curvescfg1 = get_sub_config(y2_cfg, "Y2Curves")
     assert curvescfg1 == [w1[1].getFullModelNames()]
 
     # # Debugging
@@ -316,15 +303,8 @@ def test_y2_config(qtbot):
     assert w2_vb2._getCurvesNames() == w1_vb2._getCurvesNames()
     assert w2_vb2._getCurvesNames() == [w1[1].getFullModelNames()]
 
-    # # Uncomment for visual checks
-    # w1.show()
-    # w2.show()
-    # def is_closed():
-    #     return not (w1.isVisible() or w2.isVisible())
-    # qtbot.wait_until(is_closed, timeout=999999)
-    # print()
-    # for vb in w1_vb1, w2_vb1, w1_vb2, w2_vb2:
-    #     print(vb)
+    # Uncomment for visual checks
+    # show_and_wait(qtbot, w1, w2, timeout=3600000)
 
 
 def test_curveproperties(qtbot):
@@ -400,11 +380,8 @@ def test_curveproperties(qtbot):
     for c in c1, c3, c5:
         assert prop[c.name()].y2 is True
 
-    # # Uncomment for visual checks
-    # w.show()
-    # def is_closed():
-    #     return not w.isVisible()
-    # qtbot.wait_until(is_closed, timeout=999999)
+    # Uncomment for visual checks
+    # show_and_wait(qtbot, w, timeout=3600000)
 
 
 def test_curveproperties_config(qtbot):
@@ -460,8 +437,8 @@ def test_curveproperties_config(qtbot):
 
     # test createConfig
     cfg = w1.createConfig()
-    propcfg = _get_sub_config(cfg, "CurvePropertiesTool")
-    _ = _get_sub_config(propcfg, "CurveProperties")
+    propcfg = get_sub_config(cfg, "CurvePropertiesTool")
+    _ = get_sub_config(propcfg, "CurveProperties")
 
     # # Debugging
     # from pprint import pprint
@@ -514,13 +491,8 @@ def test_curveproperties_config(qtbot):
         p_ini = w1_props[k]
         assert not p_ini.conflictsWith(p_aft, strict=True)
 
-    # # Uncomment for visual checks
-    # w1.show()
-    # w2.show()
-    # w3.show()
-    # def is_closed():
-    #     return not (w1.isVisible() or w2.isVisible() or w3.isVisible() )
-    # qtbot.wait_until(is_closed, timeout=999999)
+    # Uncomment for visual checks
+    # show_and_wait(qtbot, w1, w2, w3, timeout=3600000)
 
 
 def test_curveproperties_configfile(qtbot, tmp_path):
@@ -597,12 +569,8 @@ def test_curveproperties_configfile(qtbot, tmp_path):
         p_ini = w1_props[k]
         assert not p_ini.conflictsWith(p_aft, strict=True)
 
-    # # Uncomment for visual checks
-    # w1.show()
-    # w2.show()
-    # def is_closed():
-    #     return not (w1.isVisible() or w2.isVisible())
-    # qtbot.wait_until(is_closed, timeout=999999)
+    # Uncomment for visual checks
+    # show_and_wait(qtbot, w1, w2, timeout=3600000)
 
 
 # def test_save_config_action(qtbot, tmp_path):

@@ -1,4 +1,5 @@
 import taurus_pyqtgraph as tpg
+from .test_trend import show_and_wait  # noqa
 
 
 def test_y2legend(qtbot):
