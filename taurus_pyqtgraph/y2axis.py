@@ -127,7 +127,7 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         # self.plotItem.showAxis("right", show=bool(self.addedItems))
         self.plotItem.scene().addItem(self)
         self.plotItem.getAxis("right").linkToView(self)
-        self.plotItem.getViewBox().setXLink(self)
+        self.setXLink(self.plotItem.getViewBox())
 
     def _updateViews(self, viewBox):
         self.setGeometry(viewBox.sceneBoundingRect())
