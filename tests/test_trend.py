@@ -332,7 +332,8 @@ def test_curveproperties_configfile(qtbot, tmp_path):
 
     # Save a config file at this point
     f1 = tmp_path / "trend1.pck"
-    w1.saveConfigFile(ofile=str(f1))
+    with open(str(f1), "wb") as ofile:
+        w1.saveConfigFile(ofile=ofile)
     assert f1.exists()
     assert len(list(tmp_path.iterdir())) == 1
 
@@ -392,7 +393,8 @@ def test_curveproperties_configfile(qtbot, tmp_path):
 
     # Save a config file with everything in w1
     f2 = tmp_path / "trend2.pck"
-    w1.saveConfigFile(ofile=str(f2))
+    with open(str(f2), "wb") as ofile:
+        w1.saveConfigFile(ofile=ofile)
     assert f2.exists()
     assert len(list(tmp_path.iterdir())) == 2
 
@@ -405,7 +407,9 @@ def test_curveproperties_configfile(qtbot, tmp_path):
     w2vb2 = w2._y2
 
     # load the second config file (containing everything)
-    w2.loadConfigFile(ifile=str(f2))
+
+    with open(str(f2), "rb") as ifile:
+        w2.loadConfigFile(ifile=ifile)
 
     w1_props = w1._cprop_tool._getCurveAppearanceProperties()
     w2_props = w2._cprop_tool._getCurveAppearanceProperties()
@@ -420,7 +424,8 @@ def test_curveproperties_configfile(qtbot, tmp_path):
     # show_and_wait(qtbot, w1, w2)  # uncomment for visually checking
 
     # load the first config file (does not contain TS2 and TS3)
-    w2.loadConfigFile(ifile=str(f1))
+    with open(str(f1), "rb") as ifile:
+        w2.loadConfigFile(ifile=ifile)
 
     # check that there are not leftovers from previous config
     sets = w2.getTrendSets()
