@@ -129,6 +129,9 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
         self.plotItem.getAxis("right").linkToView(self)
         self.setXLink(self.plotItem.getViewBox())
 
+        # make autorange button work for Y2 too
+        self.plotItem.autoBtn.clicked.connect(self._onAutoBtnClicked)
+
     def _updateViews(self, viewBox):
         self.setGeometry(viewBox.sceneBoundingRect())
         self.linkedViewChanged(viewBox, self.XAxis)
@@ -259,3 +262,6 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
                 i.setLogMode(logx, logy)
         # set log mode for the right axis
         self.plotItem.getAxis("right").setLogMode(checked)
+
+    def _onAutoBtnClicked(self):
+        self.enableAutoRange()
