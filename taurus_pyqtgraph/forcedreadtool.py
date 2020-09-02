@@ -25,7 +25,7 @@
 __all__ = ["ForcedReadTool"]
 
 from taurus.external.qt import QtGui, QtCore
-from taurus.qt.qtcore.configuration.configuration import BaseConfigurableClass
+from taurus.qt.qtcore.configuration import BaseConfigurableClass
 
 
 class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):

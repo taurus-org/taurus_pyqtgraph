@@ -22,7 +22,7 @@
 # along with Taurus.  If not, see <http://www.gnu.org/licenses/>.
 ##
 #############################################################################
-__all__ = ["TaurusTrendSet"]
+__all__ = ["TaurusTrendSet", "TrendCurve"]
 
 """This provides the pyqtgraph implementation of :class:`TaurusTrendSet`"""
 
@@ -49,6 +49,11 @@ CURVE_COLORS = [
 ]
 
 
+class TrendCurve(PlotDataItem):
+    def __repr__(self):
+        return "<TrendCurve {}>".format(self.name())
+
+
 class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     """
     A PlotDataItem for displaying trend curve(s) associated to a
@@ -64,7 +69,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     When an event is received, all curves belonging to a TaurusTrendSet
     are updated.
 
-    TaurusTrendSet can be considered used as a container of (sorted) curves.
+    TaurusTrendSet can be considered as a container of (sorted) curves.
     As such, the curves contained by it can be accessed by index::
 
         ts = TaurusTrendSet('eval:rand(3)')
@@ -79,6 +84,8 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     """
 
     def __init__(self, *args, **kwargs):
+        _ = kwargs.pop("xModel", None)
+        yModel = kwargs.pop("yModel", None)
         PlotDataItem.__init__(self, *args, **kwargs)
         TaurusBaseComponent.__init__(self, "TaurusBaseComponent")
         self._UImodifiable = False
@@ -100,6 +107,11 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         )
         # TODO: store forceReadPeriod config
         # TODO: store _maxBufferSize config
+        if yModel is not None:
+            self.setModel(yModel)
+
+    def __repr__(self):
+        return "<TrendSet {} ({} items)>".format(self.base_name(), len(self))
 
     def name(self):
         """Reimplemented from PlotDataItem to avoid having the ts itself added
@@ -149,6 +161,10 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         """ Initializes new curves """
 
         # self._removeFromLegend(self._legend)
+
+        # remove previously existing curves from views
+        self._updateViewBox(None)
+
         self._curves = []
         self._curveColors.setCurrentIndex(-1)
 
@@ -163,11 +179,11 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         for i in range(ntrends):
             subname = "%s[%i]" % (base_name, i)
             kw["name"] = subname
-            curve = PlotDataItem(*a, **kw)
+            curve = TrendCurve(*a, **kw)
             if "pen" not in kw:
                 curve.setPen(self._curveColors.next().color())
             self._curves.append(curve)
-        self._updateViewBox()
+        self._updateViewBox(self.getViewBox())
 
     def _addToLegend(self, legend):
         # ------------------------------------------------------------------
@@ -190,19 +206,25 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         for c in self._curves:
             legend.removeItem(c.name())
 
-    def _updateViewBox(self):
+    def _updateViewBox(self, viewBox):
         """Add/remove the "extra" curves from the viewbox if needed"""
-        if self._curves:
-            viewBox = self.getViewBox()
-            self.forgetViewBox()
         for curve in self._curves:
-            curve.forgetViewBox()
             curve_viewBox = curve.getViewBox()
-
             if curve_viewBox is not None:
+                plotItem = None
+                viewWidget = curve_viewBox.getViewWidget()
+                if viewWidget is not None:
+                    plotItem = viewWidget.getPlotItem()
                 curve_viewBox.removeItem(curve)
+                if plotItem is not None:
+                    plotItem.removeItem(curve)
             if viewBox is not None:
-                viewBox.addItem(curve)
+                plotItem = None
+                viewWidget = viewBox.getViewWidget()
+                if viewWidget is not None:
+                    plotItem = viewWidget.getPlotItem()
+                if plotItem is not None:
+                    plotItem.addItem(curve)
 
     def _updateBuffers(self, evt_value):
         """Update the x and y buffers with the new data. If the new data is
@@ -285,7 +307,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         """
         PlotDataItem.parentChanged(self)
 
-        self._updateViewBox()
+        self._updateViewBox(self.getViewBox())
 
         # update legend if needed
         try:
@@ -389,6 +411,9 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                 c.opts["connect"] = "pairs"
             elif opts["connect"] == "finite":
                 c.opts["connect"] = "finite"
+
+    def getFullModelNames(self):
+        return (None, self.getFullModelName())
 
 
 if __name__ == "__main__":

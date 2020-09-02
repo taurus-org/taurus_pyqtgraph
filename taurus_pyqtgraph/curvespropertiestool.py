@@ -26,14 +26,16 @@ __all__ = ["CurvesPropertiesTool"]
 
 from taurus.external.qt import QtGui, Qt
 from taurus.external.qt import QtCore
+from taurus.qt.qtcore.configuration import BaseConfigurableClass
 from taurus_pyqtgraph.curveproperties import (
-    CurvePropAdapter,
+    get_properties_from_curves,
+    set_properties_on_curves,
     CurvesAppearanceChooser,
 )
 import pyqtgraph
 
 
-class CurvesPropertiesTool(QtGui.QAction):
+class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
     """
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
     to which it is attached to show a dialog for editing curve properties.
@@ -42,10 +44,33 @@ class CurvesPropertiesTool(QtGui.QAction):
     """
 
     def __init__(self, parent=None):
+        BaseConfigurableClass.__init__(self)
         QtGui.QAction.__init__(self, "Plot configuration", parent)
         self.triggered.connect(self._onTriggered)
         self.plot_item = None
         self.Y2Axis = None
+        self.registerConfigProperty(
+            self._getCurveAppearanceProperties,
+            self._setCurveAppearanceProperties,
+            "CurveProperties",
+        )
+        self.registerConfigProperty(
+            self._getBackgroundColor,
+            self._setBackgroundColor,
+            "PlotBackground",
+        )
+
+    def _getBackgroundColor(self):
+        try:
+            return self.plot_item.scene().parent().backgroundBrush().color()
+        except Exception:
+            import taurus
+
+            taurus.debug("Cannot get plot background. Revert to 'default'")
+            return "default"
+
+    def _setBackgroundColor(self, color):
+        self.plot_item.scene().parent().setBackground(color)
 
     def attachToPlotItem(self, plot_item, y2=None):
         """
@@ -61,9 +86,29 @@ class CurvesPropertiesTool(QtGui.QAction):
         self.Y2Axis = y2
 
     def _onTriggered(self):
+        props = self._getCurveAppearanceProperties()
+        curves = self.getModifiableItems()
+
+        dlg = Qt.QDialog(parent=self.parent())
+        dlg.setWindowTitle("Plot Configuration")
+        layout = Qt.QVBoxLayout()
+
+        w = CurvesAppearanceChooser(
+            parent=dlg,
+            curvePropDict=props,
+            curvesDict=curves,
+            showButtons=True,
+            plotItem=self.plot_item,
+            Y2Axis=self.Y2Axis,
+        )
+        layout.addWidget(w)
+        dlg.setLayout(layout)
+        dlg.exec_()
+
+    def getModifiableItems(self):
         data_items = self.plot_item.listDataItems()
         # checks in all ViewBoxes from plot_item,
-        # looking for a data_items (Curves).
+        # looking for data_items (Curves).
 
         for item in self.plot_item.scene().items():
             if isinstance(item, pyqtgraph.ViewBox):
@@ -72,32 +117,20 @@ class CurvesPropertiesTool(QtGui.QAction):
                         data_items.append(data)
 
         # The dialog will ignore curves that define `._UImodifiable=False`
-        modifiable_items = []
+        modifiable_items = {}
         for item in data_items:
             if getattr(item, "_UImodifiable", True):
-                modifiable_items.append(item)
+                modifiable_items[item.name()] = item
+        return modifiable_items
 
-        # It is necessary a CurvePropAdapter object for 'translate'
-        # the PlotDataItem properties into generic form given for the dialog
-        curvePropAdapter = CurvePropAdapter(
-            modifiable_items, self.plot_item, self.Y2Axis
+    def _getCurveAppearanceProperties(self):
+        return get_properties_from_curves(self.getModifiableItems())
+
+    def _setCurveAppearanceProperties(self, props):
+        curves = self.getModifiableItems()
+        set_properties_on_curves(
+            props, curves, plotItem=self.plot_item, y2Axis=self.Y2Axis
         )
-        curves = curvePropAdapter.getCurveProperties()
-
-        dlg = Qt.QDialog(parent=self.parent())
-        dlg.setWindowTitle("Plot Configuration")
-        layout = Qt.QVBoxLayout()
-
-        w = CurvesAppearanceChooser(
-            parent=dlg,
-            curvePropDict=curves,
-            showButtons=True,
-            Y2Axis=self.Y2Axis,
-            curvePropAdapter=curvePropAdapter,
-        )
-        layout.addWidget(w)
-        dlg.setLayout(layout)
-        dlg.exec_()
 
 
 if __name__ == "__main__":

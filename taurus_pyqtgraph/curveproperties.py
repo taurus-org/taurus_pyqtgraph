@@ -40,18 +40,21 @@ from builtins import object
 
 __all__ = [
     "CurveAppearanceProperties",
-    "CurvePropAdapter",
     "CurvesAppearanceChooser",
     "serialize_opts",
     "deserialize_opts",
+    "get_properties_from_curves",
+    "set_properties_on_curves",
+    "set_y_axis_for_curve",
 ]
 
 import copy
 
+from taurus import warning
 from taurus.external.qt import Qt
 from taurus.core.util.containers import CaselessDict
 from taurus.qt.qtgui.util.ui import UILoadable
-from taurus_pyqtgraph.y2axis import Y2ViewBox
+from taurus_pyqtgraph.y2axis import Y2ViewBox, set_y_axis_for_curve
 import pyqtgraph
 
 
@@ -129,9 +132,9 @@ NamedColors = [
 @UILoadable
 class CurvesAppearanceChooser(Qt.QWidget):
     """
-    A plot_item for choosing plot appearance for one or more curves.
-    The current curves properties are passed using the setCurves() method using
-    a dictionary with the following structure::
+    A widget for choosing plot appearance for one or more curves.
+    The current curves properties are passed using the setCurvesProps()
+    method using a dictionary with the following structure::
 
         curvePropDict={name1:prop1, name2:prop2,...}
 
@@ -148,21 +151,26 @@ class CurvesAppearanceChooser(Qt.QWidget):
     def __init__(
         self,
         parent=None,
-        curvePropDict={},
+        curvePropDict=None,
         showButtons=False,
         autoApply=False,
+        curvesDict=None,
+        plotItem=None,
         Y2Axis=None,
-        curvePropAdapter=None,
     ):
-        # try:
         super(CurvesAppearanceChooser, self).__init__(parent)
         self.loadUi()
         self.autoApply = autoApply
+        self._curvesDict = curvesDict
+        self.plotItem = plotItem
+        self.Y2Axis = Y2Axis
+
         self.sStyleCB.insertItems(0, sorted(NamedSymbolStyles.values()))
         self.lStyleCB.insertItems(0, list(NamedLineStyles.values()))
         self.cStyleCB.insertItems(0, list(NamedCurveStyles.values()))
         self.sColorCB.addItem("")
         self.lColorCB.addItem("")
+        self.cAreaDSB.setRange(float("-inf"), float("inf"))
         if not showButtons:
             self.applyBT.hide()
             self.resetBT.hide()
@@ -171,10 +179,10 @@ class CurvesAppearanceChooser(Qt.QWidget):
             self.sColorCB.addItem(icon, "", Qt.QColor(color))
             self.lColorCB.addItem(icon, "", Qt.QColor(color))
         self.__itemsDict = CaselessDict()
-        self.setCurves(curvePropDict)
-        # set the icon for the background button (stupid designer limitations
-        # forces to do it programatically)
-        self.bckgndBT.setIcon(Qt.QIcon(":color-fill.svg"))
+        self.setCurvesProps(curvePropDict)
+
+        if self.plotItem is None:
+            self.bckgndBT.setVisible(False)
 
         # connections.
         self.curvesLW.itemSelectionChanged.connect(
@@ -199,21 +207,16 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.assignToY1BT.toggled[bool].connect(self.__onY1Toggled)
         self.assignToY2BT.toggled[bool].connect(self.__onY2Toggled)
 
-        # self.bckgndBT.clicked.connect(self.changeBackgroundColor)
+        self.bckgndBT.clicked.connect(self.changeBackgroundColor)
 
-        # Disabled buttons until future implementations
-        # (set background color and set curve labels)
+        # Disabled button until future implementations
         self.changeTitlesBT.setEnabled(False)
-        self.bckgndBT.setEnabled(False)
 
         # disable the group box with the options for swap curves between Y axes
-        if Y2Axis is None:
+        if Y2Axis is None or plotItem is None:
             self.groupBox.setEnabled(False)
 
-        # set properties from curves for first launch of config dialog and
-        # keeps a curvePropAdapter object
         self._onSelectedCurveChanged()
-        self.curvePropAdapter = curvePropAdapter
         self.axis = None
 
     def __onY1Toggled(self, checked):
@@ -225,15 +228,16 @@ class CurvesAppearanceChooser(Qt.QWidget):
             self.assignToY1BT.setChecked(False)
 
     def changeBackgroundColor(self):
-        """Launches a dialog for choosing the parent's canvas background color
+        """Launches a dialog for choosing the plot widget background color
         """
         color = Qt.QColorDialog.getColor(
-            self.curvePropAdapter.getBackgroundColor(), self
+            initial=self.plotItem.scene().parent().backgroundBrush().color(),
+            parent=self,
         )
         if Qt.QColor.isValid(color):
-            self.curvePropAdapter.setBackgroundColor(color)
+            self.plotItem.scene().parent().setBackground(color)
 
-    def setCurves(self, curvePropDict):
+    def setCurvesProps(self, curvePropDict):
         """Populates the list of curves from the properties dictionary. It uses
         the curve title for display, and stores the curve name as the item data
         (with role=CurvesAppearanceChooser.NAME_ROLE)
@@ -500,10 +504,12 @@ class CurvesAppearanceChooser(Qt.QWidget):
         return copy.deepcopy(prop)
 
     def onApply(self):
-        """Apply does 2 things:
+        """Apply does 3 things:
 
             - It updates `self.curvePropDict` using the current values
               chosen in the dialog
+            - It applies the properties to the curves (if the Chooser was
+              initialized with the appropriate curvesDict)
             - It emits a curveAppearanceChanged signal that indicates the names
               of the curves that changed and the new properties.  (TODO)
 
@@ -524,13 +530,19 @@ class CurvesAppearanceChooser(Qt.QWidget):
         # self.curveAppearanceChanged.emit(prop, names)
         # return both values
 
-        self.curvePropAdapter.setCurveProperties(self.curvePropDict, names)
+        if self._curvesDict is not None:
+            set_properties_on_curves(
+                self.curvePropDict,
+                self._curvesDict,
+                plotItem=self.plotItem,
+                y2Axis=self.Y2Axis,
+            )
         return prop, names
 
     def onReset(self):
         """slot to be called when the reset action is triggered. It reverts to
         the original situation"""
-        self.setCurves(self._curvePropDictOrig)
+        self.setCurvesProps(self._curvePropDictOrig)
         self.curvesLW.clearSelection()
 
     def _colorIcon(self, color, w=10, h=10):
@@ -540,169 +552,142 @@ class CurvesAppearanceChooser(Qt.QWidget):
         return Qt.QIcon(pixmap)
 
 
-class CurvePropAdapter(object):
+def get_properties_from_curves(curves):
+    """Returns a dictionary of properties corresponding to the curves given
+    in the `curves` dict.
+    :param curves: dict whose values are :class:`PlotDataItem` instances
+                   and whose keys arbitrarily identify a given curve
+    :return: properties dict containing :class:`CurveAppearanceProperties`
+             instances and whose keys match those in the `curves` dict
     """
-    This class allows to extract the curve properties
-    (:class:`CurveAppearanceProperties`)  from curves
-    (:class:`pyqtgraph.PlotDataItem`) in a given plot
-    (:class:`pyqtgraph.PlotItem`).
+    curves_prop = {}
+    for key, item in curves.items():
+        y2 = isinstance(item.getViewBox(), Y2ViewBox)
+
+        opts = item.opts
+        pen = pyqtgraph.mkPen(opts["pen"])
+        # symbol_pen = pyqtgraph.mkPen(opts["symbolPen"])
+        symbol_brush = pyqtgraph.mkBrush(opts["symbolBrush"])
+        title = opts.get("name")
+        sStyle = opts["symbol"]
+        sSize = opts["symbolSize"]
+
+        if sStyle is None:
+            sColor = None
+            sSize = -1
+        else:
+            sColor = symbol_brush.color()
+
+        sFill = symbol_brush.color()
+        if sFill is None or sStyle is None:
+            sFill = False
+        else:
+            sFill = True
+
+        lStyle = pen.style()
+        lWidth = pen.width()
+        lColor = pen.color()
+        cStyle = None
+
+        cFill = opts["fillLevel"]
+
+        curve_appearance_properties = CurveAppearanceProperties(
+            sStyle=sStyle,
+            sSize=sSize,
+            sColor=sColor,
+            sFill=sFill,
+            lStyle=lStyle,
+            lWidth=lWidth,
+            lColor=lColor,
+            cStyle=cStyle,
+            cFill=cFill,
+            y2=y2,
+            title=title,
+        )
+        curves_prop[key] = curve_appearance_properties
+    return curves_prop
+
+
+def set_properties_on_curves(properties, curves, plotItem=None, y2Axis=None):
     """
+    Sets properties provided in the `properties` dict to curves provided in
+    the `curves` dict. The association of a given curve with a property is
+    done by matching the keys in the respective dictionaries.
+    If both `plotItem` and `y2Axis` are passed, the curve will be moved to the
+    ViewBox defined in the .y2 property
+    :param properties: dict whose values are :class:`CurveAppearanceProperties`
+                       instances and whose keys arbitrarily identify a
+                       given curve
+    :param curves: dict whose values are :class:`PlotDataItem` instances
+                   and whose keys match those of properties (if a key in
+                   `curves` does not exist in `properties`, it will bed)
+    :param plotItem: The :class:`PlotItem` containing the dataItem.
+    :param y2Axis: The :class:`Y2ViewBox` instance
+ e skipp   """
 
-    def __init__(self, dataItems=None, plotItem=None, y2axis=None):
-        self.dataItems = dataItems
-        self.plotItem = plotItem
-        self._curve_items = dict()
-        self.y2axis = y2axis
+    for key, dataItem in curves.items():
+        try:
+            prop = properties[key]
+        except KeyError:
+            warning("Cannot restore curve '%s' (no known properties)", key)
+            continue
+        sStyle = prop.sStyle
+        sSize = prop.sSize
+        sColor = prop.sColor
+        sFill = prop.sFill
+        lStyle = prop.lStyle
+        lWidth = prop.lWidth
+        lColor = prop.lColor
+        cFill = prop.cFill
+        y2 = prop.y2
+        # title = properties.title
 
-    def getCurveProperties(self):
-        """
-        Returns CurveAppearanceProperties objects for all curves in the
-        associated PlotItem
+        dataItem.setPen(dict(style=lStyle, width=lWidth, color=lColor))
+        if cFill is not None:
+            dataItem.setFillLevel(cFill)
+            try:
+                cFillColor = Qt.QColor(lColor)
+                cFillColor.setAlphaF(0.5)  # set to semitransparent
+            except Exception:
+                cFillColor = lColor
+            dataItem.setFillBrush(cFillColor)
+        else:
+            dataItem.setFillLevel(None)
 
-        :return: A dictionary(key, value), whose keys are curve names and
-        values are the corresponding CurveApearanceProperties object
-        """
-        curves_prop = {}
-        for item in self.dataItems:
-            y2 = isinstance(item.getViewBox(), Y2ViewBox)
+        dataItem.setSymbol(sStyle)
+        # dataItem.setSymbolPen(pyqtgraph.mkPen(color=sColor))
+        if sStyle is None or sSize < 0:
+            dataItem.setSymbolSize(0)
+        else:
+            dataItem.setSymbolSize(sSize)
 
-            opts = item.opts
-            pen = pyqtgraph.mkPen(opts["pen"])
-            symbol_pen = pyqtgraph.mkPen(opts["symbolPen"])
-            symbol_brush = pyqtgraph.mkBrush(opts["symbolBrush"])
-            title = opts.get("name")
-            sStyle = opts["symbol"]
-            sSize = opts["symbolSize"]
+        if sFill:
+            dataItem.setSymbolBrush(pyqtgraph.mkColor(sColor))
+        else:
+            dataItem.setSymbolBrush(None)
 
-            if sStyle is None:
-                sColor = None
-                sSize = -1
-            else:
-                sColor = symbol_pen.color()
-
-            sFill = symbol_brush.color()
-            if sFill is None or sStyle is None:
-                sFill = False
-            else:
-                sFill = True
-
-            lStyle = pen.style()
-            lWidth = pen.width()
-            lColor = pen.color()
-            cStyle = None
-
-            cFill = opts["fillLevel"]
-
-            curve_appearance_properties = CurveAppearanceProperties(
-                sStyle=sStyle,
-                sSize=sSize,
-                sColor=sColor,
-                sFill=sFill,
-                lStyle=lStyle,
-                lWidth=lWidth,
-                lColor=lColor,
-                cStyle=cStyle,
-                cFill=cFill,
-                y2=y2,
-                title=title,
-            )
-            curves_prop[title] = curve_appearance_properties
-            self._curve_items[title] = item
-        return curves_prop
-
-    def setCurveProperties(self, properties, names):
-        """
-        Assign the properties from a CurveAppearanceProperties object to
-        a PlotDataItem
-
-        :param properties: (dict) dictionary containing
-                           :class:`CurveAppearanceProperties`
-                           (keys are curve names)
-        :param names: (seq) names of the curves for which to set the
-                            curve properties (they must be present in
-                            the `properties` dict)
-        """
-        for name in names:
-            prop = properties[name]
-            sStyle = prop.sStyle
-            sSize = prop.sSize
-            sColor = prop.sColor
-            sFill = prop.sFill
-            lStyle = prop.lStyle
-            lWidth = prop.lWidth
-            lColor = prop.lColor
-            cFill = prop.cFill
-            y2 = prop.y2
-            # title = properties.title
-
-            dataItem = self._curve_items[name]
-
-            dataItem.setPen(dict(style=lStyle, width=lWidth, color=lColor))
-            if cFill is not None:
-                dataItem.setFillLevel(cFill)
-                try:
-                    cFillColor = Qt.QColor(lColor)
-                    cFillColor.setAlphaF(0.5)  # set to semitransparent
-                except Exception:
-                    cFillColor = lColor
-                dataItem.setFillBrush(cFillColor)
-            else:
-                dataItem.setFillLevel(None)
-
-            dataItem.setSymbol(sStyle)
-            dataItem.setSymbolPen(pyqtgraph.mkPen(color=sColor))
-            if sStyle is None or sSize < 0:
-                dataItem.setSymbolSize(0)
-            else:
-                dataItem.setSymbolSize(sSize)
-
-            if sFill is True:
-                dataItem.setSymbolBrush(sColor)
-            else:
-                dataItem.setSymbolBrush(None)
-
-            # Set the Y1 / Y2 axis if required
-            old_view = dataItem.getViewBox()  # current view for the curve
-            if y2 is None:  # axis is not to be changed
-                new_view = old_view
-            elif y2:  # Y axis must be Y2
-                new_view = self.y2axis  # y2 axis view
-            else:  # Y axis must be Y1
-                new_view = self.plotItem.getViewBox()  # main view
-
-            if new_view is not old_view:
-                if old_view is not None:
-                    old_view.removeItem(dataItem)
-                if not y2:
-                    # adapt the log mode to the main view logMode
-                    # (this is already done automatically when adding to y2)
-                    dataItem.setLogMode(
-                        self.plotItem.getAxis("bottom").logMode,
-                        self.plotItem.getAxis("left").logMode,
-                    )
-                new_view.addItem(dataItem)
-                old_view.autoRange()
-                new_view.autoRange()
-
-    # change background color of the whole window, not just the plot area
-    # def setBackgroundColor(self, color):
-    #     self.plot_item.setBackground(color)
-
-    def setBackgroundColor(self, color):
-        # background=None for default in plotting (black color)
-        if color.value() == 0:
-            color = None
-        self.plotItem.getViewBox().setBackgroundColor(color)
-
-    def getBackgroundColor(self):
-        backgroundColor = self.plotItem.getViewBox().state["background"]
-        if backgroundColor is None:
-            return Qt.QColor("black")
-        return backgroundColor
+        # act on the ViewBoxes only if plotItem and y2Axis are given
+        if plotItem and y2Axis:
+            set_y_axis_for_curve(y2, dataItem, plotItem, y2Axis)
 
 
 class CurveAppearanceProperties(object):
     """An object describing the appearance of a TaurusCurve"""
+
+    propertyList = [
+        "sStyle",
+        "sSize",
+        "sColor",
+        "sFill",
+        "lStyle",
+        "lWidth",
+        "lColor",
+        "cStyle",
+        "cFill",
+        "y2",
+        "title",
+        "visible",
+    ]
 
     def __init__(
         self,
@@ -756,20 +741,13 @@ class CurveAppearanceProperties(object):
         self.y2 = y2
         self.title = title
         self.visible = visible
-        self.propertyList = [
-            "sStyle",
-            "sSize",
-            "sColor",
-            "sFill",
-            "lStyle",
-            "lWidth",
-            "lColor",
-            "cStyle",
-            "cFill",
-            "y2",
-            "title",
-            "visible",
-        ]
+
+    def __repr__(self):
+        ret = "<CurveAppearanceProperties:"
+        for p in self.propertyList:
+            ret += " {}={}".format(p, getattr(self, p))
+        ret += ">"
+        return ret
 
     @staticmethod
     def inConflict_update_a(a, b):
@@ -804,8 +782,8 @@ class CurveAppearanceProperties(object):
                 result.append(aname)
         return result
 
-    @staticmethod
-    def merge(plist, attributes=None, conflict=None):
+    @classmethod
+    def merge(cls, plist, attributes=None, conflict=None):
         """
         returns a CurveAppearanceProperties object formed by merging a list
         of other CurveAppearanceProperties objects
@@ -829,19 +807,7 @@ class CurveAppearanceProperties(object):
         if n == 1:
             return plist[0]
         if attributes is None:
-            attributes = [
-                "sStyle",
-                "sSize",
-                "sColor",
-                "sFill",
-                "lStyle",
-                "lWidth",
-                "lColor",
-                "cStyle",
-                "cFill",
-                "y2",
-                "title",
-            ]
+            attributes = cls.propertyList
         if conflict is None:
             conflict = CurveAppearanceProperties.inConflict_CONFLICT
         p = CurveAppearanceProperties()
