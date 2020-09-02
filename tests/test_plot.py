@@ -1,3 +1,5 @@
+import sys
+import pytest
 import numpy
 import taurus_pyqtgraph as tpg
 import pyqtgraph as pg
@@ -384,6 +386,10 @@ def test_curveproperties(qtbot):
     # show_and_wait(qtbot, w, timeout=3600000)
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] == (3, 6),
+    reason="flaky behaviour observed in CI for py 3.6 in this test",
+)
 def test_curveproperties_config(qtbot):
     w1 = tpg.TaurusPlot()
     qtbot.addWidget(w1)
