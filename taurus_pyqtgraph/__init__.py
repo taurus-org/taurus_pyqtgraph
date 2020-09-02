@@ -53,4 +53,4 @@ from .curveproperties import (
 from .datainspectortool import DataInspectorLine, DataInspectorTool
 
 # Do not modify the __version__ manually. To be modified by bumpversion
-__version__ = "0.4.0-alpha"
+__version__ = "0.4.0"
