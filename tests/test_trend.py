@@ -462,3 +462,19 @@ def test_multiple_setModel(qtbot):
         ), "Found duplicates after {} calls to setModel".format(i + 1)
     # workaround for teardown issue
     w.setModel(None)
+
+
+# def test_autopan(qtbot):
+#     import taurus
+#
+#     taurus.changeDefaultPollingPeriod(222)
+#     w = tpg.TaurusTrend()
+#     qtbot.addWidget(w)
+#
+#     w.setModel(["eval:rand()"])
+#     tpg.set_y_axis_for_curve(True, w[0], w.getPlotItem(), w._y2)
+#     w._autopan.toggle()
+#
+#     show_and_wait(qtbot, w)
+#
+#     w.setModel(None)

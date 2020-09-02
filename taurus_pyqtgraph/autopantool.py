@@ -44,6 +44,7 @@ class XAutoPanTool(QtGui.QAction):
         self._timer.timeout.connect(self.updateRange)
         self._originalXAutoRange = None
         self._viewBox = None
+        self._plotItem = None
         self._XactionMenu = None
         self._scrollStep = 0.2
 
@@ -52,6 +53,7 @@ class XAutoPanTool(QtGui.QAction):
 
         :param plot_item: (PlotItem)
         """
+        self._plotItem = plot_item
         self._viewBox = plot_item.getViewBox()
         self._addToMenu(self._viewBox.menu)
         self._originalXAutoRange = self._viewBox.autoRangeEnabled()[0]
@@ -90,11 +92,23 @@ class XAutoPanTool(QtGui.QAction):
         """Pans the x axis (change the viewbox range maintaining width but
         ensuring that the right-most point is shown
         """
-        if len(self._viewBox.addedItems) < 1:
+        dataItems = self._plotItem.listDataItems()
+        vbs = set()
+        for item in dataItems:
+            vbs.add(item.getViewBox())
+
+        if len(dataItems) < 1:
             self._timer.stop()
 
-        children_bounds = self._viewBox.childrenBounds()
-        _, boundMax = children_bounds[0]
+        # find the largest X axis bound among all viewboxes
+        boundMax = float("-inf")
+        for vb in vbs:
+            cb = vb.childrenBounds()
+            if cb is not None and cb[0] is not None and cb[0][1] > boundMax:
+                boundMax = cb[0][1]
+
+        if boundMax == float("-inf"):
+            return
 
         axis_X_range, _ = self._viewBox.state["viewRange"]
 
