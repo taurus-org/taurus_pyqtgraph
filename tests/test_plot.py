@@ -563,15 +563,16 @@ def test_curveproperties_configfile(qtbot, tmp_path):
 
     # test saveConfigFile
     f = tmp_path / "plot.pck"
-    w1.saveConfigFile(ofile=str(f))
+    with open(str(f), "wb") as ofile:
+        w1.saveConfigFile(ofile=ofile)
     assert f.exists()
     assert len(list(tmp_path.iterdir())) == 1
 
     # test loadConfigFile
     w2 = tpg.TaurusPlot()
     qtbot.addWidget(w2)
-
-    w2.loadConfigFile(ifile=str(f))
+    with open(str(f), "rb") as ifile:
+        w2.loadConfigFile(ifile=ifile)
 
     w1_props = w1._cprop_tool._getCurveAppearanceProperties()
     w2_props = w2._cprop_tool._getCurveAppearanceProperties()
