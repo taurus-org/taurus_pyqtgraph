@@ -464,7 +464,11 @@ def test_curveproperties_config(qtbot):
     for k, p_aft in w2_props.items():
         assert k in w1_props
         p_ini = w1_props[k]
-        assert not p_ini.conflictsWith(p_aft, strict=True)
+        conflicts = p_ini.conflictsWith(p_aft, strict=True)
+        msg = "Mismatch in saved/restored curve properties for '{}':".format(k)
+        msg += "\n\t Saved:    {}".format(p_ini)
+        msg += "\n\t Restored: {}".format(p_aft)
+        assert conflicts == [], msg
 
     # test applyConfig
     w3 = tpg.TaurusPlot()
@@ -489,7 +493,11 @@ def test_curveproperties_config(qtbot):
     for k, p_aft in w3_props.items():
         assert k in w1_props
         p_ini = w1_props[k]
-        assert not p_ini.conflictsWith(p_aft, strict=True)
+        conflicts = p_ini.conflictsWith(p_aft, strict=True)
+        msg = "Mismatch in saved/restored curve properties for '{}':".format(k)
+        msg += "\n\t Saved:    {}".format(p_ini)
+        msg += "\n\t Restored: {}".format(p_aft)
+        assert conflicts == [], msg
 
     # Uncomment for visual checks
     # show_and_wait(qtbot, w1, w2, w3, timeout=3600000)
@@ -567,7 +575,11 @@ def test_curveproperties_configfile(qtbot, tmp_path):
     for k, p_aft in w2_props.items():
         assert k in w1_props
         p_ini = w1_props[k]
-        assert not p_ini.conflictsWith(p_aft, strict=True)
+        conflicts = p_ini.conflictsWith(p_aft, strict=True)
+        msg = "Mismatch in saved/restored curve properties for '{}':".format(k)
+        msg += "\n\t Saved:    {}".format(p_ini)
+        msg += "\n\t Restored: {}".format(p_aft)
+        assert conflicts == [], msg
 
     # Uncomment for visual checks
     # show_and_wait(qtbot, w1, w2, timeout=3600000)
