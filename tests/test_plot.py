@@ -619,3 +619,30 @@ def test_curveproperties_configfile(qtbot, tmp_path):
 #     assert load_action is not None
 #     load_action.trigger()
 #     # TODO: handle the modal dialog
+
+
+def test_duplicate_curve_titles(qtbot):
+    """
+    Check that curves with same title are changed to have unique titles
+    """
+    w = tpg.TaurusPlot()
+    qtbot.addWidget(w)
+    w.setModel(
+        [
+            "eval:@foo/a=0+rand(3);a",
+            "eval:@bar/a=1+rand(3);a",
+            (None, "eval:2+rand(3)", "a"),
+            "eval:3+rand(3)",
+        ]
+    )
+
+    assert len(w[:]) == 4
+    mod_items = w._cprop_tool.getModifiableItems()
+    assert len(mod_items) == 4, "{}".format(mod_items)
+    assert list(sorted(mod_items.keys())) == [
+        "3+rand(3)",
+        "a",
+        "a (2)",
+        "a (3)",
+    ]
+    # show_and_wait(qtbot, w)

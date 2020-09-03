@@ -483,3 +483,34 @@ def test_multiple_setModel(qtbot):
 #     show_and_wait(qtbot, w)
 #
 #     w.setModel(None)
+
+
+def test_duplicate_curve_titles(qtbot):
+    """
+    Check that curves with same title are changed to have unique titles
+    """
+    w = tpg.TaurusTrend()
+    qtbot.addWidget(w)
+    w.setModel(
+        [
+            "eval:@foo/a=0+rand(2);a",
+            "eval:@bar/a=1+rand(2);a",
+            (None, "eval:2+rand()", "a"),
+            "eval:3+rand(2)",
+        ]
+    )
+
+    assert len(w[:]) == 7
+    mod_items = w._cprop_tool.getModifiableItems()
+    assert len(mod_items) == 7, "{}".format(mod_items)
+    assert list(sorted(mod_items.keys())) == [
+        "3+rand(2)[0]",
+        "3+rand(2)[1]",
+        "a[0]",
+        "a[0] (2)",
+        "a[0] (3)",
+        "a[1]",
+        "a[1] (2)",
+    ]
+    # show_and_wait(qtbot, w)
+    w.setModel(None)
