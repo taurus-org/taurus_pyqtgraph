@@ -46,6 +46,7 @@ __all__ = [
     "get_properties_from_curves",
     "set_properties_on_curves",
     "set_y_axis_for_curve",
+    "CURVE_COLORS",
 ]
 
 import copy
@@ -54,7 +55,7 @@ from taurus import warning
 from taurus.external.qt import Qt
 from taurus.core.util.containers import CaselessDict
 from taurus.qt.qtgui.util.ui import UILoadable
-from taurus_pyqtgraph.y2axis import Y2ViewBox, set_y_axis_for_curve
+from .y2axis import Y2ViewBox, set_y_axis_for_curve
 import pyqtgraph
 
 
@@ -117,16 +118,45 @@ for k, v in NamedSymbolStyles.items():
     ReverseNamedSymbolStyles[v] = k
 
 NamedColors = [
-    "Black",
     "Red",
     "Blue",
-    "Magenta",
     "Green",
+    "Magenta",
     "Cyan",
     "Yellow",
+    "Orange",
+    "greenyellow",
     "Gray",
     "White",
+    "Black",
 ]
+
+kelly_colors_hex = [  # https://stackoverflow.com/a/4382138
+    0xFFB300,  # Vivid Yellow
+    0x803E75,  # Strong Purple
+    0xFF6800,  # Vivid Orange
+    0xA6BDD7,  # Very Light Blue
+    0xC10020,  # Vivid Red
+    0xCEA262,  # Grayish Yellow
+    0x817066,  # Medium Gray
+    # The following don't work well for people with defective color vision
+    0x007D34,  # Vivid Green
+    0xF6768E,  # Strong Purplish Pink
+    0x00538A,  # Strong Blue
+    # 0xFF7A5C, # Strong Yellowish Pink
+    # 0x53377A, # Strong Violet
+    # 0xFF8E00, # Vivid Orange Yellow
+    0xB32851,  # Strong Purplish Red
+    # 0xF4C800, # Vivid Greenish Yellow
+    # 0x7F180D, # Strong Reddish Brown
+    0x93AA00,  # Vivid Yellowish Green
+    0x593315,  # Deep Yellowish Brown
+    # 0xF13A13, # Vivid Reddish Orange
+    # 0x232C16, # Dark Olive Green
+]
+
+CURVE_COLORS = [Qt.QColor(n) for n in NamedColors[:-2]]
+# CURVE_COLORS = [Qt.QColor(n) for n in kelly_colors_hex]
 
 
 @UILoadable
@@ -174,7 +204,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
         if not showButtons:
             self.applyBT.hide()
             self.resetBT.hide()
-        for color in NamedColors:
+        for color in CURVE_COLORS:
             icon = self._colorIcon(color)
             self.sColorCB.addItem(icon, "", Qt.QColor(color))
             self.lColorCB.addItem(icon, "", Qt.QColor(color))

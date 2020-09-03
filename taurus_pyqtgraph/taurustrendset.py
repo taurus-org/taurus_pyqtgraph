@@ -34,19 +34,10 @@ from taurus.core.util.containers import ArrayBuffer, LoopList
 from taurus.external.qt import Qt
 from pyqtgraph import PlotDataItem
 
-from taurus_pyqtgraph.forcedreadtool import ForcedReadTool
+from .forcedreadtool import ForcedReadTool
+from .curveproperties import CURVE_COLORS
 
 import taurus
-
-CURVE_COLORS = [
-    Qt.QPen(Qt.Qt.red),
-    Qt.QPen(Qt.Qt.blue),
-    Qt.QPen(Qt.Qt.green),
-    Qt.QPen(Qt.Qt.magenta),
-    Qt.QPen(Qt.Qt.cyan),
-    Qt.QPen(Qt.Qt.yellow),
-    Qt.QPen(Qt.Qt.white),
-]
 
 
 class TrendCurve(PlotDataItem):
@@ -83,16 +74,18 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     object to update its values)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, colors=None, **kwargs):
         _ = kwargs.pop("xModel", None)
         yModel = kwargs.pop("yModel", None)
+        if colors is None:
+            colors = LoopList(CURVE_COLORS)
         PlotDataItem.__init__(self, *args, **kwargs)
         TaurusBaseComponent.__init__(self, "TaurusBaseComponent")
         self._UImodifiable = False
         self._maxBufferSize = 65536  # (=2**16, i.e., 64K events))
         self._xBuffer = None
         self._yBuffer = None
-        self._curveColors = LoopList(CURVE_COLORS)
+        self._curveColors = colors
         self._args = args
         self._kwargs = kwargs
         self._curves = []
@@ -166,7 +159,10 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         self._updateViewBox(None)
 
         self._curves = []
-        self._curveColors.setCurrentIndex(-1)
+
+        if self._curveColors is None:
+            self._curveColors = LoopList(CURVE_COLORS)
+            self._curveColors.setCurrentIndex(-1)
 
         a = self._args
         kw = self._kwargs.copy()
@@ -181,7 +177,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
             kw["name"] = subname
             curve = TrendCurve(*a, **kw)
             if "pen" not in kw:
-                curve.setPen(self._curveColors.next().color())
+                curve.setPen(next(self._curveColors))
             self._curves.append(curve)
         self._updateViewBox(self.getViewBox())
 

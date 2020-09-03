@@ -45,17 +45,7 @@ from .taurusmodelchoosertool import TaurusXYModelChooserTool
 from .taurustrendset import TaurusTrendSet
 from .y2axis import Y2ViewBox
 from .autopantool import XAutoPanTool
-
-
-CURVE_COLORS = [
-    Qt.QPen(Qt.Qt.red),
-    Qt.QPen(Qt.Qt.blue),
-    Qt.QPen(Qt.Qt.green),
-    Qt.QPen(Qt.Qt.magenta),
-    Qt.QPen(Qt.Qt.cyan),
-    Qt.QPen(Qt.Qt.yellow),
-    Qt.QPen(Qt.Qt.white),
-]
+from .curveproperties import CURVE_COLORS
 
 
 class TaurusTrend(PlotWidget, BaseConfigurableClass):
