@@ -36,6 +36,7 @@ from pyqtgraph import PlotDataItem
 
 from .forcedreadtool import ForcedReadTool
 from .curveproperties import CURVE_COLORS
+from .util import ensure_unique_curve_name
 
 import taurus
 
@@ -220,6 +221,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                 if viewWidget is not None:
                     plotItem = viewWidget.getPlotItem()
                 if plotItem is not None:
+                    curve = ensure_unique_curve_name(curve, plotItem)
                     plotItem.addItem(curve)
 
     def _updateBuffers(self, evt_value):

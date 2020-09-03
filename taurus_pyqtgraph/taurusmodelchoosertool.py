@@ -35,6 +35,7 @@ from taurus.qt.qtgui.panel import TaurusModelChooser
 from taurus_pyqtgraph.taurusimageitem import TaurusImageItem
 from taurus_pyqtgraph.taurusplotdataitem import TaurusPlotDataItem
 from taurus_pyqtgraph.curvesmodel import TaurusItemConf, TaurusItemConfDlg
+from taurus_pyqtgraph.util import ensure_unique_curve_name
 import taurus
 from collections import OrderedDict
 from taurus.qt.qtcore.mimetypes import (
@@ -463,6 +464,7 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
                     name=cname,
                     colors=self._curveColors,
                 )
+                item = ensure_unique_curve_name(item, self.plot_item)
                 self.plot_item.addItem(item)
 
 
