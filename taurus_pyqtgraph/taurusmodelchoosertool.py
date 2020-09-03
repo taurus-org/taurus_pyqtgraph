@@ -457,9 +457,12 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
             else:
                 if cname is None:
                     cname = ymodel.getSimpleName()
-                item = self.itemClass(xModel=xname, yModel=yname, name=cname)
-                if self._curveColors is not None:
-                    item.setPen(self._curveColors.next().color())
+                item = self.itemClass(
+                    xModel=xname,
+                    yModel=yname,
+                    name=cname,
+                    colors=self._curveColors,
+                )
                 self.plot_item.addItem(item)
 
 
