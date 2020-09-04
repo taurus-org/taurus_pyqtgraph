@@ -45,7 +45,7 @@ platforms = ["Linux", "Windows"]
 
 keywords = ["Taurus", "pyqtgraph", "plugin", "widgets"]
 
-install_requires = ["pyqtgraph", "click", "taurus>=4.5.2", "lxml", "ply"]
+install_requires = ["pyqtgraph>=0.11", "click", "taurus>=4.5.2", "lxml", "ply"]
 
 entry_points = {
     "taurus.qt.qtgui": ["tpg = taurus_pyqtgraph"],
