@@ -75,9 +75,10 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     object to update its values)
     """
 
-    def __init__(self, *args, colors=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         _ = kwargs.pop("xModel", None)
         yModel = kwargs.pop("yModel", None)
+        colors = kwarg.pop("colors", None)
         if colors is None:
             colors = LoopList(CURVE_COLORS)
         PlotDataItem.__init__(self, *args, **kwargs)
