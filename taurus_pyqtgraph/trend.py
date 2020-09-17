@@ -90,6 +90,11 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         plot_item = self.getPlotItem()
         menu = plot_item.getViewBox().menu
 
+        # add plot clear action
+        clearCurvesAction = QtGui.QAction("Clear plots", menu)
+        clearCurvesAction.triggered.connect(self.clearTrends)
+        menu.addAction(clearCurvesAction)
+
         # add save & retrieve configuration actions
         saveConfigAction = QtGui.QAction("Save configuration", menu)
         saveConfigAction.triggered.connect(self.saveConfigFile)
@@ -182,6 +187,11 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
             for e in self.getPlotItem().listDataItems()
             if isinstance(e, TaurusTrendSet)
         ]
+
+    def clearTrends(self):
+        for e in self.getPlotItem().listDataItems():
+            if isinstance(e, TaurusTrendSet):
+                e._initBuffers(len(e))
 
     def setModel(self, names):
         """Set a list of models"""
