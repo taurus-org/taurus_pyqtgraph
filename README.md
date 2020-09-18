@@ -58,7 +58,7 @@ those for which there is already an alpha-quality prototype:
 - [x] UI for moving a curve from one Y-scale to another
 - [x] UI for choosing line color, thickness symbol, filling...
 - [x] Arbitrary Label scale (aka FixedLabelsScale)
-- [ ] configurable properties support (setting permanence)
+- [x] configurable properties support (setting permanence)
 
 Outside TEP17 scope:
 
@@ -93,7 +93,7 @@ trends:
 - [x] Stand-alone Widget 
 - [x] Support for forced-reading of attributes (aka "-r mode") 
 - [x] UI for forced-reading mode
-- [ ] configurable properties support (setting permanence)
+- [x] configurable properties support (setting permanence)
 
 Outside TEP17 scope:
 
