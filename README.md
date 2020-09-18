@@ -15,7 +15,7 @@ For the latest release in PyPI:
 
 Alternatively, you can install with conda:
 
-`conda install -c taurus-org taurus_pyqtgraph`
+`conda install -c conda-forge -c taurus-org taurus_pyqtgraph`
 
 For development, use a python3 virtual env (or conda, or similar) and:
 
