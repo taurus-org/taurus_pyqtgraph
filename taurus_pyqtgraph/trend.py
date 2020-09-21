@@ -189,9 +189,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         ]
 
     def clearTrends(self):
-        for e in self.getPlotItem().listDataItems():
-            if isinstance(e, TaurusTrendSet):
-                e._initBuffers(len(e))
+        for ts in self.getTrendSets():
+            ts.clearBuffer()
 
     def setModel(self, names):
         """Set a list of models"""
