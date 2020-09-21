@@ -281,7 +281,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     def clearBuffer(self):
         """Reset the buffered data"""
         self._initBuffers(len(self._curves))
-        
+
     def handleEvent(self, evt_src, evt_type, evt_value):
         """Reimplementation of :meth:`TaurusBaseComponent.handleEvent`"""
 
