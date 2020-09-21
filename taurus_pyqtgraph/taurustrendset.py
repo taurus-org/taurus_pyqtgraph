@@ -277,7 +277,7 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
     def _addData(self, x, y):
         for i, curve in enumerate(self._curves):
             curve.setData(x=x, y=y[:, i])
-            
+
     def clearBuffer(self):
         """Reset the buffered data"""
         self._initBuffers(len(self._curves))
