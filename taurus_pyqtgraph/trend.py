@@ -90,10 +90,10 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         plot_item = self.getPlotItem()
         menu = plot_item.getViewBox().menu
 
-        # add plot clear action
-        clearCurvesAction = QtGui.QAction("Clear plots", menu)
-        clearCurvesAction.triggered.connect(self.clearTrends)
-        menu.addAction(clearCurvesAction)
+        # add trends clear action
+        clearTrendsAction = QtGui.QAction("Clear trends", menu)
+        clearTrendsAction.triggered.connect(self.clearTrends)
+        menu.addAction(clearTrendsAction)
 
         # add save & retrieve configuration actions
         saveConfigAction = QtGui.QAction("Save configuration", menu)
