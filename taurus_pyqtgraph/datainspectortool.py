@@ -29,7 +29,7 @@ import numpy
 from taurus.external.qt import Qt
 from taurus.qt.qtcore.configuration import BaseConfigurableClass
 from taurus_pyqtgraph import DateAxisItem
-from pyqtgraph import SignalProxy, InfiniteLine, TextItem, ScatterPlotItem
+from pyqtgraph import SignalProxy, InfiniteLine, TextItem, PlotDataItem
 
 
 class DataInspectorLine(InfiniteLine):
@@ -38,86 +38,124 @@ class DataInspectorLine(InfiniteLine):
     containing the coordinates of the points of existing curves it touches.
     It provides a method to attach it to a PlotItem.
 
-    .. todo:: for now it only works on the main viewbox.
     """
 
-    # TODO: support more than 1 viewbox (e.g. y2axis).
     # TODO: modify anchor of labels so that they are plotted on the left if
     #       they do not fit in the view
 
     def __init__(
         self,
         date_format="%Y-%m-%d %H:%M:%S",
-        y_format="%0.4f",
+        x_format="0.4f",
+        y_format="0.4f",
         trigger_point_size=10,
     ):
+        """
+
+        :param date_format: format string (as in strftime) for displaying dates
+        :param x_format: format specifier for displaying the x values
+        :param y_format: format specifier for displaying the y values
+        :param trigger_point_size: width (in pixels) of the inspected area
+                                   (points will be picked only if they are
+                                   within this size)
+        """
         super(DataInspectorLine, self).__init__(angle=90, movable=True)
         self._labels = []
+        self._highlights = []
         self._plot_item = None
 
-        self.y_format = y_format
+        self._date_format = "{:" + date_format + "}"
+        self._x_format = "{:" + x_format + "}"
+        self._y_format = "{:" + y_format + "}"
         self.trigger_point_size = trigger_point_size
-        self.date_format = date_format
         self._label_style = "background-color: #35393C;"
         self.sigPositionChanged.connect(self._inspect)
-        self._highlights = ScatterPlotItem(
-            pos=(),
-            symbol="s",
-            brush="35393C88",
-            pxMode=True,
-            size=trigger_point_size,
-        )
-        # hack to make the CurvesPropertiesTool ignore the highlight points
-        self._highlights._UImodifiable = False
 
     def _inspect(self):
         """
-        Slot to re inspector line movemethe mouse move event, and perform
-        the action on the plot.
-
-        :param evt: mouse event
+        check if the line position matches (in widget coordinates) the position
+        of a point of a given curve. If so, add a highlight point and a label
+        in the corresponding viewbox.
         """
-        xpos = self.pos().x()
-        x_px_size, _ = self.getViewBox().viewPixelSize()
-
+        # remove labels (text and highlight points)
         self._removeLabels()
-        points = []
-        # iterate over the existing curves
+        # group curves to be inspected, by their viewbox
+        vb_curves = {}
         for c in self._plot_item.curves:
-            if c is self._highlights:
-                continue
-            if c.xData is not None:
-                # find the index of the closest point of this curve
-                adiff = numpy.abs(c.xData - xpos)
-                idx = numpy.argmin(adiff)
-                # only add a label if the line touches the symbol
-                tolerance = 0.5 * max(1, c.opts["symbolSize"]) * x_px_size
-                if adiff[idx] < tolerance:
-                    points.append((c.xData[idx], c.yData[idx]))
+            if getattr(c, "xData", None) is not None:
+                vb = c.getViewBox()
+                if vb not in vb_curves:
+                    vb_curves[vb] = []
+                vb_curves[vb].append(c)
 
-        self._createLabels(points)
+        # inspect the curves of each viewbox
+        for vb, curves in vb_curves.items():
+            self._inspect_curves_in_viewbox(curves, vb)
 
-    def _createLabels(self, points):
+    def _inspect_curves_in_viewbox(self, curves, viewbox):
+
+        # map position of the line to the viewbox coordinates
+        xpos = viewbox.mapFromItemToView(self, self.pos()).x()
+        # find out the screen pixel size in the viewbox coordinates
+        x_px_size, _ = viewbox.viewPixelSize()
+
+        points = []  # picked points, grouped by their viewbox
+        # iterate over the curves
+        for c in curves:
+            # find the index of the closest point of this curve
+            adiff = numpy.abs(c.xData - xpos)
+            idx = numpy.argmin(adiff)
+            # only add a label if the closest point is within tolerance
+            tolerance = 0.5 * self.trigger_point_size * x_px_size
+            if adiff[idx] < tolerance:
+                points.append((c.xData[idx], c.yData[idx]))
+
+        if curves:
+            logMode = curves[0].opts["logMode"]
+        else:
+            logMode = None
+        self._createLabels(points, viewbox, logMode)
+
+    def _createLabels(self, points, viewbox, logMode):
         for x, y in points:
-            # create label at x,y
-            _x = self._getXValue(x)
-            _y = self._getYValue(y)
+            # fill the text
+            xtext = self._getXText(x)
+            ytext = self._getYText(y)
             text_item = TextItem()
-            text_item.setPos(x, y)
             text_item.setHtml(
                 (
                     "<div style='{}'> "
                     + "<span><b>x=</b>{} "
                     + "<span><b>y=</b>{}</span> "
                     + "</div>"
-                ).format(self._label_style, _x, _y)
+                ).format(self._label_style, xtext, ytext)
             )
+            # add text_item in the right position (take into account log mode)
+            if logMode[0]:
+                x = numpy.log10(x)
+            if logMode[1]:
+                y = numpy.log10(y)
+            text_item.setPos(x, y)
             self._labels.append(text_item)
-            self._plot_item.addItem(text_item, ignoreBounds=True)
+            viewbox.addItem(text_item, ignoreBounds=True)
         # Add "highlight" marker at each point
-        self._highlights.setData(pos=points)
+        highlight = PlotDataItem(
+            numpy.array(points),
+            pen=None,
+            symbol="s",
+            symbolBrush="35393C88",
+            pxMode=True,
+            symbolSize=self.trigger_point_size,
+        )
+        # set log mode
+        highlight.setLogMode(*logMode)
+        # hack to make the CurvesPropertiesTool ignore the highlight points
+        highlight._UImodifiable = False
+        # Add it to the vbox and keep a reference
+        viewbox.addItem(highlight, ignoreBounds=True)
+        self._highlights.append(highlight)
 
-    def _getXValue(self, x):
+    def _getXText(self, x):
         """
         Helper method converting x value to time if necessary
 
@@ -126,29 +164,19 @@ class DataInspectorLine(InfiniteLine):
         """
         x_axis = self._plot_item.getAxis("bottom")
         if isinstance(x_axis, DateAxisItem):
-            return self._timestampToDateTime(x)
+            return self._date_format.format(datetime.utcfromtimestamp(x))
         else:
-            return x
+            return self._x_format.format(x)
 
-    def _getYValue(self, y):
-        return str(self.y_format % y)
-
-    def _timestampToDateTime(self, timestamp):
-        """
-        Method used to caste the timestamp from the curve to date
-        in proper format (%Y-%m-%d %H:%M:%S)
-
-        :param timestamp: selected timestamp from curve
-        """
-        return datetime.utcfromtimestamp(timestamp).strftime(self.date_format)
+    def _getYText(self, y):
+        return self._y_format.format(y)
 
     def _removeLabels(self):
-        # remove existing texts
-        for item in self._labels:
-            self.getViewBox().removeItem(item)
+        # remove existing texts labels and highlights
+        for item in self._labels + self._highlights:
+            item.getViewBox().removeItem(item)
         self._labels = []
-        # remove existing highlights
-        self._highlights.setData(pos=())
+        self._highlights = []
 
     def attachToPlotItem(self, plot_item):
         """
@@ -158,14 +186,12 @@ class DataInspectorLine(InfiniteLine):
         """
         self._plot_item = plot_item
         self._plot_item.addItem(self, ignoreBounds=True)
-        self._plot_item.addItem(self._highlights, ignoreBounds=True)
 
     def dettach(self):
         """
         Method use to detach the class:`DataInspectorLine` from the plot
         """
         self._removeLabels()
-        self._plot_item.removeItem(self._highlights)
         self._plot_item.removeItem(self)
         self._plot_item = None
 

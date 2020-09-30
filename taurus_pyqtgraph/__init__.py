@@ -27,7 +27,7 @@
 
 from __future__ import absolute_import
 import taurus.external.qt as _  # avoid API1 errors due to pyqtgraph imports
-from .y2axis import Y2ViewBox
+from .y2axis import Y2ViewBox, set_y_axis_for_curve
 from .curvespropertiestool import CurvesPropertiesTool
 from .dateaxisitem import DateAxisItem
 from .autopantool import XAutoPanTool
@@ -38,7 +38,7 @@ from .forcedreadtool import ForcedReadTool
 from .buffersizetool import BufferSizeTool
 from .taurusimageitem import TaurusImageItem
 from .taurusplotdataitem import TaurusPlotDataItem
-from .taurustrendset import TaurusTrendSet
+from .taurustrendset import TaurusTrendSet, TrendCurve
 from .curvesmodel import TaurusItemConf, TaurusItemConfDlg
 from .taurusmodelchoosertool import (
     TaurusModelChooserTool,
@@ -47,12 +47,12 @@ from .taurusmodelchoosertool import (
 )
 from .curveproperties import (
     CurveAppearanceProperties,
-    CurvePropAdapter,
     CurvesAppearanceChooser,
     serialize_opts,
     deserialize_opts,
 )
-
+from .datainspectortool import DataInspectorLine, DataInspectorTool
+from .util import unique_data_item_name, ensure_unique_curve_name
 
 # Do not modify the __version__ manually. To be modified by bumpversion
-__version__ = "0.3.3"
+__version__ = "0.4.7-alpha"

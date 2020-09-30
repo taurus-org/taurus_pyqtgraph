@@ -29,6 +29,8 @@ from taurus import Attribute
 from taurus.core import TaurusEventType
 from taurus.qt.qtgui.base import TaurusBaseComponent
 from pyqtgraph import PlotDataItem
+from taurus.core.util.containers import LoopList
+from .curveproperties import CURVE_COLORS
 
 
 class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
@@ -41,9 +43,13 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
                        Default=None
         :param yModel: (str) Taurus model name for ordinate values.
                        Default=None
+        :param colors: (generator) An infinite generator of QColor objects
         """
         xModel = kwargs.pop("xModel", None)
         yModel = kwargs.pop("yModel", None)
+        colors = kwargs.pop("colors", LoopList(CURVE_COLORS))
+        if "pen" not in kwargs:
+            kwargs["pen"] = next(colors)
         PlotDataItem.__init__(self, *args, **kwargs)
         TaurusBaseComponent.__init__(self, "TaurusBaseComponent")
         self._x = None
@@ -97,7 +103,7 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
             self.debug("Could not set data. Reason: %r", e)
 
     def getOpts(self):
-        from taurus.qt.qtgui.tpg import serialize_opts
+        from taurus_pyqtgraph import serialize_opts
 
         return serialize_opts(copy.copy(self.opts))
 
@@ -105,7 +111,7 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
         # creates QPainters (QPen or QBrush) from a pickle loaded file
         # for adapt the serialized objects into PlotDataItem properties
 
-        from taurus.qt.qtgui.tpg import deserialize_opts
+        from taurus_pyqtgraph import deserialize_opts
 
         self.opts = deserialize_opts(opts)
 

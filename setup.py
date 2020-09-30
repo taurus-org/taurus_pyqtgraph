@@ -45,15 +45,13 @@ platforms = ["Linux", "Windows"]
 
 keywords = ["Taurus", "pyqtgraph", "plugin", "widgets"]
 
-install_requires = ["pyqtgraph", "click", "taurus>=4.5.2", "lxml", "ply"]
-
-setup_requirements = ["pytest-runner"]
-
-test_requirements = ["pytest"]
+install_requires = ["pyqtgraph>=0.11", "click", "taurus>=4.5.2", "lxml", "ply"]
 
 entry_points = {
     "taurus.qt.qtgui": ["tpg = taurus_pyqtgraph"],
     "taurus.cli.subcommands": ["tpg = taurus_pyqtgraph.cli:tpg"],
+    "taurus.plot.alts": ["tpg = taurus_pyqtgraph:TaurusPlot"],
+    "taurus.trend.alts": ["tpg = taurus_pyqtgraph:TaurusTrend"],
 }
 
 classifiers = [
@@ -87,7 +85,7 @@ classifiers = [
 
 setup(
     name="taurus_pyqtgraph",
-    version="0.3.3",
+    version="0.4.7-alpha",
     description=description,
     long_description=long_description,
     author=author,
@@ -103,7 +101,6 @@ setup(
     include_package_data=True,
     entry_points=entry_points,
     test_suite="tests",
-    tests_require=test_requirements,
+    python_requires=">=2.7",
     install_requires=install_requires,
-    setup_requires=setup_requirements,
 )

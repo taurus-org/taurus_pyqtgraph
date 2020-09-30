@@ -25,7 +25,8 @@
 __all__ = ["PlotLegendTool"]
 
 from taurus.external.qt import QtGui
-from taurus.qt.qtcore.configuration.configuration import BaseConfigurableClass
+from taurus.qt.qtcore.configuration import BaseConfigurableClass
+import pyqtgraph as pg
 
 
 class PlotLegendTool(QtGui.QWidgetAction, BaseConfigurableClass):
@@ -37,7 +38,7 @@ class PlotLegendTool(QtGui.QWidgetAction, BaseConfigurableClass):
     instead of a checkable QAction to avoid closing the menu when toggling it
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, **kwargs):
         BaseConfigurableClass.__init__(self)
         QtGui.QWidgetAction.__init__(self, parent)
         self._cb = QtGui.QCheckBox()
@@ -49,6 +50,7 @@ class PlotLegendTool(QtGui.QWidgetAction, BaseConfigurableClass):
         # TODO: register config prop for legend position
         self._cb.toggled.connect(self._onToggled)
         self._legend = None
+        self._legend_kwargs = kwargs
 
     def attachToPlotItem(self, plotItem):
         """
@@ -56,7 +58,16 @@ class PlotLegendTool(QtGui.QWidgetAction, BaseConfigurableClass):
 
         :param plot_item: (PlotItem)
         """
-        self._legend = plotItem.addLegend()
+        self._legend = plotItem.addLegend(**self._legend_kwargs)
+
+        # if no explicit pen / brush is set, use some nicer defaults
+        if "pen" not in self._legend_kwargs:
+            self._legend.setPen(pg.CONFIG_OPTIONS["foreground"])
+        if "pen" not in self._legend_kwargs:
+            bcolor = self._legend.brush().color()
+            bcolor.setAlphaF(0.85)
+            self._legend.setBrush(bcolor)
+
         self._cb.setChecked(True)
         menu = plotItem.getViewBox().menu
         menu.addAction(self)

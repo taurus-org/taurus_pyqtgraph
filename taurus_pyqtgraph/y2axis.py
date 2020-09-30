@@ -23,12 +23,47 @@
 ##
 #############################################################################
 
-__all__ = ["Y2ViewBox"]
+__all__ = ["Y2ViewBox", "set_y_axis_for_curve"]
 
 
 from pyqtgraph import ViewBox, PlotItem
 
 from taurus.qt.qtcore.configuration.configuration import BaseConfigurableClass
+
+
+def set_y_axis_for_curve(y2, dataItem, plotItem, y2Axis):
+    """
+    Sets properties provided in the `properties` dict to curves provided in
+    the `curves` dict. The association of a given curve with a property is
+    done by matching the keys in the respective dictionaries
+    :param y2: `True` indicates that the `dataItem` should be associated to y2,
+               `False` indicates that it should be associated to the main
+               viewbox, and `None` indicates that no change should be done.
+    :param plotItem: The :class:`PlotItem` containing the dataItem.
+    :param y2Axis: The :class:`Y2ViewBox` instance
+    """
+    # Set the Y1 / Y2 axis if required
+    old_view = dataItem.getViewBox()  # current view for the curve
+    if y2 is None:  # axis is not to be changed
+        new_view = old_view
+    elif y2:  # Y axis must be Y2
+        new_view = y2Axis  # y2 axis view
+    else:  # Y axis must be Y1
+        new_view = plotItem.getViewBox()  # main view
+
+    if new_view is not old_view:
+        if old_view is not None:
+            old_view.removeItem(dataItem)
+        if not y2:
+            # adapt the log mode to the main view logMode
+            # (this is already done automatically when adding to y2)
+            dataItem.setLogMode(
+                plotItem.getAxis("bottom").logMode,
+                plotItem.getAxis("left").logMode,
+            )
+        new_view.addItem(dataItem)
+        old_view.autoRange()
+        new_view.autoRange()
 
 
 def _PlotItem_addItem(self, item, *args, **kwargs):
@@ -52,14 +87,16 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
     """
 
     def __init__(self, *args, **kwargs):
-        BaseConfigurableClass.__init__(self)
-        ViewBox.__init__(self, *args, **kwargs)
-
-        self.registerConfigProperty(self.getCurves, self.setCurves, "Y2Curves")
-        self.registerConfigProperty(self._getState, self.setState, "viewState")
         self._isAttached = False
         self.plotItem = None
-        self._curvesModelNames = []
+        name = kwargs.pop("name", "Y2 ViewBox")
+        BaseConfigurableClass.__init__(self)
+        ViewBox.__init__(self, *args, name=name, **kwargs)
+
+        self.registerConfigProperty(
+            self._getCurvesNames, self._addCurvesByName, "Y2Curves"
+        )
+        self.registerConfigProperty(self._getState, self.setState, "viewState")
 
     def attachToPlotItem(self, plot_item):
         """Use this method to add this axis to a plot
@@ -86,6 +123,15 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
 
         self.plotItem.addItem = MethodType(_PlotItem_addItem, self.plotItem)
 
+        # add Y2 to main scene(), show the axis and link X axis to self.
+        # self.plotItem.showAxis("right", show=bool(self.addedItems))
+        self.plotItem.scene().addItem(self)
+        self.plotItem.getAxis("right").linkToView(self)
+        self.setXLink(self.plotItem.getViewBox())
+
+        # make autorange button work for Y2 too
+        self.plotItem.autoBtn.clicked.connect(self._onAutoBtnClicked)
+
     def _updateViews(self, viewBox):
         self.setGeometry(viewBox.sceneBoundingRect())
         self.linkedViewChanged(viewBox, self.XAxis)
@@ -93,54 +139,55 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
     def removeItem(self, item):
         """Reimplemented from :class:`pyqtgraph.ViewBox`"""
         ViewBox.removeItem(self, item)
-
-        # when last curve is removed from self (axis Y2), we must remove the
-        # axis from scene and hide the axis.
-        if len(self.addedItems) < 1:
-            self.plotItem.scene().removeItem(self)
-            self.plotItem.hideAxis("right")
-
-        if hasattr(item, "getFullModelNames"):
-            self._curvesModelNames.remove(item.getFullModelNames())
+        if self.plotItem is not None:
+            self.plotItem.showAxis("right", show=bool(self.addedItems))
 
     def addItem(self, item, ignoreBounds=False):
         """Reimplemented from :class:`pyqtgraph.ViewBox`"""
+
+        # first add it to plotItem and then move it from main viewbox to y2
+        if self.plotItem is not None:
+            if item not in self.plotItem.listDataItems():
+                self.plotItem.addItem(item)
+            if item in self.plotItem.getViewBox().addedItems:
+                self.plotItem.getViewBox().removeItem(item)
         ViewBox.addItem(self, item, ignoreBounds=ignoreBounds)
 
-        if len(self.addedItems) == 1:
-            # when the first curve is added to self (axis Y2), we must
-            # add Y2 to main scene(), show the axis and link X axis to self.
-            self.plotItem.showAxis("right")
-            self.plotItem.scene().addItem(self)
-            self.plotItem.getAxis("right").linkToView(self)
-            self.setXLink(self.plotItem)
+        if self.plotItem is not None:
+            self.plotItem.showAxis("right", show=bool(self.addedItems))
 
-        # set the item log mode to match this view:
-        if hasattr(item, "setLogMode"):
-            item.setLogMode(
-                self.plotItem.getAxis("bottom").logMode,
-                self.plotItem.getAxis("right").logMode,
-            )
+            # set the item log mode to match this view:
+            if hasattr(item, "setLogMode"):
+                item.setLogMode(
+                    self.plotItem.getAxis("bottom").logMode,
+                    self.plotItem.getAxis("right").logMode,
+                )
 
-        if hasattr(item, "getFullModelNames") and (
-            len(self.addedItems) > 0
-            and item.getFullModelNames() not in self._curvesModelNames
-        ):
-            self._curvesModelNames.append(item.getFullModelNames())
-
-    def getCurves(self):
-        """Returns the curve model names of curves associated to the Y2 axis.
+    def _getCurvesNames(self):
+        """Returns the curve names associated to the Y2 axis.
 
         :return: (list) List of tuples of model names (xModelName, yModelName)
                  from each curve in this view
         """
-        return self._curvesModelNames
+        if self.plotItem is None:
+            return []
+        ret = []
+        for c in self.plotItem.listDataItems():
+            if c.getViewBox() == self and hasattr(c, "getFullModelNames"):
+                ret.append(c.getFullModelNames())
+        return ret
 
-    def setCurves(self, curves):
-        """Sets the curve names associated to the Y2 axis (but does not
-        create/remove any curve.
-        """
-        self._curvesModelNames = curves
+    def _addCurvesByName(self, names):
+        curves = {}
+        for c in self.plotItem.listDataItems():
+            if hasattr(c, "getFullModelNames"):
+                curves[c.getFullModelNames()] = c
+        for n in names:
+            c = curves[n]
+            vb = c.getViewBox()
+            if vb != self:
+                vb.removeItem(c)
+                self.addItem(c)
 
     def _getState(self):
         """Same as ViewBox.getState but removing viewRange conf to force
@@ -215,3 +262,6 @@ class Y2ViewBox(ViewBox, BaseConfigurableClass):
                 i.setLogMode(logx, logy)
         # set log mode for the right axis
         self.plotItem.getAxis("right").setLogMode(checked)
+
+    def _onAutoBtnClicked(self):
+        self.enableAutoRange()

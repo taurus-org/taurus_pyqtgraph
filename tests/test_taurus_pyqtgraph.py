@@ -18,7 +18,10 @@ def test_command_line_interface():
     runner = CliRunner()
     result = runner.invoke(cli.tpg)
     assert result.exit_code == 0
-    assert "Taurus-pyqtgraph related commands" in result.output
+    assert (
+        '[DEPRECATED] use "taurus plot" or "taurus trend" instead'
+        in result.output
+    )
     help_result = runner.invoke(cli.tpg, ["--help"])
     assert help_result.exit_code == 0
     assert "Show this message and exit." in help_result.output

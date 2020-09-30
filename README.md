@@ -1,7 +1,7 @@
 # taurus_pyqtgraph
 
 `taurus_pyqtgraph` is an extension package for the [Taurus] package. It
-adds the `taurus.qt.qtgui.tpg` submodule which provides [pyqtgraph]-based
+adds the `taurus.qt.qtgui.tpg` submodule which provides [pyqtgraph]-based 
 widgets.
 The rationale behind taurus_pyqtgraph is described in the [TEP17]
 
@@ -13,7 +13,11 @@ For the latest release in PyPI:
 
 `pip install taurus_pyqtgraph`
 
-For developing, use a python3 virtual env (or conda, or similar) and:
+Alternatively, you can install with conda:
+
+`conda install -c conda-forge -c taurus-org taurus_pyqtgraph`
+
+For development, use a python3 virtual env (or conda, or similar) and:
 
 ```
 git clone https://github.com/taurus-org/taurus_pyqtgraph.git
@@ -22,8 +26,9 @@ pip install -r requirements_dev.txt -r requirements.txt
 pip install -e .
 ```
 
-After successful installation, the module will be accessible as `taurus.qt.qtgui.tpg`
-and the `taurus tpg` CLI will be available
+After successful installation, the module will be accessible as `taurus.qt.qtgui.tpg` 
+and `taurus_tpg`, and `tpg` will be registered as an alternative implementation for 
+plots and trends in the `taurus` CLI.
 
 ## Features implementation checklist
 
@@ -53,7 +58,7 @@ those for which there is already an alpha-quality prototype:
 - [x] UI for moving a curve from one Y-scale to another
 - [x] UI for choosing line color, thickness symbol, filling...
 - [x] Arbitrary Label scale (aka FixedLabelsScale)
-- [ ] configurable properties support (setting permanence)
+- [x] configurable properties support (setting permanence)
 
 Outside TEP17 scope:
 
@@ -85,10 +90,10 @@ trends:
 - [x] "1D trends": plot of scalars vs event number or timestamp
 - [x] Fixed-range scale (aka oscilloscope mode)
 - [x] UI to switch between fixed and free scale mode
-- [x] Stand-alone Widget
-- [x] Support for forced-reading of attributes (aka "-r mode")
+- [x] Stand-alone Widget 
+- [x] Support for forced-reading of attributes (aka "-r mode") 
 - [x] UI for forced-reading mode
-- [ ] configurable properties support (setting permanence)
+- [x] configurable properties support (setting permanence)
 
 Outside TEP17 scope:
 
@@ -97,14 +102,14 @@ Outside TEP17 scope:
 - [x] Accessing Archived values (M40). Done via [taurus_tangoarchiving plugin]
 - [ ] Accessing Tango Polling buffer (W24)
 - [x] Support for limiting curve buffers (C8)
-- [x] UI for curve buffers (C2)
+- [ ] UI for curve buffers (C2)
 
 
 ### For 2D plots (images)
 
 
 Outside TEP17 scope:
-- [x] Plot a single image
+- [x] Plot a single image 
 - [x] UI for Add/remove image
 - [ ] Stand-alone Widget (M8)
 - [ ] "calibrated" XYImage (assigning values to X and Y scale, as in

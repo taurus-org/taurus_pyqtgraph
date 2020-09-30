@@ -31,6 +31,7 @@ from future.utils import string_types
 import copy
 from taurus.external.qt import QtGui, Qt
 from taurus.core.util.containers import LoopList
+from taurus.core.util.log import Logger
 from taurus.qt.qtcore.configuration import BaseConfigurableClass
 
 from pyqtgraph import PlotWidget
@@ -39,18 +40,8 @@ from .curvespropertiestool import CurvesPropertiesTool
 from .taurusmodelchoosertool import TaurusXYModelChooserTool
 from .legendtool import PlotLegendTool
 from .datainspectortool import DataInspectorTool
-from .taurusplotdataitem import TaurusPlotDataItem
 from .y2axis import Y2ViewBox
-
-CURVE_COLORS = [
-    Qt.QPen(Qt.Qt.red),
-    Qt.QPen(Qt.Qt.blue),
-    Qt.QPen(Qt.Qt.green),
-    Qt.QPen(Qt.Qt.magenta),
-    Qt.QPen(Qt.Qt.cyan),
-    Qt.QPen(Qt.Qt.yellow),
-    Qt.QPen(Qt.Qt.white),
-]
+from .curveproperties import CURVE_COLORS
 
 
 class TaurusPlot(PlotWidget, BaseConfigurableClass):
@@ -78,6 +69,13 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         else:
             super(TaurusPlot, self).__init__(parent=None, **kwargs)
 
+        # Compose with a Logger
+        self._logger = Logger(name=self.__class__.__name__)
+        self.debug = self._logger.debug
+        self.info = self._logger.info
+        self.warning = self._logger.warning
+        self.error = self._logger.error
+
         # set up cyclic color generator
         self._curveColors = LoopList(CURVE_COLORS)
         self._curveColors.setCurrentIndex(-1)
@@ -85,11 +83,11 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         # add save & retrieve configuration actions
         menu = self.getPlotItem().getViewBox().menu
         saveConfigAction = QtGui.QAction("Save configuration", menu)
-        saveConfigAction.triggered.connect(self.saveConfigFile)
+        saveConfigAction.triggered.connect(self._onSaveConfigAction)
         menu.addAction(saveConfigAction)
 
         loadConfigAction = QtGui.QAction("Retrieve saved configuration", menu)
-        loadConfigAction.triggered.connect(self.loadConfigFile)
+        loadConfigAction.triggered.connect(self._onRetrieveConfigAction)
         menu.addAction(loadConfigAction)
 
         self.registerConfigProperty(self._getState, self.restoreState, "state")
@@ -109,15 +107,21 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         self._y2.attachToPlotItem(self.getPlotItem())
 
         # add plot configuration dialog
-        cprop_tool = CurvesPropertiesTool(self)
-        cprop_tool.attachToPlotItem(self.getPlotItem(), y2=self._y2)
+        self._cprop_tool = CurvesPropertiesTool(self)
+        self._cprop_tool.attachToPlotItem(self.getPlotItem(), y2=self._y2)
 
         # add a data inspector
         inspector_tool = DataInspectorTool(self)
         inspector_tool.attachToPlotItem(self.getPlotItem())
 
+        # enable Autorange
+        self.getPlotItem().getViewBox().enableAutoRange(True)
+        self._y2.enableAutoRange(True)
+
         # Register config properties
+        self.registerConfigDelegate(self._model_chooser_tool, "XYmodelchooser")
         self.registerConfigDelegate(self._y2, "Y2Axis")
+        self.registerConfigDelegate(self._cprop_tool, "CurvePropertiesTool")
         self.registerConfigDelegate(legend_tool, "legend")
         self.registerConfigDelegate(inspector_tool, "inspector")
 
@@ -135,104 +139,29 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
 
     # --------------------------------------------------------------------
 
-    def setModel(self, names):
-        """Reimplemented to delegate to the """
+    def __getitem__(self, idx):
+        """
+        Provides a list-like interface: items can be accessed using slice
+        notation
+        """
+        return self.getPlotItem().listDataItems()[idx]
 
+    def __len__(self):
+        return len(self.getPlotItem().listDataItems())
+
+    def setModel(self, names):
+        """Reimplemented to delegate to the model chooser"""
         # support passing a string in names
         if isinstance(names, string_types):
             names = [names]
         self._model_chooser_tool.updateModels(names)
 
     def addModels(self, names):
-        """Reimplemented to delegate to the """
+        """Reimplemented to delegate to the  model chooser"""
         # support passing a string in names
         if isinstance(names, string_types):
             names = [names]
         self._model_chooser_tool.addModels(names)
-
-    def createConfig(self, allowUnpickable=False):
-        """
-        Reimplemented from BaseConfigurableClass to manage the config
-        properties of the curves attached to this plot
-        """
-        try:
-            # Temporarily register curves as delegates
-            tmpreg = []
-            curve_list = self.getPlotItem().listDataItems()
-            for idx, curve in enumerate(curve_list):
-                if isinstance(curve, TaurusPlotDataItem):
-                    name = "__TaurusPlotDataItem_%d__" % idx
-                    tmpreg.append(name)
-                    self.registerConfigDelegate(curve, name)
-
-            configdict = copy.deepcopy(
-                BaseConfigurableClass.createConfig(
-                    self, allowUnpickable=allowUnpickable
-                )
-            )
-
-        finally:
-            # Ensure that temporary delegates are unregistered
-            for n in tmpreg:
-                self.unregisterConfigurableItem(n, raiseOnError=False)
-        return configdict
-
-    def applyConfig(self, configdict, depth=None):
-        """
-        Reimplemented from BaseConfigurableClass to manage the config
-        properties of the curves attached to this plot
-        """
-        try:
-            # Temporarily register curves as delegates
-            tmpreg = []
-            curves = []
-            for name in configdict["__orderedConfigNames__"]:
-                if name.startswith("__TaurusPlotDataItem_"):
-                    # Instantiate empty TaurusPlotDataItem
-                    curve = TaurusPlotDataItem()
-                    curves.append(curve)
-                    self.registerConfigDelegate(curve, name)
-                    tmpreg.append(name)
-
-            # remove the curves from the second axis (Y2) for avoid dups
-            self._y2.clearItems()
-
-            BaseConfigurableClass.applyConfig(
-                self, configdict=configdict, depth=depth
-            )
-
-            # keep a dict of existing curves (to use it for avoiding dups)
-            currentCurves = dict()
-            for curve in self.getPlotItem().listDataItems():
-                if isinstance(curve, TaurusPlotDataItem):
-                    currentCurves[curve.getFullModelNames()] = curve
-
-            # remove curves that exists in currentCurves, also remove from
-            # the legend (avoid duplicates)
-            for curve in curves:
-                c = currentCurves.get(curve.getFullModelNames(), None)
-                if c is not None:
-                    self.getPlotItem().legend.removeItem(c.name())
-                    self.getPlotItem().removeItem(c)
-
-            # Add to plot **after** their configuration has been applied
-            for curve in curves:
-                # First we add all the curves in self. This way the plotItem
-                # can keeps a list of dataItems (plotItem.listDataItems())
-                self.addItem(curve)
-
-                # Add curves to Y2 axis, when the curve configurations
-                # have been applied.
-                # Ideally, the Y2ViewBox class must handle the action of adding
-                # curves to itself, but we want add the curves when they are
-                # restored with all their properties.
-                if curve.getFullModelNames() in self._y2.getCurves():
-                    self.getPlotItem().getViewBox().removeItem(curve)
-                    self._y2.addItem(curve)
-        finally:
-            # Ensure that temporary delegates are unregistered
-            for n in tmpreg:
-                self.unregisterConfigurableItem(n, raiseOnError=False)
 
     def _getState(self):
         """Same as PlotWidget.saveState but removing viewRange conf to force
@@ -242,6 +171,28 @@ class TaurusPlot(PlotWidget, BaseConfigurableClass):
         # remove viewRange conf
         del state["view"]["viewRange"]
         return state
+
+    def setXAxisMode(self, x_axis_mode):
+        """Required generic TaurusPlot API """
+        from taurus_pyqtgraph import DateAxisItem
+
+        if x_axis_mode == "t":
+            axis = DateAxisItem(orientation="bottom")
+            axis.attachToPlotItem(self.getPlotItem())
+        elif x_axis_mode == "n":
+            axis = self.getPlotItem().axes["bottom"]["item"]
+            if isinstance(axis, DateAxisItem):
+                axis.detachFromPlotItem()
+        else:
+            raise ValueError("Unsupported x axis mode {}".format(x_axis_mode))
+
+    def _onSaveConfigAction(self):
+        """wrapper to avoid issues with overloaded signals"""
+        return self.saveConfigFile()
+
+    def _onRetrieveConfigAction(self):
+        """wrapper to avoid issues with overloaded signals"""
+        return self.loadConfigFile()
 
 
 def plot_main(
@@ -267,11 +218,7 @@ def plot_main(
         models = list(models)
         models.extend(["eval:rand(100)", "eval:0.5*sqrt(arange(100))"])
 
-    if x_axis_mode.lower() == "t":
-        from taurus.qt.qtgui.tpg import DateAxisItem
-
-        axis = DateAxisItem(orientation="bottom")
-        axis.attachToPlotItem(w.getPlotItem())
+    w.setXAxisMode(x_axis_mode.lower())
 
     if config_file is not None:
         w.loadConfigFile(config_file)

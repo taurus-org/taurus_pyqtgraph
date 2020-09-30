@@ -32,6 +32,7 @@ import copy
 from taurus.external.qt import QtGui, Qt
 from taurus.core.util.containers import LoopList
 from taurus.qt.qtcore.configuration import BaseConfigurableClass
+from taurus.core.util.log import Logger
 
 from pyqtgraph import PlotWidget
 
@@ -41,21 +42,11 @@ from .legendtool import PlotLegendTool
 from .forcedreadtool import ForcedReadTool
 from .buffersizetool import BufferSizeTool
 from .datainspectortool import DataInspectorTool
-from .taurusmodelchoosertool import TaurusModelChooserTool
+from .taurusmodelchoosertool import TaurusXYModelChooserTool
 from .taurustrendset import TaurusTrendSet
 from .y2axis import Y2ViewBox
 from .autopantool import XAutoPanTool
-
-
-CURVE_COLORS = [
-    Qt.QPen(Qt.Qt.red),
-    Qt.QPen(Qt.Qt.blue),
-    Qt.QPen(Qt.Qt.green),
-    Qt.QPen(Qt.Qt.magenta),
-    Qt.QPen(Qt.Qt.cyan),
-    Qt.QPen(Qt.Qt.yellow),
-    Qt.QPen(Qt.Qt.white),
-]
+from .curveproperties import CURVE_COLORS
 
 
 class TaurusTrend(PlotWidget, BaseConfigurableClass):
@@ -88,12 +79,24 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         else:
             super(TaurusTrend, self).__init__(parent=parent, **kwargs)
 
+        # Compose with a Logger
+        self._logger = Logger(name=self.__class__.__name__)
+        self.debug = self._logger.debug
+        self.info = self._logger.info
+        self.warning = self._logger.warning
+        self.error = self._logger.error
+
         # set up cyclic color generator
         self._curveColors = LoopList(CURVE_COLORS)
         self._curveColors.setCurrentIndex(-1)
 
         plot_item = self.getPlotItem()
         menu = plot_item.getViewBox().menu
+
+        # add trends clear action
+        clearTrendsAction = QtGui.QAction("Clear trends", menu)
+        clearTrendsAction.triggered.connect(self.clearTrends)
+        menu.addAction(clearTrendsAction)
 
         # add save & retrieve configuration actions
         saveConfigAction = QtGui.QAction("Save configuration", menu)
@@ -111,10 +114,12 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         legend_tool.attachToPlotItem(plot_item)
 
         # add model chooser
-        self._model_chooser_tool = TaurusModelChooserTool(
-            self, itemClass=TaurusTrendSet
+        self._model_chooser_tool = TaurusXYModelChooserTool(
+            self, itemClass=TaurusTrendSet, showX=False
         )
-        self._model_chooser_tool.attachToPlotItem(plot_item, self)
+        self._model_chooser_tool.attachToPlotItem(
+            self.getPlotItem(), self, self._curveColors
+        )
 
         # add Y2 axis
         self._y2 = Y2ViewBox()
@@ -125,29 +130,31 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         axis.attachToPlotItem(plot_item)
 
         # add plot configuration dialog
-        cprop_tool = CurvesPropertiesTool(self)
-        cprop_tool.attachToPlotItem(plot_item, y2=self._y2)
+        self._cprop_tool = CurvesPropertiesTool(self)
+        self._cprop_tool.attachToPlotItem(plot_item, y2=self._y2)
 
         # add data inspector widget
         inspector_tool = DataInspectorTool(self)
         inspector_tool.attachToPlotItem(self.getPlotItem())
 
         # add force read tool
-        fr_tool = ForcedReadTool(self)
-        fr_tool.attachToPlotItem(self.getPlotItem())
+        self._fr_tool = ForcedReadTool(self)
+        self._fr_tool.attachToPlotItem(self.getPlotItem())
 
-        # add force read tool
+        # add buffer size tool
         buffer_tool = BufferSizeTool(self, buffer_size=buffer_size)
         buffer_tool.attachToPlotItem(self.getPlotItem())
 
         # Add the auto-pan ("oscilloscope mode") tool
-        autopan = XAutoPanTool()
-        autopan.attachToPlotItem(self.getPlotItem())
+        self._autopan = XAutoPanTool()
+        self._autopan.attachToPlotItem(self.getPlotItem())
 
         # Register config properties
-        self.registerConfigDelegate(self._y2, "Y2Axis")
+        self.registerConfigDelegate(self._model_chooser_tool, "XYmodelchooser")
+        # self.registerConfigDelegate(self._y2, "Y2Axis")
+        self.registerConfigDelegate(self._cprop_tool, "CurvePropertiesTool")
         self.registerConfigDelegate(legend_tool, "legend")
-        self.registerConfigDelegate(fr_tool, "forceread")
+        self.registerConfigDelegate(self._fr_tool, "forceread")
         self.registerConfigDelegate(buffer_tool, "buffer")
         self.registerConfigDelegate(inspector_tool, "inspector")
 
@@ -165,6 +172,34 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     # --------------------------------------------------------------------
 
+    def __getitem__(self, idx):
+        """
+        Provides a list-like interface: items can be accessed using slice
+        notation
+        """
+        return self._getCurves()[idx]
+
+    def __len__(self):
+        return len(self._getCurves())
+
+    def _getCurves(self):
+        """returns a flat list with all items from all trend sets"""
+        ret = []
+        for ts in self.getTrendSets():
+            ret += ts[:]
+        return ret
+
+    def getTrendSets(self):
+        return [
+            e
+            for e in self.getPlotItem().listDataItems()
+            if isinstance(e, TaurusTrendSet)
+        ]
+
+    def clearTrends(self):
+        for ts in self.getTrendSets():
+            ts.clearBuffer()
+
     def setModel(self, names):
         """Set a list of models"""
         # support passing a string  in names instead of a sequence
@@ -172,92 +207,12 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
             names = [names]
         self._model_chooser_tool.updateModels(names or [])
 
-    def createConfig(self, allowUnpickable=False):
-        """
-        Reimplemented from BaseConfigurableClass to manage the config
-        properties of the trendsets attached to this plot
-        """
-        try:
-            # Temporarily register trendsets as delegates
-            tmpreg = []
-            data_items = self.getPlotItem().listDataItems()
-            for idx, item in enumerate(data_items):
-                if isinstance(item, TaurusTrendSet):
-                    name = "__TaurusTrendSet_%d__" % idx
-                    tmpreg.append(name)
-                    self.registerConfigDelegate(item, name)
-
-            configdict = copy.deepcopy(
-                BaseConfigurableClass.createConfig(
-                    self, allowUnpickable=allowUnpickable
-                )
-            )
-
-        finally:
-            # Ensure that temporary delegates are unregistered
-            for n in tmpreg:
-                self.unregisterConfigurableItem(n, raiseOnError=False)
-        return configdict
-
-    def applyConfig(self, configdict, depth=None):
-        """
-        Reimplemented from BaseConfigurableClass to manage the config
-        properties of the trendsets attached to this plot
-        """
-        try:
-            # Temporarily register trendsets as delegates
-            tmpreg = []
-            tsets = []
-            for name in configdict["__orderedConfigNames__"]:
-                if name.startswith("__TaurusTrendSet_"):
-                    # Instantiate empty TaurusTrendSet
-                    tset = TaurusTrendSet()
-                    tsets.append(tset)
-                    self.registerConfigDelegate(tset, name)
-                    tmpreg.append(name)
-
-            # remove the trendsets from the second axis (Y2) to avoid dups
-            self._y2.clearItems()
-
-            BaseConfigurableClass.applyConfig(
-                self, configdict=configdict, depth=depth
-            )
-
-            plot_item = self.getPlotItem()
-
-            # keep a dict of existing trendsets (to use it for avoiding dups)
-            currentTrendSets = dict()
-            curveNames = []
-            for tset in plot_item.listDataItems():
-                if isinstance(tset, TaurusTrendSet):
-                    currentTrendSets[tset.getFullModelName()] = tset
-                    curveNames.extend([c.name for c in tset])
-
-            # remove trendsets that exists in currentTrendSets from plot
-            # (to avoid duplicates). Also remove curves from the legend
-            for tset in tsets:
-                ts = currentTrendSets.get(tset.getFullModelName(), None)
-                if ts is not None:
-                    plot_item.removeItem(ts)
-
-            # Add to plot **after** their configuration has been applied
-            for tset in tsets:
-                # First we add all the trendsets to self. This way the plotItem
-                # can keep a list of dataItems (PlotItem.listDataItems())
-                self.addItem(tset)
-
-                # Add trendsets to Y2 axis, when the trendset configurations
-                # have been applied.
-                # Ideally, the Y2ViewBox class must handle the action of adding
-                # trendsets to itself, but we want add the trendsets when they
-                # are restored with all their properties.
-                if tset.getFullModelName() in self._y2.getCurves():
-                    plot_item.getViewBox().removeItem(tset)
-                    self._y2.addItem(tset)
-        finally:
-            # Ensure that temporary delegates are unregistered
-            for n in tmpreg:
-                self.unregisterConfigurableItem(n, raiseOnError=False)
+    def addModels(self, names):
+        """Reimplemented to delegate to the  model chooser"""
+        # support passing a string in names
+        if isinstance(names, string_types):
+            names = [names]
+        self._model_chooser_tool.addModels(names)
 
     def _getState(self):
         """Same as PlotWidget.saveState but removing viewRange conf to force
@@ -267,6 +222,23 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         # remove viewRange conf
         del state["view"]["viewRange"]
         return state
+
+    def setXAxisMode(self, x_axis_mode):
+        """Required generic TaurusTrend API """
+        if x_axis_mode != "t":
+            raise NotImplementedError(  # TODO
+                'X mode "{}" not yet supported'.format(x_axis_mode)
+            )
+
+    def setForcedReadingPeriod(self, period):
+        """Required generic TaurusTrend API """
+        self._fr_tool.setPeriod(period)
+
+    def setMaxDataBufferSize(self, buffer_size):
+        """Required generic TaurusTrend API """
+        raise NotImplementedError(  # TODO
+            "Setting the max buffer size is not yet supported by tpg trend"
+        )
 
 
 def trend_main(
@@ -285,8 +257,6 @@ def trend_main(
     w = TaurusTrend(buffer_size=buffer_size)
 
     w.setWindowTitle(window_name)
-
-    # config_file = 'tmp/TaurusTrend.pck'
 
     if demo:
         models = list(models)

@@ -1,6 +1,6 @@
-Click==7.0
-PyQt5==5.13.0
-pyqtgraph==0.10.0
-ply==3.11
-lxml==4.2.5
-taurus==4.6.1
+Click>=7.0
+PyQt5>=5.13.0
+pyqtgraph>=0.11.0
+ply>=3.11
+lxml>=4.2.5
+taurus>=4.7
