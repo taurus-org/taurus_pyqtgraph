@@ -142,8 +142,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         self._fr_tool.attachToPlotItem(self.getPlotItem())
 
         # add buffer size tool
-        buffer_tool = BufferSizeTool(self, buffer_size=buffer_size)
-        buffer_tool.attachToPlotItem(self.getPlotItem())
+        self._buffer_tool = BufferSizeTool(self, buffer_size=buffer_size)
+        self._buffer_tool.attachToPlotItem(self.getPlotItem())
 
         # Add the auto-pan ("oscilloscope mode") tool
         self._autopan = XAutoPanTool()
@@ -155,7 +155,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         self.registerConfigDelegate(self._cprop_tool, "CurvePropertiesTool")
         self.registerConfigDelegate(legend_tool, "legend")
         self.registerConfigDelegate(self._fr_tool, "forceread")
-        self.registerConfigDelegate(buffer_tool, "buffer")
+        self.registerConfigDelegate(self._buffer_tool, "buffer")
         self.registerConfigDelegate(inspector_tool, "inspector")
 
     # --------------------------------------------------------------------
@@ -236,17 +236,11 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     def setMaxDataBufferSize(self, buffer_size):
         """Required generic TaurusTrend API """
-        raise NotImplementedError(  # TODO
-            "Setting the max buffer size is not yet supported by tpg trend"
-        )
+        self._buffer_tool.setBufferSize(buffer_size)
 
 
 def trend_main(
-    models=(),
-    config_file=None,
-    demo=False,
-    window_name="TaurusTrend (pg)",
-    buffer_size=65536
+    models=(), config_file=None, demo=False, window_name="TaurusTrend (pg)"
 ):
     """Launch a TaurusTrend"""
     import sys
@@ -254,7 +248,7 @@ def trend_main(
 
     app = TaurusApplication(cmd_line_parser=None, app_name="taurustrend(pg)")
 
-    w = TaurusTrend(buffer_size=buffer_size)
+    w = TaurusTrend()
 
     w.setWindowTitle(window_name)
 
