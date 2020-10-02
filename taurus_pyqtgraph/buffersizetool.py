@@ -108,6 +108,16 @@ class BufferSizeTool(QtGui.QWidgetAction, BaseConfigurableClass):
         self.plot_item = plot_item
         # force an update of buffer_size for connected trendsets
         self._onValueChanged(self.bufferSize())
+        if self.autoconnect():
+            # enable the buffer limit also for trendsets added in the future
+            try:  # requires https://github.com/pyqtgraph/pyqtgraph/pull/1388
+                plot_item.scene().sigItemAdded.connect(self._onAddedItem)
+            except AttributeError:
+                pass
+
+    def _onAddedItem(self, item):
+        if hasattr(item, "setBufferSize"):
+            item.setBufferSize(self.bufferSize())
 
     def autoconnect(self):
         """Returns autoconnect state
