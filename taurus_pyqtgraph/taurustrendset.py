@@ -426,8 +426,20 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         self._maxBufferSize = buffer_size
         try:
             if self._xBuffer is not None:
+                # discard oldest data if needed for downsizing
+                excess = len(self._xBuffer) - buffer_size
+                if excess > 0:
+                    self._xBuffer.moveLeft(excess)
+                    self._xBuffer.resizeBuffer(buffer_size)
+                # resize
                 self._xBuffer.setMaxSize(buffer_size)
             if self._yBuffer is not None:
+                # discard oldest data if needed for downsizing
+                excess = len(self._yBuffer) - buffer_size
+                if excess > 0:
+                    self._yBuffer.moveLeft(excess)
+                    self._yBuffer.resizeBuffer(buffer_size)
+                # resize
                 self._yBuffer.setMaxSize(buffer_size)
         except ValueError:
             self.info('buffer downsizing  requested.'
