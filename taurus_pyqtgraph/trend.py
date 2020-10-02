@@ -100,11 +100,11 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
         # add save & retrieve configuration actions
         saveConfigAction = QtGui.QAction("Save configuration", menu)
-        saveConfigAction.triggered.connect(self._saveConfigFile)
+        saveConfigAction.triggered.connect(self._onSaveConfigAction)
         menu.addAction(saveConfigAction)
 
         loadConfigAction = QtGui.QAction("Retrieve saved configuration", menu)
-        loadConfigAction.triggered.connect(self._loadConfigFile)
+        loadConfigAction.triggered.connect(self._onLoadConfigAction)
         menu.addAction(loadConfigAction)
 
         self.registerConfigProperty(self._getState, self.restoreState, "state")
@@ -242,7 +242,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         """wrapper to avoid issues with overloaded signals"""
         return self.saveConfigFile()
 
-    def _onRetrieveConfigAction(self):
+    def _onLoadConfigAction(self):
         """wrapper to avoid issues with overloaded signals"""
         return self.loadConfigFile()
 
