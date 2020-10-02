@@ -28,7 +28,7 @@ from taurus.external.qt import QtGui, QtCore
 from taurus.qt.qtcore.configuration import BaseConfigurableClass
 
 
-class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):
+class ForcedReadTool(QtGui.QAction, BaseConfigurableClass):
     """
     This tool provides a menu option to control the "Forced Read" period of
     Plot data items that implement a `setForcedReadPeriod` method
@@ -58,28 +58,18 @@ class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):
     valueChanged = QtCore.pyqtSignal(int)
 
     def __init__(
-        self, parent=None, period=0, text="Forced read", autoconnect=True
+        self,
+        parent=None,
+        period=0,
+        text="Change forced read period...",
+        autoconnect=True
     ):
         BaseConfigurableClass.__init__(self)
-        QtGui.QWidgetAction.__init__(self, parent)
-
-        # defining the widget
-        self._w = QtGui.QWidget()
-        self._w.setLayout(QtGui.QHBoxLayout())
+        QtGui.QAction.__init__(self, text, parent)
         tt = "Period between forced readings.\nSet to 0 to disable"
-        self._w.setToolTip(tt)
-        self._label = QtGui.QLabel(text)
-        self._w.layout().addWidget(self._label)
-        self._sb = QtGui.QSpinBox()
-        self._w.layout().addWidget(self._sb)
-        self._sb.setRange(0, 604800000)
-        self._sb.setValue(period)
-        self._sb.setSingleStep(500)
-        self._sb.setSuffix(" ms")
-        self._sb.setSpecialValueText("disabled")
+        self.setToolTip(tt)
+        self._period = period
         self._autoconnect = autoconnect
-
-        self.setDefaultWidget(self._w)
 
         # register config properties
         self.registerConfigProperty(self.period, self.setPeriod, "period")
@@ -88,17 +78,21 @@ class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):
         )
 
         # internal conections
-        self._sb.valueChanged[int].connect(self._onValueChanged)
+        self.triggered.connect(self._onTriggered)
 
-    def _onValueChanged(self, period):
-        """emit valueChanged and update all associated trendsets (if
-        self.autoconnect=True
-        """
-        self.valueChanged.emit(period)
-        if self.autoconnect() and self.plot_item is not None:
-            for item in self.plot_item.listDataItems():
-                if hasattr(item, "setForcedReadPeriod"):
-                    item.setForcedReadPeriod(period)
+    def _onTriggered(self):
+        period = self.period()
+        period, ok = QtGui.QInputDialog.getInt(
+            self.parentWidget(),
+            "New read period",
+            "Period (in ms) between forced readings.\nSet to 0 to disable",
+            period,
+            0,
+            604800000,
+            500
+        )
+        if ok:
+            self.setPeriod(period)
 
     def attachToPlotItem(self, plot_item):
         """Use this method to add this tool to a plot
@@ -109,7 +103,17 @@ class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):
         menu.addAction(self)
         self.plot_item = plot_item
         # force an update of period for connected trendsets
-        self._onValueChanged(self.period())
+        self.setPeriod(self.period())
+        if self.autoconnect():
+            # enable the forced reading also for trendsets added in the future
+            try:  # requires https://github.com/pyqtgraph/pyqtgraph/pull/1388
+                plot_item.scene().sigItemAdded.connect(self._onAddedItem)
+            except AttributeError:
+                pass
+
+    def _onAddedItem(self, item):
+        if hasattr(item, "setForcedReadPeriod"):
+            item.setForcedReadPeriod(self.period())
 
     def autoconnect(self):
         """Returns autoconnect state
@@ -134,14 +138,21 @@ class ForcedReadTool(QtGui.QWidgetAction, BaseConfigurableClass):
 
         :return: (int)
         """
-        return self._sb.value()
+        return self._period
 
-    def setPeriod(self, value):
+    def setPeriod(self, period):
         """Change the period value. Use 0 for disabling
 
         :param period: (int) period in ms
         """
-        self._sb.setValue(value)
+        self._period = period
+        # update existing items
+        if self.autoconnect() and self.plot_item is not None:
+            for item in self.plot_item.listDataItems():
+                if hasattr(item, "setForcedReadPeriod"):
+                    item.setForcedReadPeriod(period)
+        # emit valueChanged
+        self.valueChanged.emit(period)
 
 
 if __name__ == "__main__":
