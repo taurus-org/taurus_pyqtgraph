@@ -32,27 +32,27 @@ plots and trends in the `taurus` CLI.
 
 ## Features implementation checklist
 
-`taurus_pyqtgraph` is still in alpha stage. Its API may be subject to 
+`taurus_pyqtgraph` is still in alpha stage. Its API may be subject to
 change before the 1.0.0 release.
 
-This is a list of planned / done features. The tasks which are checked are 
+This is a list of planned / done features. The tasks which are checked are
 those for which there is already an alpha-quality prototype:
 
 ### For 1D plots
 
 - [x] 1D plot: plot of multiple 1D models with auto-changing color and
-    availability of legend 
+    availability of legend
 - [x] Date-time support on X axis (display only, see "UI for
-    setting scale limits *in date/time format*" below) 
+    setting scale limits *in date/time format*" below)
 - [x] Stand-alone widget
 - [x] Zooming & panning with "restore original view" option (not the same
     as zoom stacking, see below)
 - [x] Possibility to use (at least) 2 Y-scales
 - [x] UI for adding taurus curves via ModelChooser. See also
-    "Improved Model Chooser" below 
+    "Improved Model Chooser" below
 - [x] Store/retreive configuration (save/load settings)
 - [x] Support for non-taurus curves in same plot (aka "raw data")
-- [x] UI for setting scale limits and lin/log options 
+- [x] UI for setting scale limits and lin/log options
 - [x] Export data as ascii: without date-time support
 - [x] Export plot as image (S0)
 - [x] UI for moving a curve from one Y-scale to another
@@ -70,7 +70,7 @@ Outside TEP17 scope:
   dialog allowing to choose *both* X and Y models (see curve selection
   dialog in extra_guiqwt's tauruscurve) (C16)
 - [x] Drop support for taurus attributes (C4)
-- [ ] Zoom stack: possibility of stacking zoom levels and navigating back 
+- [ ] Zoom stack: possibility of stacking zoom levels and navigating back
   one level at a time. (C16)
 - [ ] Cursor position info (display X-Y position of cursor in active axis
   coords) (C2)
@@ -80,7 +80,7 @@ Outside TEP17 scope:
 - [ ] UI for changing curve names (C8)
 - [ ] Peak locator: Visual label min/max of curves (C12)
 - [ ] UI for adding raw data (W8)
-  
+
 ### For 1D trends
 
 Most of the features mentioned for 1D plots affect the 1D trends as

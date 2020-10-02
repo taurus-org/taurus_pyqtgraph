@@ -35,6 +35,7 @@ from .plot import TaurusPlot
 from .trend import TaurusTrend
 from .legendtool import PlotLegendTool
 from .forcedreadtool import ForcedReadTool
+from .buffersizetool import BufferSizeTool
 from .taurusimageitem import TaurusImageItem
 from .taurusplotdataitem import TaurusPlotDataItem
 from .taurustrendset import TaurusTrendSet, TrendCurve

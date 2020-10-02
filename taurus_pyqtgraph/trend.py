@@ -40,6 +40,7 @@ from .curvespropertiestool import CurvesPropertiesTool
 from .dateaxisitem import DateAxisItem
 from .legendtool import PlotLegendTool
 from .forcedreadtool import ForcedReadTool
+from .buffersizetool import BufferSizeTool
 from .datainspectortool import DataInspectorTool
 from .taurusmodelchoosertool import TaurusXYModelChooserTool
 from .taurustrendset import TaurusTrendSet
@@ -68,6 +69,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
     """
 
     def __init__(self, parent=None, **kwargs):
+
+        buffer_size = kwargs.pop('buffer_size', 65536)
 
         if Qt.QT_VERSION < 0x050000:
             # Workaround for issue when using super with pyqt<5
@@ -138,6 +141,10 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         self._fr_tool = ForcedReadTool(self)
         self._fr_tool.attachToPlotItem(self.getPlotItem())
 
+        # add buffer size tool
+        self.buffer_tool = BufferSizeTool(self, buffer_size=buffer_size)
+        self.buffer_tool.attachToPlotItem(self.getPlotItem())
+
         # Add the auto-pan ("oscilloscope mode") tool
         self._autopan = XAutoPanTool()
         self._autopan.attachToPlotItem(self.getPlotItem())
@@ -148,6 +155,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         self.registerConfigDelegate(self._cprop_tool, "CurvePropertiesTool")
         self.registerConfigDelegate(legend_tool, "legend")
         self.registerConfigDelegate(self._fr_tool, "forceread")
+        self.registerConfigDelegate(self.buffer_tool, "buffer")
         self.registerConfigDelegate(inspector_tool, "inspector")
 
     # --------------------------------------------------------------------
@@ -228,9 +236,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     def setMaxDataBufferSize(self, buffer_size):
         """Required generic TaurusTrend API """
-        raise NotImplementedError(  # TODO
-            "Setting the max buffer size is not yet supported by tpg trend"
-        )
+        self.buffer_tool.setBufferSize(buffer_size)
 
 
 def trend_main(
