@@ -86,12 +86,14 @@ class BufferSizeTool(QtGui.QWidgetAction, BaseConfigurableClass):
         )
 
         # internal conections
-        self._sb.valueChanged[int].connect(self._onValueChanged)
+        self._sb.editingFinished.connect(self._onEdittingFinished)
 
-    def _onValueChanged(self, buffer_size):
-        """emit valueChanged and update all associated trendsets (if
+    def _onEdittingFinished(self):
+        """
+        emit valueChanged and update all associated trendsets (if
         self.autoconnect=True
         """
+        buffer_size = self.bufferSize()
         self.valueChanged.emit(buffer_size)
         if self.autoconnect() and self.plot_item is not None:
             for item in self.plot_item.listDataItems():
@@ -107,7 +109,7 @@ class BufferSizeTool(QtGui.QWidgetAction, BaseConfigurableClass):
         menu.addAction(self)
         self.plot_item = plot_item
         # force an update of buffer_size for connected trendsets
-        self._onValueChanged(self.bufferSize())
+        self._onEdittingFinished()
         if self.autoconnect():
             # enable the buffer limit also for trendsets added in the future
             try:  # requires https://github.com/pyqtgraph/pyqtgraph/pull/1388
@@ -150,6 +152,7 @@ class BufferSizeTool(QtGui.QWidgetAction, BaseConfigurableClass):
         :param buffer_size: (int) buffer_size
         """
         self._sb.setValue(value)
+        self._onEdittingFinished()
 
 
 if __name__ == "__main__":
