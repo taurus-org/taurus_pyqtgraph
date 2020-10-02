@@ -100,11 +100,11 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
         # add save & retrieve configuration actions
         saveConfigAction = QtGui.QAction("Save configuration", menu)
-        saveConfigAction.triggered.connect(self.saveConfigFile)
+        saveConfigAction.triggered.connect(self._saveConfigFile)
         menu.addAction(saveConfigAction)
 
         loadConfigAction = QtGui.QAction("Retrieve saved configuration", menu)
-        loadConfigAction.triggered.connect(self.loadConfigFile)
+        loadConfigAction.triggered.connect(self._loadConfigFile)
         menu.addAction(loadConfigAction)
 
         self.registerConfigProperty(self._getState, self.restoreState, "state")
@@ -237,6 +237,14 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
     def setMaxDataBufferSize(self, buffer_size):
         """Required generic TaurusTrend API """
         self.buffer_tool.setBufferSize(buffer_size)
+
+    def _onSaveConfigAction(self):
+        """wrapper to avoid issues with overloaded signals"""
+        return self.saveConfigFile()
+
+    def _onRetrieveConfigAction(self):
+        """wrapper to avoid issues with overloaded signals"""
+        return self.loadConfigFile()
 
 
 def trend_main(
