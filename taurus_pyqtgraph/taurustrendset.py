@@ -442,8 +442,10 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                 # resize
                 self._yBuffer.setMaxSize(buffer_size)
         except ValueError:
-            self.info('buffer downsizing  requested.'
-                      + 'Current contents will be discarded')
+            self.info(
+                "buffer downsizing  requested."
+                + "Current contents will be discarded"
+            )
             self.clearBuffer()
 
     def bufferSize(self):

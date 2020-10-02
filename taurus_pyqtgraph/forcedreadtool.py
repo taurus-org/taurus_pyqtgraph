@@ -62,7 +62,7 @@ class ForcedReadTool(QtGui.QAction, BaseConfigurableClass):
         parent=None,
         period=0,
         text="Change forced read period...",
-        autoconnect=True
+        autoconnect=True,
     ):
         BaseConfigurableClass.__init__(self)
         QtGui.QAction.__init__(self, text, parent)
@@ -89,7 +89,7 @@ class ForcedReadTool(QtGui.QAction, BaseConfigurableClass):
             period,
             0,
             604800000,
-            500
+            500,
         )
         if ok:
             self.setPeriod(period)

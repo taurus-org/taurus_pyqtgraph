@@ -54,7 +54,7 @@ class BufferSizeTool(QtGui.QAction, BaseConfigurableClass):
         parent=None,
         buffer_size=65536,
         text="Change buffers size...",
-        autoconnect=True
+        autoconnect=True,
     ):
         BaseConfigurableClass.__init__(self)
         QtGui.QAction.__init__(self, text, parent)
@@ -64,9 +64,7 @@ class BufferSizeTool(QtGui.QAction, BaseConfigurableClass):
 
         # register config properties
         self.registerConfigProperty(
-            self.bufferSize,
-            self.setBufferSize,
-            "buffer_size"
+            self.bufferSize, self.setBufferSize, "buffer_size"
         )
         self.registerConfigProperty(
             self.autoconnect, self.setAutoconnect, "autoconnect"
@@ -96,7 +94,7 @@ class BufferSizeTool(QtGui.QAction, BaseConfigurableClass):
             maxSize,
             2,
             10000000,
-            1000
+            1000,
         )
         if ok:
             self.setBufferSize(maxSize)

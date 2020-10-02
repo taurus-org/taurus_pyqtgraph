@@ -70,7 +70,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     def __init__(self, parent=None, **kwargs):
 
-        buffer_size = kwargs.pop('buffer_size', 65536)
+        buffer_size = kwargs.pop("buffer_size", 65536)
 
         if Qt.QT_VERSION < 0x050000:
             # Workaround for issue when using super with pyqt<5
