@@ -55,4 +55,4 @@ from .datainspectortool import DataInspectorLine, DataInspectorTool
 from .util import unique_data_item_name, ensure_unique_curve_name
 
 # Do not modify the __version__ manually. To be modified by bumpversion
-__version__ = "0.4.7-alpha"
+__version__ = "0.4.7"
