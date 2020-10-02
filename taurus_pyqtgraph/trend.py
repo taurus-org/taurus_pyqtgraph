@@ -142,8 +142,8 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         self._fr_tool.attachToPlotItem(self.getPlotItem())
 
         # add buffer size tool
-        self._buffer_tool = BufferSizeTool(self, buffer_size=buffer_size)
-        self._buffer_tool.attachToPlotItem(self.getPlotItem())
+        self.buffer_tool = BufferSizeTool(self, buffer_size=buffer_size)
+        self.buffer_tool.attachToPlotItem(self.getPlotItem())
 
         # Add the auto-pan ("oscilloscope mode") tool
         self._autopan = XAutoPanTool()
@@ -155,7 +155,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         self.registerConfigDelegate(self._cprop_tool, "CurvePropertiesTool")
         self.registerConfigDelegate(legend_tool, "legend")
         self.registerConfigDelegate(self._fr_tool, "forceread")
-        self.registerConfigDelegate(self._buffer_tool, "buffer")
+        self.registerConfigDelegate(self.buffer_tool, "buffer")
         self.registerConfigDelegate(inspector_tool, "inspector")
 
     # --------------------------------------------------------------------
@@ -236,7 +236,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
 
     def setMaxDataBufferSize(self, buffer_size):
         """Required generic TaurusTrend API """
-        self._buffer_tool.setBufferSize(buffer_size)
+        self.buffer_tool.setBufferSize(buffer_size)
 
 
 def trend_main(
