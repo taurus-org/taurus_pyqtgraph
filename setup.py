@@ -85,7 +85,7 @@ classifiers = [
 
 setup(
     name="taurus_pyqtgraph",
-    version="0.4.8",
+    version="0.4.9-alpha",
     description=description,
     long_description=long_description,
     author=author,
