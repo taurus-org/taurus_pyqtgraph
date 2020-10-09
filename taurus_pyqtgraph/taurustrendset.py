@@ -81,7 +81,8 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         colors = kwargs.pop("colors", None)
         if colors is None:
             colors = LoopList(CURVE_COLORS)
-        PlotDataItem.__init__(self, *args, **kwargs)
+        name = kwargs.pop("name", None)
+        PlotDataItem.__init__(self, x=[], y=[], name=name)
         TaurusBaseComponent.__init__(self, "TaurusBaseComponent")
         self._UImodifiable = False
         self._maxBufferSize = 65536  # (=2**16, i.e., 64K events))
@@ -223,7 +224,9 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                     plotItem = viewWidget.getPlotItem()
                 if plotItem is not None:
                     curve = ensure_unique_curve_name(curve, plotItem)
-                    plotItem.addItem(curve)
+                    _cname = curve.name()
+                    params = {"all trends": _cname}
+                    plotItem.addItem(curve, params=params)
 
     def _updateBuffers(self, evt_value):
         """Update the x and y buffers with the new data. If the new data is
