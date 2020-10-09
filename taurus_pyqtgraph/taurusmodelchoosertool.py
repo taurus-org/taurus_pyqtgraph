@@ -298,16 +298,24 @@ class TaurusXYModelChooserTool(Qt.QAction, BaseConfigurableClass):
 
     def _onTriggered(self):
         oldconfs = self._getTaurusPlotDataItemConfigs().values()
-        newconfs, ok = TaurusItemConfDlg.showDlg(
+        dlg = Qt.QDialog(self.parent())
+        dlg.setWindowTitle("Curves Selection")
+        layout = Qt.QVBoxLayout()
+        w = TaurusItemConfDlg(
             parent=self.parent(),
-            taurusItemConf=oldconfs,
-            showXCol=self._showX,
+            taurusItemsConf=oldconfs,
+            showXcol=self._showX,
         )
+        layout.addWidget(w)
+        dlg.setLayout(layout)
+        w.applied.connect(self._onDlgApplied)
+        w.ui.cancelBT.clicked.connect(dlg.close)
+        dlg.exec_()
 
-        if ok:
-            xy_names = [(c.xModel, c.yModel) for c in newconfs]
-            self.updateModels(xy_names)
-            # TODO: apply configurations too
+    def _onDlgApplied(self):
+        newconfs = self.sender().getItemConfs()
+        xy_names = [(c.xModel, c.yModel) for c in newconfs]
+        self.updateModels(xy_names)
 
     def _getTaurusPlotDataItemConfigs(self):
         """Get all the TaurusItemConf of the existing TaurusPlotDataItems
