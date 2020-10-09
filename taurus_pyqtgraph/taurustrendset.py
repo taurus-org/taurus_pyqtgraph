@@ -81,8 +81,8 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
         colors = kwargs.pop("colors", None)
         if colors is None:
             colors = LoopList(CURVE_COLORS)
-        # PlotDataItem.__init__(self, *args, **kwargs)
-        PlotDataItem.__init__(self, x=[], y=[])
+        name = kwargs.pop("name", None)
+        PlotDataItem.__init__(self, x=[], y=[], name=name)
         TaurusBaseComponent.__init__(self, "TaurusBaseComponent")
         self._UImodifiable = False
         self._maxBufferSize = 65536  # (=2**16, i.e., 64K events))
