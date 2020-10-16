@@ -83,19 +83,16 @@ for k, v in NamedLineStyles.items():
     ReverseNamedLineStyles[v] = k
 
 # TODO:allow the dialog to use this curve styles
-NamedCurveStyles = {
+NamedStepMode = {
     CONFLICT: "",
-    None: "",
-    "No curve": "No curve",
-    "Lines": "Lines",
-    "Sticks": "Sticks",
-    "Steps": "Steps",
-    "Dots": "Dots",
+    None: "No step",
+    "left": "Left step",
+    "right": "Right step",
 }
 
-ReverseNamedCurveStyles = {}
-for k, v in NamedCurveStyles.items():
-    ReverseNamedCurveStyles[v] = k
+ReverseNamedStepMode = {}
+for k, v in NamedStepMode.items():
+    ReverseNamedStepMode[v] = k
 
 NamedSymbolStyles = {
     CONFLICT: "",
@@ -197,7 +194,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
 
         self.sStyleCB.insertItems(0, sorted(NamedSymbolStyles.values()))
         self.lStyleCB.insertItems(0, list(NamedLineStyles.values()))
-        self.cStyleCB.insertItems(0, list(NamedCurveStyles.values()))
+        self.stepModeCB.insertItems(0, list(NamedStepMode.values()))
         self.sColorCB.addItem("")
         self.lColorCB.addItem("")
         self.cAreaDSB.setRange(float("-inf"), float("inf"))
@@ -227,7 +224,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.lStyleCB.currentIndexChanged.connect(self._onControlChanged)
         self.sColorCB.currentIndexChanged.connect(self._onControlChanged)
         self.lColorCB.currentIndexChanged.connect(self._onControlChanged)
-        self.cStyleCB.currentIndexChanged.connect(self._onControlChanged)
+        self.stepModeCB.currentIndexChanged.connect(self._onControlChanged)
         self.sSizeSB.valueChanged.connect(self._onControlChanged)
         self.lWidthSB.valueChanged.connect(self._onControlChanged)
         self.cAreaDSB.valueChanged.connect(self._onControlChanged)
@@ -348,8 +345,8 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.lStyleCB.setCurrentIndex(
             self.lStyleCB.findText(NamedLineStyles[prop.lStyle])
         )
-        self.cStyleCB.setCurrentIndex(
-            self.cStyleCB.findText(NamedCurveStyles[prop.cStyle])
+        self.stepModeCB.setCurrentIndex(
+            self.stepModeCB.findText(NamedStepMode[prop.stepMode])
         )
 
         if prop.y2 is CONFLICT:
@@ -456,8 +453,6 @@ class CurvesAppearanceChooser(Qt.QWidget):
         """
         text = str(text)
         if self.sSizeSB.value() < 2 and text not in ["", "No symbol"]:
-            # a symbol size of 0 is invisible and 1 means you should use
-            # cStyle=dots
             self.sSizeSB.setValue(3)
 
     def getShownProperties(self):
@@ -477,7 +472,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
             str(self.sStyleCB.currentText())
         ]
         prop.lStyle = ReverseNamedLineStyles[str(self.lStyleCB.currentText())]
-        prop.cStyle = ReverseNamedCurveStyles[str(self.cStyleCB.currentText())]
+        prop.stepMode = ReverseNamedStepMode[str(self.stepModeCB.currentText())]
         # get sSize and lWidth from the spinboxes (-1 means conflict)
         v = self.sSizeSB.value()
         if v == -1:
@@ -617,7 +612,7 @@ def get_properties_from_curves(curves):
         lStyle = pen.style()
         lWidth = pen.width()
         lColor = pen.color()
-        cStyle = None
+        stepMode = opts.get('stepMode', None)
 
         cFill = opts["fillLevel"]
 
@@ -629,7 +624,7 @@ def get_properties_from_curves(curves):
             lStyle=lStyle,
             lWidth=lWidth,
             lColor=lColor,
-            cStyle=cStyle,
+            stepMode=stepMode,
             cFill=cFill,
             y2=y2,
             title=title,
@@ -669,6 +664,7 @@ def set_properties_on_curves(properties, curves, plotItem=None, y2Axis=None):
         lWidth = prop.lWidth
         lColor = prop.lColor
         cFill = prop.cFill
+        stepMode = prop.stepMode
         y2 = prop.y2
         # title = properties.title
 
@@ -696,6 +692,9 @@ def set_properties_on_curves(properties, curves, plotItem=None, y2Axis=None):
         else:
             dataItem.setSymbolBrush(None)
 
+        dataItem.opts["stepMode"] = stepMode
+        dataItem.updateItems()
+
         # act on the ViewBoxes only if plotItem and y2Axis are given
         if plotItem and y2Axis:
             set_y_axis_for_curve(y2, dataItem, plotItem, y2Axis)
@@ -712,7 +711,7 @@ class CurveAppearanceProperties(object):
         "lStyle",
         "lWidth",
         "lColor",
-        "cStyle",
+        "stepMode",
         "cFill",
         "y2",
         "title",
@@ -728,7 +727,7 @@ class CurveAppearanceProperties(object):
         lStyle=CONFLICT,
         lWidth=CONFLICT,
         lColor=CONFLICT,
-        cStyle=CONFLICT,
+        stepMode=CONFLICT,
         y2=CONFLICT,
         cFill=CONFLICT,
         title=CONFLICT,
@@ -743,7 +742,7 @@ class CurveAppearanceProperties(object):
             - lStyle= linestyle
             - lWidth= int
             - lColor= color
-            - cStyle= curvestyle
+            - stepMode= stepmode
             - cFill= float or None
             - y2= bool
             - visible = bool
@@ -754,7 +753,7 @@ class CurveAppearanceProperties(object):
               Qt.Qt.GlobalColor, a color name, or a Qt.Qcolor)
             - symbolstyle is a key of NamedSymbolStyles
             - linestyle is a key of Qt.Qt.PenStyle
-            - curvestyle is a key of NamedCurveStyles
+            - stepMode is a key of NamedStepMode
             - cFill can either be None (meaning not to fill) or a float that
               indicates the baseline from which to fill
             - y2 is True if the curve is associated to the y2 axis
@@ -766,7 +765,7 @@ class CurveAppearanceProperties(object):
         self.lStyle = lStyle
         self.lWidth = lWidth
         self.lColor = lColor
-        self.cStyle = cStyle
+        self.stepMode = stepMode
         self.cFill = cFill
         self.y2 = y2
         self.title = title
