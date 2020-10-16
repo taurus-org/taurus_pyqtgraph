@@ -35,6 +35,24 @@ from taurus_pyqtgraph.curveproperties import (
 import pyqtgraph
 
 
+def _isStepModeSupported():
+    """
+    check if pyqtgraph has left/right stepMode support (introduced in v>0.11.0)
+    """
+    # TODO: to be removed when we bump pyqtgraph dependency to v> 0.11.0
+    import numpy
+    x = numpy.arange(4)
+    y = numpy.arange(3)
+    c = pyqtgraph.PlotCurveItem(stepMode="__nonexisting_step_mode__")
+    try:
+        c.generatePath(x, y)
+    except ValueError:
+        # will raise ValueError if
+        # https://github.com/pyqtgraph/pyqtgraph/pull/1360 is implemented
+        return True
+    return False
+
+
 class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
     """
     This tool inserts an action in the menu of the :class:`pyqtgraph.PlotItem`
@@ -101,6 +119,9 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
             plotItem=self.plot_item,
             Y2Axis=self.Y2Axis,
         )
+        if not _isStepModeSupported():
+            w.stepModeCB.setEnabled(False)
+
         layout.addWidget(w)
         dlg.setLayout(layout)
         dlg.exec_()
