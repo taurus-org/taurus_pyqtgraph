@@ -41,6 +41,7 @@ def _isStepModeSupported():
     """
     # TODO: to be removed when we bump pyqtgraph dependency to v> 0.11.0
     import numpy
+
     x = numpy.arange(4)
     y = numpy.arange(3)
     c = pyqtgraph.PlotCurveItem(stepMode="__nonexisting_step_mode__")

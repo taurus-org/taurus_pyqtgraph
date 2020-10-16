@@ -472,7 +472,9 @@ class CurvesAppearanceChooser(Qt.QWidget):
             str(self.sStyleCB.currentText())
         ]
         prop.lStyle = ReverseNamedLineStyles[str(self.lStyleCB.currentText())]
-        prop.stepMode = ReverseNamedStepMode[str(self.stepModeCB.currentText())]
+        prop.stepMode = ReverseNamedStepMode[
+            str(self.stepModeCB.currentText())
+        ]
         # get sSize and lWidth from the spinboxes (-1 means conflict)
         v = self.sSizeSB.value()
         if v == -1:
@@ -612,7 +614,7 @@ def get_properties_from_curves(curves):
         lStyle = pen.style()
         lWidth = pen.width()
         lColor = pen.color()
-        stepMode = opts.get('stepMode', None)
+        stepMode = opts.get("stepMode", None)
 
         cFill = opts["fillLevel"]
 
