@@ -8,7 +8,7 @@ def test_tickValues(qtbot):
     """
     w = tpg.TaurusTrend()
     qtbot.addWidget(w)
-    a = w.getPlotItem().axes["bottom"]['item']
+    a = w.getPlotItem().axes["bottom"]["item"]
     # check return values in the minutes scale
     assert a.tickValues(-65, 125, 1e3)[0] == (60.0, [-60.0, 0.0, 60.0, 120.0])
     # check that the datetime overflows do not break the call
@@ -22,6 +22,6 @@ def test_tickStrings(qtbot):
     """
     w = tpg.TaurusTrend()
     qtbot.addWidget(w)
-    a = w.getPlotItem().axes["bottom"]['item']
+    a = w.getPlotItem().axes["bottom"]["item"]
     # check return values in the minutes scale
-    assert a.tickStrings([-60.0, 120.0], None, 60) == ['00:59', '01:02']
+    assert a.tickStrings([-60.0, 120.0], None, 60) == ["00:59", "01:02"]

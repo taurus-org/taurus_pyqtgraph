@@ -81,6 +81,7 @@ class DateAxisItem(AxisItem):
             dt2 = datetime.fromtimestamp(maxVal)
         except Exception as e:
             from taurus import warning
+
             warning("Invalid range in DateTime axis: %s", e)
             return [(dx, [])]
 
