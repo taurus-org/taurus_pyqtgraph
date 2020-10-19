@@ -3,6 +3,7 @@ name: Test Package
 on: [push, pull_request]
 
 jobs:
+
   tox_tests:
     runs-on: ubuntu-latest
     strategy:
@@ -17,8 +18,13 @@ jobs:
       - name: Install Tox and any other packages
         run: pip install tox
       - name: Run Tox
+        if: ${{ matrix.python != '3.5' }}
         # Run tox using the version of Python in `PATH`
         run: tox -e py
+      - name: Run Tox for 3.5
+        if: ${{ matrix.python == '3.5' }}
+        # Run tox using the version of Python in `PATH`
+        run: tox -e py35
 
   flake8_tests:
     runs-on: ubuntu-latest
