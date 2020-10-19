@@ -73,15 +73,21 @@ class DateAxisItem(AxisItem):
 
         maxMajSteps = int(size // self._pxLabelWidth)
 
-        dt1 = datetime.fromtimestamp(minVal)
-        dt2 = datetime.fromtimestamp(maxVal)
-
         dx = maxVal - minVal
         majticks = []
 
+        try:
+            dt1 = datetime.fromtimestamp(minVal)
+            dt2 = datetime.fromtimestamp(maxVal)
+        except Exception as e:
+            from taurus import warning
+
+            warning("Invalid range in DateTime axis: %s", e)
+            return [(dx, [])]
+
         if dx > 63072001:  # 3600s*24*(365+366) = 2 years (count leap year)
             d = timedelta(days=366)
-            for y in range(dt1.year + 1, dt2.year):
+            for y in range(dt1.year + 1, dt2.year + 1):
                 dt = datetime(year=y, month=1, day=1)
                 majticks.append(mktime(dt.timetuple()))
 
@@ -139,7 +145,10 @@ class DateAxisItem(AxisItem):
 
         elif dx > 2:  # 2s
             d = timedelta(seconds=1)
-            majticks = list(range(int(minVal), int(maxVal)))
+            # majticks = list(range(int(minVal), int(maxVal)))
+            majticks = list(
+                range(int(numpy.ceil(minVal)), int(numpy.ceil(maxVal)))
+            )
 
         else:  # <2s , use standard implementation from parent
             return AxisItem.tickValues(self, minVal, maxVal, size)
