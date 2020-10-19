@@ -73,11 +73,16 @@ class DateAxisItem(AxisItem):
 
         maxMajSteps = int(size // self._pxLabelWidth)
 
-        dt1 = datetime.fromtimestamp(minVal)
-        dt2 = datetime.fromtimestamp(maxVal)
-
         dx = maxVal - minVal
         majticks = []
+
+        try:
+            dt1 = datetime.fromtimestamp(minVal)
+            dt2 = datetime.fromtimestamp(maxVal)
+        except Exception as e:
+            from taurus import warning
+            warning("Invalid range in DateTime axis: %s", e)
+            return [(dx, [])]
 
         if dx > 63072001:  # 3600s*24*(365+366) = 2 years (count leap year)
             d = timedelta(days=366)
