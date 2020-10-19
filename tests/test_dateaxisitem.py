@@ -2,6 +2,23 @@ import taurus_pyqtgraph as tpg
 from datetime import datetime
 import pytest
 
+try:
+    fromisoformat = datetime.fromisoformat
+except AttributeError:  # py <3.7
+
+    def fromisoformat(s):
+        for fmt in (
+            "%Y-%m-%dT%H:%M:%S.%f",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y-%m-%dT%H:%M",
+            "%Y-%m-%d",
+        ):
+            try:
+                return datetime.strptime(s, fmt)
+            except ValueError:
+                pass
+        raise ValueError("cannot convert {}".format(s))
+
 
 @pytest.mark.parametrize(
     "val_range,expected",
@@ -28,23 +45,23 @@ import pytest
         ),
         (
             ["2020-01-01T00:05:10", "2020-01-01T00:08:50"],  # d=1m
-            ["2020-01-01T00:06", "2020-01-01T00:07", "2020-01-01T00:08",],
+            ["2020-01-01T00:06", "2020-01-01T00:07", "2020-01-01T00:08"],
         ),
         (
             ["2020-01-01T00:45:10", "2020-01-01T01:15:50"],  # d=10m
-            ["2020-01-01T00:50", "2020-01-01T01:00", "2020-01-01T01:10",],
+            ["2020-01-01T00:50", "2020-01-01T01:00", "2020-01-01T01:10"],
         ),
         (
             ["2020-01-01T00:45:10", "2020-01-01T03:15:50"],  # d=1h
-            ["2020-01-01T01:00", "2020-01-01T02:00", "2020-01-01T03:00",],
+            ["2020-01-01T01:00", "2020-01-01T02:00", "2020-01-01T03:00"],
         ),
         (
             ["2020-01-01T00:45:10", "2020-04-01T03:15:50"],  # d=1month
-            ["2020-02-01", "2020-03-01", "2020-04-01",],
+            ["2020-02-01", "2020-03-01", "2020-04-01"],
         ),
         (
             ["2020-01-01T00:45:10", "2023-04-01T03:15:50"],  # d=1y
-            ["2021-01-01", "2022-01-01", "2023-01-01",],
+            ["2021-01-01", "2022-01-01", "2023-01-01"],
         ),
     ],
 )
@@ -55,8 +72,8 @@ def test_tickValues(qtbot, val_range, expected):
     w = tpg.TaurusTrend()
     qtbot.addWidget(w)
     a = w.getPlotItem().axes["bottom"]["item"]
-    minVal, maxVal = [datetime.fromisoformat(v).timestamp() for v in val_range]
-    exp = [datetime.fromisoformat(v).timestamp() for v in expected]
+    minVal, maxVal = [fromisoformat(v).timestamp() for v in val_range]
+    exp = [fromisoformat(v).timestamp() for v in expected]
     assert a.tickValues(minVal, maxVal, 10000)[0][1] == exp
 
 
@@ -96,7 +113,7 @@ def test_tickStrings(qtbot, values, expected):
     qtbot.addWidget(w)
     a = w.getPlotItem().axes["bottom"]["item"]
 
-    dt = [datetime.fromisoformat(v).timestamp() for v in values]
+    dt = [fromisoformat(v).timestamp() for v in values]
     spacing = dt[-1] - dt[0]
     # check return values in the seconds scale
     assert a.tickStrings(dt, None, spacing) == expected
