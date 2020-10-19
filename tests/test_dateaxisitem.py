@@ -1,4 +1,3 @@
-from taurus.external.qt import Qt
 import taurus_pyqtgraph as tpg
 
 
