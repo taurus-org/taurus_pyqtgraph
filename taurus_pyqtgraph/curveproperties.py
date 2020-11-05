@@ -684,7 +684,14 @@ def set_properties_on_curves(properties, curves, plotItem=None, y2Axis=None):
             dataItem.setData(name=title)
             # update the corresponding label in the legend
             if plotItem is not None and plotItem.legend is not None:
-                plotItem.legend.getLabel(dataItem).setText(title)
+                if hasattr(plotItem.legend, "getLabel"):
+                    plotItem.legend.getLabel(dataItem).setText(title)
+                else:
+                    # workaround for pyqtgraph<=0.11 (getLabel not implemented)
+                    for sample, label in plotItem.legend.items:
+                        if sample.item == dataItem:
+                            label.setText(title)
+                            break
 
         # act on the ViewBoxes only if plotItem and y2Axis are given
         if plotItem and y2Axis:
