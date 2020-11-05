@@ -235,7 +235,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.bckgndBT.clicked.connect(self.changeBackgroundColor)
 
         # Disabled button until future implementations
-        self.changeTitlesBT.setEnabled(False)
+        self.changeTitlesBT.setVisible(False)
 
         # disable the group box with the options for swap curves between Y axes
         if Y2Axis is None or plotItem is None:
