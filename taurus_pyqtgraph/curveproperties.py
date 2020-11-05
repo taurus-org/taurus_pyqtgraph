@@ -53,7 +53,6 @@ import copy
 
 from taurus import warning
 from taurus.external.qt import Qt
-from taurus.core.util.containers import CaselessDict
 from taurus.qt.qtgui.util.ui import UILoadable
 from .y2axis import Y2ViewBox, set_y_axis_for_curve
 import pyqtgraph
@@ -205,7 +204,6 @@ class CurvesAppearanceChooser(Qt.QWidget):
             icon = self._colorIcon(color)
             self.sColorCB.addItem(icon, "", Qt.QColor(color))
             self.lColorCB.addItem(icon, "", Qt.QColor(color))
-        self.__itemsDict = CaselessDict()
         self.setCurvesProps(curvePropDict)
 
         if self.plotItem is None:
@@ -215,11 +213,11 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.curvesLW.itemSelectionChanged.connect(
             self._onSelectedCurveChanged
         )
-        self.curvesLW.itemChanged.connect(self._onItemChanged)
         self.applyBT.clicked.connect(self.onApply)
         self.resetBT.clicked.connect(self.onReset)
         self.sStyleCB.currentIndexChanged.connect(self._onSymbolStyleChanged)
 
+        self.curvesLW.itemChanged.connect(self._onControlChanged)
         self.sStyleCB.currentIndexChanged.connect(self._onControlChanged)
         self.lStyleCB.currentIndexChanged.connect(self._onControlChanged)
         self.sColorCB.currentIndexChanged.connect(self._onControlChanged)
@@ -237,7 +235,7 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.bckgndBT.clicked.connect(self.changeBackgroundColor)
 
         # Disabled button until future implementations
-        self.changeTitlesBT.setEnabled(False)
+        self.changeTitlesBT.setVisible(False)
 
         # disable the group box with the options for swap curves between Y axes
         if Y2Axis is None or plotItem is None:
@@ -253,6 +251,14 @@ class CurvesAppearanceChooser(Qt.QWidget):
     def __onY2Toggled(self, checked):
         if checked:
             self.assignToY1BT.setChecked(False)
+
+    def __findCurveListItem(self, key, role=None):
+        if role is None:
+            role = self.NAME_ROLE
+        for i in range(self.curvesLW.count()):
+            item = self.curvesLW.item(i)
+            if item.data(role) == key:
+                return item
 
     def changeBackgroundColor(self):
         """Launches a dialog for choosing the plot widget background color
@@ -276,13 +282,10 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.curvePropDict = curvePropDict
         self._curvePropDictOrig = copy.deepcopy(curvePropDict)
         self.curvesLW.clear()
-        self.__itemsDict = CaselessDict()
         for name, prop in self.curvePropDict.items():
             # create and insert the item
             item = Qt.QListWidgetItem(prop.title, self.curvesLW)
-            self.__itemsDict[name] = item
             item.setData(self.NAME_ROLE, name)
-            item.setToolTip("<b>Curve Name:</b> %s" % name)
             item.setFlags(
                 Qt.Qt.ItemIsEnabled
                 | Qt.Qt.ItemIsSelectable
@@ -291,28 +294,6 @@ class CurvesAppearanceChooser(Qt.QWidget):
                 | Qt.Qt.ItemIsEditable
             )
         self.curvesLW.setCurrentRow(0)
-
-    def _onItemChanged(self, item):
-        """slot used when an item data has changed"""
-        name = item.data(self.NAME_ROLE)
-        previousTitle = self.curvePropDict[name].title
-        currentTitle = item.text()
-        if previousTitle != currentTitle:
-            self.curvePropDict[name].title = currentTitle
-            self.CurveTitleEdited.emit(name, currentTitle)
-
-    def updateTitles(self, newTitlesDict=None):
-        """
-        Updates the titles of the curves that are displayed in the curves list.
-
-        :param newTitlesDict: (dict<str,str>) dictionary with key=curve_name
-                                and value=title
-        """
-        if newTitlesDict is None:
-            return
-        for name, title in newTitlesDict.items():
-            self.curvePropDict[name].title = title
-            self.__itemsDict[name].setText(title)
 
     def getSelectedCurveNames(self):
         """Returns the curve names for the curves selected at the curves list.
@@ -459,12 +440,11 @@ class CurvesAppearanceChooser(Qt.QWidget):
         """Returns a copy of the currently shown properties and updates
         self._shownProp
 
+        Note: the title property is left as CONFLICT since all are shown
+
         :return: (CurveAppearanceProperties)
         """
         prop = CurveAppearanceProperties()
-
-        for name in self.getSelectedCurveNames():
-            prop.title = self.curvePropDict[name].title
 
         # get the values from the Style comboboxes. Note that the empty string
         # ("") translates into CONFLICT
@@ -552,6 +532,8 @@ class CurvesAppearanceChooser(Qt.QWidget):
                 [self.curvePropDict[n], prop],
                 conflict=CurveAppearanceProperties.inConflict_update_a,
             )
+            # update the title with whatever is now written in the curvesLW
+            self.curvePropDict[n].title = self.__findCurveListItem(n).text()
         # emit a (PyQt) signal telling what properties (first argument) need to
         # be applied to which curves (second argument)
         # self.curveAppearanceChanged.emit(prop, names)
@@ -647,7 +629,7 @@ def set_properties_on_curves(properties, curves, plotItem=None, y2Axis=None):
                        given curve
     :param curves: dict whose values are :class:`PlotDataItem` instances
                    and whose keys match those of properties (if a key in
-                   `curves` does not exist in `properties`, it will bed)
+                   `curves` does not exist in `properties`, it will be ignored)
     :param plotItem: The :class:`PlotItem` containing the dataItem.
     :param y2Axis: The :class:`Y2ViewBox` instance
  e skipp   """
@@ -668,7 +650,7 @@ def set_properties_on_curves(properties, curves, plotItem=None, y2Axis=None):
         cFill = prop.cFill
         stepMode = prop.stepMode
         y2 = prop.y2
-        # title = properties.title
+        title = prop.title
 
         dataItem.setPen(dict(style=lStyle, width=lWidth, color=lColor))
         if cFill is not None:
@@ -696,6 +678,20 @@ def set_properties_on_curves(properties, curves, plotItem=None, y2Axis=None):
 
         dataItem.opts["stepMode"] = stepMode
         dataItem.updateItems()
+
+        if title is not None:
+            # set the title of the curve
+            dataItem.setData(name=title)
+            # update the corresponding label in the legend
+            if plotItem is not None and plotItem.legend is not None:
+                if hasattr(plotItem.legend, "getLabel"):
+                    plotItem.legend.getLabel(dataItem).setText(title)
+                else:
+                    # workaround for pyqtgraph<=0.11 (getLabel not implemented)
+                    for sample, label in plotItem.legend.items:
+                        if sample.item == dataItem:
+                            label.setText(title)
+                            break
 
         # act on the ViewBoxes only if plotItem and y2Axis are given
         if plotItem and y2Axis:

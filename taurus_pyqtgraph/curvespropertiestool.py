@@ -62,6 +62,8 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
     PlotItem.
     """
 
+    autoApply = False
+
     def __init__(self, parent=None):
         BaseConfigurableClass.__init__(self)
         QtGui.QAction.__init__(self, "Plot configuration", parent)
@@ -117,6 +119,7 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
             curvePropDict=props,
             curvesDict=curves,
             showButtons=True,
+            autoApply=self.autoApply,
             plotItem=self.plot_item,
             Y2Axis=self.Y2Axis,
         )
