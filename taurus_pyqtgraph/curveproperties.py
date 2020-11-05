@@ -53,7 +53,6 @@ import copy
 
 from taurus import warning
 from taurus.external.qt import Qt
-from taurus.core.util.containers import CaselessDict
 from taurus.qt.qtgui.util.ui import UILoadable
 from .y2axis import Y2ViewBox, set_y_axis_for_curve
 import pyqtgraph
@@ -205,7 +204,6 @@ class CurvesAppearanceChooser(Qt.QWidget):
             icon = self._colorIcon(color)
             self.sColorCB.addItem(icon, "", Qt.QColor(color))
             self.lColorCB.addItem(icon, "", Qt.QColor(color))
-        self.__itemsDict = CaselessDict()
         self.setCurvesProps(curvePropDict)
 
         if self.plotItem is None:
@@ -284,11 +282,9 @@ class CurvesAppearanceChooser(Qt.QWidget):
         self.curvePropDict = curvePropDict
         self._curvePropDictOrig = copy.deepcopy(curvePropDict)
         self.curvesLW.clear()
-        self.__itemsDict = CaselessDict()
         for name, prop in self.curvePropDict.items():
             # create and insert the item
             item = Qt.QListWidgetItem(prop.title, self.curvesLW)
-            self.__itemsDict[name] = item
             item.setData(self.NAME_ROLE, name)
             item.setFlags(
                 Qt.Qt.ItemIsEnabled

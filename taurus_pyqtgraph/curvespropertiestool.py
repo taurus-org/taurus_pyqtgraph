@@ -61,6 +61,7 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
     It is implemented as an Action, and provides a method to attach it to a
     PlotItem.
     """
+
     autoApply = False
 
     def __init__(self, parent=None):
