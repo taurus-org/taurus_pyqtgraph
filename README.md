@@ -135,7 +135,7 @@ Outside TEP17 scope:
 
 
 ### In general:
-- [ ] Document all public API
+- [x] Document all public API
 - [x] Make all code pep8-clean
 
 
