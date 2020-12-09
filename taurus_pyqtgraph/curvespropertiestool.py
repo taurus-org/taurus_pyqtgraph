@@ -131,6 +131,11 @@ class CurvesPropertiesTool(QtGui.QAction, BaseConfigurableClass):
         dlg.exec_()
 
     def getModifiableItems(self):
+        """
+        Return a list of curves in the plotItem to which this tool is attached
+        and which properties are modifiable with this tool. It ignores those
+        curves that define `._UImodifiable=False`
+        """
         data_items = self.plot_item.listDataItems()
         # checks in all ViewBoxes from plot_item,
         # looking for data_items (Curves).

@@ -190,6 +190,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         return ret
 
     def getTrendSets(self):
+        """Returns all the trend sets attached to this plot item"""
         return [
             e
             for e in self.getPlotItem().listDataItems()
@@ -197,6 +198,7 @@ class TaurusTrend(PlotWidget, BaseConfigurableClass):
         ]
 
     def clearTrends(self):
+        """Clear the buffers of all the trend sets in the plot"""
         for ts in self.getTrendSets():
             ts.clearBuffer()
 
