@@ -120,12 +120,19 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         self.taurusItems = list(taurusItems)
 
     def dumpData(self):
+        """
+        Return all the TaurusCurveItem  configurations
+
+        :return: a copy of the items in the model
+        """
         return copy.copy(self.taurusItems)
 
     def rowCount(self, index=Qt.QModelIndex()):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         return len(self.taurusItems)
 
     def columnCount(self, index=Qt.QModelIndex()):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         return self.ncolumns
 
     def swapItems(self, index1, index2):
@@ -138,6 +145,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         self.layoutChanged.emit()
 
     def data(self, index, role=Qt.Qt.DisplayRole):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         if not index.isValid() or not (0 <= index.row() < self.rowCount()):
             return None
         row = index.row()
@@ -192,6 +200,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=Qt.Qt.DisplayRole):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         if role == Qt.Qt.TextAlignmentRole:
             if orientation == Qt.Qt.Horizontal:
                 return int(Qt.Qt.AlignLeft | Qt.Qt.AlignVCenter)
@@ -211,6 +220,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
             return str(section + 1)
 
     def flags(self, index):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         # use this to set the editable flag when fix is selected
         if not index.isValid():
             return Qt.Qt.ItemIsEnabled
@@ -236,6 +246,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         )
 
     def setData(self, index, value=None, role=Qt.Qt.EditRole):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         if index.isValid() and (0 <= index.row() < self.rowCount()):
             row = index.row()
             curve = self.taurusItems[row]
@@ -253,6 +264,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         return False
 
     def insertRows(self, position=None, rows=1, parentindex=None):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         if position is None:
             position = self.rowCount()
         if parentindex is None:
@@ -266,6 +278,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         return True
 
     def removeRows(self, position, rows=1, parentindex=None):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         if parentindex is None:
             parentindex = Qt.QModelIndex()
         self.beginResetModel()
@@ -278,14 +291,17 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         return True
 
     def clearAll(self):
+        """Remove all entries"""
         self.removeRows(0, self.rowCount())
 
     def mimeTypes(self):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         result = list(Qt.QAbstractTableModel.mimeTypes(self))
         result += [TAURUS_ATTR_MIME_TYPE, "text/plain"]
         return result
 
     def dropMimeData(self, data, action, row, column, parent):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         if row == -1:
             if parent.isValid():
                 row = parent.row()
@@ -317,6 +333,7 @@ class TaurusCurveItemTableModel(Qt.QAbstractTableModel):
         return False
 
     def mimeData(self, indexes):
+        """Reimplemented from :class:`QAbstractTableModel`"""
         mimedata = Qt.QAbstractTableModel.mimeData(self, indexes)
         if len(indexes) == 1:
             #            mimedata.setData(TAURUS_ATTR_MIME_TYPE, data)
@@ -407,6 +424,10 @@ class TaurusItemConfDlg(Qt.QWidget):
         modelSelector.modelsAdded.connect(self.onModelsAdded)
 
     def onTableContextMenu(self, pos):
+        """
+        Shows the context menu options for the selected item in the curves
+        table.
+        """
         index = self.ui.curvesTable.indexAt(pos)
         row = index.row()
         menu = Qt.QMenu(self.ui.curvesTable)
@@ -489,6 +510,7 @@ class TaurusItemConfDlg(Qt.QWidget):
             self.ui.curvesTable.closePersistentEditor(idx)
 
     def onModelsAdded(self, models):
+        """Slot called when the method selector adds som new item"""
         nmodels = len(models)
         rowcount = self.model.rowCount()
         self.model.insertRows(rowcount, nmodels)
@@ -514,6 +536,10 @@ class TaurusItemConfDlg(Qt.QWidget):
             )
 
     def getItemConfs(self):
+        """
+        Return the item Return all the TaurusCurveItem configurations
+        :return: (list)
+        """
         return self.model.dumpData()
 
     @staticmethod
@@ -543,9 +569,17 @@ class TaurusItemConfDlg(Qt.QWidget):
         return w.getItemConfs(), (dlg.result() == dlg.Accepted)
 
     def onApply(self):
+        """
+        Slot called when the Apply button is clicked. It emits the `applied`
+        signal
+        """
         self.applied.emit()
 
     def onReload(self):
+        """
+        Slot called when the Reload button is clicked.
+        TODO: implement (for now it does nothing)
+        """
         # TODO
         print("RELOAD!!! (todo)")
 

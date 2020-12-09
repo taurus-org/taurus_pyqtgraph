@@ -42,6 +42,7 @@ import taurus
 
 
 class TrendCurve(PlotDataItem):
+    """A PlotDataItem for representing 1D trends"""
     def __repr__(self):
         return "<TrendCurve {}>".format(self.name())
 
@@ -419,6 +420,10 @@ class TaurusTrendSet(PlotDataItem, TaurusBaseComponent):
                 c.opts["connect"] = "finite"
 
     def getFullModelNames(self):
+        """
+        Return a tuple of (None, fullmodelname) for API compatibility with
+        :class:`TaurusPlotDataItem`.
+        """
         return (None, self.getFullModelName())
 
     def setBufferSize(self, buffer_size):

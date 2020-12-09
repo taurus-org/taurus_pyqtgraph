@@ -67,6 +67,7 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
         )
 
     def setXModel(self, xModel):
+        """Sets the taurus model for the x component"""
         if self.xModel is not None:
             self.xModel.removeListener(self)
 
@@ -78,12 +79,14 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
         self.xModel.addListener(self)
 
     def getXModelName(self):
+        """Returns the full name for the x component"""
         if self.xModel is None:
             return None
         else:
             return self.xModel.getFullName()
 
     def handleEvent(self, evt_src, evt_type, evt_value):
+        """Reimplemented from :class:`TaurusBaseComponent`"""
         if evt_type not in (TaurusEventType.Change, TaurusEventType.Periodic):
             return
         yModel = self.getModelObj()
@@ -103,6 +106,10 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
             self.debug("Could not set data. Reason: %r", e)
 
     def getOpts(self):
+        """
+        Returns the options for this DataItem as a serialized, pickable
+        dictionary
+        """
         from taurus_pyqtgraph import serialize_opts
 
         return serialize_opts(copy.copy(self.opts))
@@ -125,6 +132,10 @@ class TaurusPlotDataItem(PlotDataItem, TaurusBaseComponent):
             self.opts["connect"] = "finite"
 
     def getFullModelNames(self):
+        """
+        Get the full model names for the x and y components as an
+        `(xname,yname)` tuple
+        """
         return (self.getXModelName(), self.getFullModelName())
 
 
