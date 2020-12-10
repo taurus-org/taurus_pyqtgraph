@@ -1,7 +1,7 @@
 # taurus_pyqtgraph
 
 `taurus_pyqtgraph` is an extension package for the [Taurus] package. It
-adds the `taurus.qt.qtgui.tpg` submodule which provides [pyqtgraph]-based 
+adds the `taurus.qt.qtgui.tpg` submodule which provides [pyqtgraph]-based
 widgets.
 The rationale behind taurus_pyqtgraph is described in the [TEP17]
 
@@ -26,8 +26,8 @@ pip install -r requirements_dev.txt -r requirements.txt
 pip install -e .
 ```
 
-After successful installation, the module will be accessible as `taurus.qt.qtgui.tpg` 
-and `taurus_tpg`, and `tpg` will be registered as an alternative implementation for 
+After successful installation, the module will be accessible as `taurus.qt.qtgui.tpg`
+and `taurus_tpg`, and `tpg` will be registered as an alternative implementation for
 plots and trends in the `taurus` CLI.
 
 ## Features implementation checklist
@@ -54,7 +54,7 @@ those for which there is already an alpha-quality prototype:
 - [x] Support for non-taurus curves in same plot (aka "raw data")
 - [x] UI for setting scale limits and lin/log options
 - [x] Export data as ascii: without date-time support
-- [x] Export plot as image (S0)
+- [x] Export plot as image
 - [x] UI for moving a curve from one Y-scale to another
 - [x] UI for choosing line color, thickness symbol, filling...
 - [x] Arbitrary Label scale (aka FixedLabelsScale)
@@ -63,13 +63,13 @@ those for which there is already an alpha-quality prototype:
 Outside TEP17 scope:
 
 - [ ] UI for setting scale limits *in date/time format* (S16)
-- [x] Point-picking (aka "inspect mode") (S4)
+- [x] Point-picking (aka "inspect mode")
 - [ ] Date-time support in "export data as ascii" (S24)
 - [ ] Plot freeze (pause) (S8)
 - [x] Improved Model Chooser: replacement of the "input data selection"
   dialog allowing to choose *both* X and Y models (see curve selection
-  dialog in extra_guiqwt's tauruscurve) (C16)
-- [x] Drop support for taurus attributes (C4)
+  dialog in extra_guiqwt's tauruscurve)
+- [x] Drop support for taurus attributes
 - [ ] Zoom stack: possibility of stacking zoom levels and navigating back
   one level at a time. (C16)
 - [ ] Cursor position info (display X-Y position of cursor in active axis
@@ -77,7 +77,7 @@ Outside TEP17 scope:
 - [ ] 1D ROI selector (C2)
 - [ ] Curve statistics calculator (mean, stdev...) as in curve stats
   dialog of TaurusPlot/Trend (C8)
-- [ ] UI for changing curve names (C8)
+- [x] UI for changing curve names
 - [ ] Peak locator: Visual label min/max of curves (C12)
 - [ ] UI for adding raw data (W8)
 
@@ -90,26 +90,26 @@ trends:
 - [x] "1D trends": plot of scalars vs event number or timestamp
 - [x] Fixed-range scale (aka oscilloscope mode)
 - [x] UI to switch between fixed and free scale mode
-- [x] Stand-alone Widget 
-- [x] Support for forced-reading of attributes (aka "-r mode") 
+- [x] Stand-alone Widget
+- [x] Support for forced-reading of attributes (aka "-r mode")
 - [x] UI for forced-reading mode
 - [x] configurable properties support (setting permanence)
 
 Outside TEP17 scope:
 
 - [x] "Trend sets": plot of 1D attribute vs time interpreting it as a set
-  of 1D scalars (M16)
-- [x] Accessing Archived values (M40). Done via [taurus_tangoarchiving plugin]
+  of 1D scalars
+- [x] Accessing Archived values. Done via [taurus_tangoarchiving plugin]
 - [ ] Accessing Tango Polling buffer (W24)
-- [x] Support for limiting curve buffers (C8)
-- [ ] UI for curve buffers (C2)
+- [x] Support for limiting curve buffers
+- [x] UI for curve buffers
 
 
 ### For 2D plots (images)
 
 
 Outside TEP17 scope:
-- [x] Plot a single image 
+- [x] Plot a single image
 - [x] UI for Add/remove image
 - [ ] Stand-alone Widget (M8)
 - [ ] "calibrated" XYImage (assigning values to X and Y scale, as in
