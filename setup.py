@@ -96,7 +96,7 @@ setup(
     platforms=platforms,
     license="LGPLv3+",
     keywords=keywords,
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests"]),
     classifiers=classifiers,
     include_package_data=True,
     entry_points=entry_points,
